@@ -3,149 +3,40 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Signal Test Page</title>
-    <style>
-      :root {
-        --bg1: #f6f2eb;
-        --bg2: #e9f2ff;
-        --ink: #1a1a1a;
-        --accent: #ff6b4a;
-        --accent-2: #1f7a8c;
-        --paper: #fff8f0;
-        --shadow: rgba(0, 0, 0, 0.08);
+    <title>Isometric Room</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+        }
       }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "Cormorant Garamond", "Georgia", serif;
-        color: var(--ink);
-        background:
-          radial-gradient(1200px 600px at 10% 10%, var(--bg2), transparent 60%),
-          radial-gradient(900px 500px at 90% 20%, #ffe8e0, transparent 60%),
-          linear-gradient(180deg, var(--bg1), #fff);
-      }
-      .page {
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 64px 24px 80px;
-      }
-      .hero {
-        position: relative;
-        padding: 48px 36px;
-        background: var(--paper);
-        border-radius: 20px;
-        box-shadow: 0 20px 60px var(--shadow);
-        overflow: hidden;
-      }
-      .hero::after {
-        content: "";
-        position: absolute;
-        width: 320px;
-        height: 320px;
-        border-radius: 50%;
-        right: -120px;
-        top: -120px;
-        background: radial-gradient(circle at 30% 30%, var(--accent), transparent 60%);
-        opacity: 0.35;
-      }
-      .kicker {
-        font-family: "Montserrat", "Avenir", sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-        font-size: 12px;
-        color: var(--accent-2);
-      }
-      h1 {
-        margin: 16px 0 8px;
-        font-size: clamp(36px, 6vw, 64px);
-        line-height: 1.02;
-      }
-      p {
-        font-size: 18px;
-        line-height: 1.6;
-        max-width: 640px;
-      }
-      .cta {
-        margin-top: 28px;
-        display: inline-block;
-        font-family: "Montserrat", "Avenir", sans-serif;
-        font-weight: 600;
-        text-decoration: none;
-        color: white;
-        background: var(--accent);
-        padding: 12px 20px;
-        border-radius: 999px;
-        box-shadow: 0 8px 20px rgba(255, 107, 74, 0.3);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-      }
-      .cta:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(255, 107, 74, 0.35); }
-      .grid {
-        margin-top: 32px;
-        display: grid;
-        gap: 16px;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      }
-      .card {
-        padding: 18px 16px;
-        background: #ffffff;
-        border-radius: 14px;
-        box-shadow: 0 12px 30px var(--shadow);
-        font-family: "Montserrat", "Avenir", sans-serif;
-        font-size: 14px;
-      }
-      .pulse {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-family: "Montserrat", "Avenir", sans-serif;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-      }
-      .dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #38b000;
-        animation: ping 1.6s infinite;
-        box-shadow: 0 0 0 0 rgba(56, 176, 0, 0.6);
-      }
-      @keyframes ping {
-        0% { box-shadow: 0 0 0 0 rgba(56, 176, 0, 0.6); }
-        70% { box-shadow: 0 0 0 12px rgba(56, 176, 0, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(56, 176, 0, 0); }
-      }
-      @media (max-width: 640px) {
-        .hero { padding: 32px 24px; }
-      }
-    </style>
+    </script>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page">
-      <div class="hero">
-        <div class="kicker">DNS test site</div>
-        <h1>Your domain is live.</h1>
-        <p>
-          If you can see this page, your DNS is pointing to the right place.
-          Use it as a quick smoke test before you ship the real site.
-        </p>
-        <a class="cta" href="#status">Check status</a>
-        <div id="status" class="grid">
-          <div class="card">
-            <div class="pulse"><span class="dot"></span>Online</div>
-            <div style="margin-top: 8px;">Resolved and serving HTML.</div>
-          </div>
-          <div class="card">
-            <div class="pulse"><span class="dot"></span>Edge</div>
-            <div style="margin-top: 8px;">Latency is low and consistent.</div>
-          </div>
-          <div class="card">
-            <div class="pulse"><span class="dot"></span>Ready</div>
-            <div style="margin-top: 8px;">Swap in your real content any time.</div>
-          </div>
+    <div id="app">
+      <header class="hud">
+        <div class="brand">
+          <div class="badge">Ian & Lizzy</div>
+          <h1>Our Room!</h1>
+          <p>Click around to learn more about us</p>
+        </div>
+        <div class="hud-actions">
+          <button id="reset-view" class="pill">Reset view</button>
+        </div>
+      </header>
+
+      <div id="canvas-wrap"></div>
+
+      <div id="item-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-card">
+          <button id="close-modal" class="close">Close</button>
+          <div class="modal-title">Item</div>
+          <div class="modal-preview" aria-hidden="true"></div>
+          <div class="modal-body">Description</div>
         </div>
       </div>
-    </div>
+
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>
