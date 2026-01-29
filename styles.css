@@ -77,7 +77,9 @@ body {
 .hud-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .pill {
@@ -96,6 +98,18 @@ body {
 .pill:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 28px rgba(255, 122, 89, 0.35);
+}
+
+.pill-secondary {
+  background: rgba(45, 122, 124, 0.12);
+  color: var(--accent-2);
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.pill-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(45, 122, 124, 0.25);
 }
 
 #canvas-wrap {
@@ -217,6 +231,89 @@ canvas {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.wedding-page {
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+}
+
+.wedding-page #app {
+  min-height: 100vh;
+}
+
+.wedding-section {
+  min-height: 100vh;
+  scroll-snap-align: start;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 120px 8vw;
+}
+
+.wedding-hero {
+  padding: 0;
+}
+
+.wedding-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.wedding-hud {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  width: min(360px, 80vw);
+  display: grid;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 20px;
+  background: rgba(255, 247, 237, 0.88);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 20px 60px var(--shadow);
+}
+
+.wedding-hud .pill {
+  text-decoration: none;
+  justify-self: start;
+}
+
+.wedding-title {
+  font-size: clamp(20px, 2.6vw, 30px);
+  margin: 0;
+}
+
+.wedding-subtitle {
+  margin: 6px 0 0;
+  font-family: "Space Grotesk", "Avenir", sans-serif;
+  font-size: 12px;
+}
+
+.wedding-card {
+  max-width: 720px;
+  width: min(90vw, 720px);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  padding: 28px 30px;
+  box-shadow: 0 18px 50px rgba(20, 22, 30, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.wedding-card h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+.wedding-card p,
+.wedding-card li {
+  font-family: "Space Grotesk", "Avenir", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .modal-body {
