@@ -11,7 +11,8 @@ export function createCinamaroll() {
         const group = new THREE.Group();
         group.userData = {
           title: "Cinnamoroll",
-          description: "A tiny sleepy friend sitting on the wall shelf.",
+          description: "Lizzy",
+          popupOffsetY: -.5,
         };
 
         const model = gltf.scene;

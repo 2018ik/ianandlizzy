@@ -201,8 +201,8 @@ canvas {
 }
 
 .modal-card {
-  max-width: 520px;
-  width: min(92vw, 520px);
+  max-width: min(720px, 92vw);
+  width: min(92vw, 640px);
   padding: 28px 26px;
   border-radius: 22px;
   background: #fffaf4;
@@ -216,7 +216,7 @@ canvas {
 }
 
 .modal-preview {
-  width: min(60vw, 280px);
+  width: min(70vw, 340px);
   aspect-ratio: 1 / 1;
   margin: 8px auto 16px;
   border-radius: 18px;
@@ -225,6 +225,17 @@ canvas {
   display: grid;
   place-items: center;
   overflow: hidden;
+}
+
+@media (min-width: 1200px) {
+  .modal-card {
+    width: min(70vw, 760px);
+    padding: 32px 30px;
+  }
+
+  .modal-preview {
+    width: min(40vw, 420px);
+  }
 }
 
 .modal-preview canvas {

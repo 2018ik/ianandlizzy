@@ -1,21 +1,50 @@
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+import { GLTFLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
 
 export function createPoster() {
-  const group = new THREE.Group();
-  group.userData = {
-    title: "Studio poster",
-    description: "A tiny moodboard: constellations, typography, and soft gradients.",
-  };
+  const gltfLoader = new GLTFLoader();
+  const posterUrl = new URL("./poster.glb", import.meta.url);
+  return new Promise((resolve, reject) => {
+    gltfLoader.load(
+      posterUrl.href,
+      (gltf) => {
+        const group = new THREE.Group();
+        group.userData = {
+          title: "Studio poster",
+          description: "A tiny moodboard: constellations, typography, and soft gradients.",
+        };
 
-  const frameMat = new THREE.MeshStandardMaterial({ color: 0xf1e7d8 });
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.1, 0.1), frameMat);
-  frame.position.set(0, 0, 0);
-  group.add(frame);
+        const poster = gltf.scene;
+        poster.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
 
-  const artMat = new THREE.MeshStandardMaterial({ color: 0xffa8a8, emissive: 0xff7e7e, emissiveIntensity: 0.2 });
-  const art = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.8), artMat);
-  art.position.set(0, 0, 0.06);
-  group.add(art);
+        const box = new THREE.Box3().setFromObject(poster);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const targetWidth = 1.6;
+        const scale = targetWidth / Math.max(size.x, 0.001);
+        poster.scale.setScalar(scale);
+        poster.updateMatrixWorld(true);
 
-  return group;
+        const scaledBox = new THREE.Box3().setFromObject(poster);
+        const scaledSize = new THREE.Vector3();
+        const scaledCenter = new THREE.Vector3();
+        scaledBox.getSize(scaledSize);
+        scaledBox.getCenter(scaledCenter);
+        poster.position.sub(scaledCenter);
+
+        group.add(poster);
+        resolve(group);
+      },
+      undefined,
+      (error) => {
+        console.error("Failed to load poster.glb", error);
+        reject(error);
+      }
+    );
+  });
 }

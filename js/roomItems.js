@@ -40,7 +40,7 @@ export function populateRoom({ registerItem, onCat }) {
   const scalePlant = 4;
   const scaleLamp = 1.4;
   const scaleRug = 1.5;
-  const scalePoster = 1.4;
+  const scalePoster = 3;
   const scaleMug = 2.3;
   const scaleCat = 1.4;
   const scalePiano = 2.6;
@@ -96,10 +96,10 @@ export function populateRoom({ registerItem, onCat }) {
       console.error("Failed to add piano", error);
     });
 
-  const bookshelf = createBookshelf();
-  bookshelf.scale.setScalar(scaleBookshelf);
-  bookshelf.position.set(3.1, 0, -2.4);
-  registerItem(bookshelf);
+  // const bookshelf = createBookshelf();
+  // bookshelf.scale.setScalar(scaleBookshelf);
+  // bookshelf.position.set(3.1, 0, -2.4);
+  // registerItem(bookshelf);
 
   createMacbook()
     .then((computer) => {
@@ -130,17 +130,22 @@ export function populateRoom({ registerItem, onCat }) {
     .then((rug) => {
       rug.scale.setScalar(scaleRug);
       rug.position.set(0, 0.01, 1.3);
-      registerItem(rug);
+      registerItem(rug, { clickable: false });
       rug.rotation.y = 3.14159/2;
     })
     .catch((error) => {
       console.error("Failed to add boho rug", error);
     });
 
-  const poster = createPoster();
-  poster.scale.setScalar(scalePoster);
-  poster.position.set(1.0, 4.3, -4.2);
-  registerItem(poster);
+  createPoster()
+    .then((poster) => {
+      poster.scale.setScalar(scalePoster);
+      poster.position.set(1.6, 3.9, -4.9);
+      registerItem(poster);
+    })
+    .catch((error) => {
+      console.error("Failed to add poster", error);
+    });
 
   createChair()
     .then((chair) => {
@@ -169,7 +174,7 @@ export function populateRoom({ registerItem, onCat }) {
       cinamaroll.scale.setScalar(scaleCinamaroll);
       cinamaroll.position.set(-5.6, 2.85, -2.45);
       cinamaroll.rotation.y = Math.PI / 2;
-      registerItem(cinamaroll, {clickable: false});
+      registerItem(cinamaroll, {clickable: true});
     })
     .catch((error) => {
       console.error("Failed to add cinamaroll", error);
@@ -178,9 +183,9 @@ export function populateRoom({ registerItem, onCat }) {
   createBadtz()
     .then((badtz) => {
       badtz.scale.setScalar(scaleBadtz);
-      badtz.position.set(-5.3, 3.05, -1.5);
+      badtz.position.set(-5.4, 3.08, -1.5);
       badtz.rotation.y = Math.PI / 2;
-      registerItem(badtz, {clickable: false});
+      registerItem(badtz, {clickable: true});
     })
     .catch((error) => {
       console.error("Failed to add badtz", error);

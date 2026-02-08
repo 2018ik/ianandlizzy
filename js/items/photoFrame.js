@@ -3,8 +3,8 @@ import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 export function createPhotoFrame() {
   const group = new THREE.Group();
   group.userData = {
-    title: "Photo frame",
-    description: "A favorite memory propped up on the desk.",
+    title: "Desk Photo",
+    description: "Our trip to Nintendo World!",
     previewAngle: "static",
   };
 

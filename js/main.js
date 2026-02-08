@@ -1,4 +1,5 @@
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+import * as SkeletonUtils from "https://unpkg.com/three@0.160.0/examples/jsm/utils/SkeletonUtils.js";
 import { createRoomScene } from "./roomScene.js";
 
 const canvasWrap = document.getElementById("canvas-wrap");
@@ -208,7 +209,7 @@ function closeModal() {
 }
 
 function cloneForPopup(target) {
-  const clone = target.clone(true);
+  const clone = SkeletonUtils.clone(target);
   clone.position.set(0, 0, 0);
   clone.rotation.set(0, 0, 0);
   clone.updateMatrixWorld(true);
@@ -248,6 +249,9 @@ function centerPopup(object) {
   scaledBox.getCenter(scaledCenter);
   console.log("[popup] scaled center:", scaledCenter);
   object.position.sub(scaledCenter);
+  if (activeItem?.userData?.popupOffsetY) {
+    object.position.y += activeItem.userData.popupOffsetY;
+  }
   object.updateMatrixWorld(true);
   return { scale: scaled, size: scaledSize };
 }
