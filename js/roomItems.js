@@ -36,9 +36,9 @@ export function createRegisterItem(scene, clickable) {
 export function populateRoom({ registerItem, onCat }) {
   const scaleDesk = 3.6;
   const scaleBookshelf = 1.6;
-  const scaleComputer = 2;
+  const scaleComputer = 1.8;
   const scalePlant = 4;
-  const scaleLamp = 1.4;
+  const scaleLamp = 4.5;
   const scaleRug = 1.5;
   const scalePoster = 3;
   const scaleMug = 2.3;
@@ -46,7 +46,7 @@ export function populateRoom({ registerItem, onCat }) {
   const scalePiano = 2.6;
   const scaleWallShelf = 6;
   const scaleCinamaroll = 1;
-  const scaleBadtz = 1.5;
+  const scaleBadtz = 1.5; 
 
   createDesk()
     .then((desk) => {
@@ -104,7 +104,7 @@ export function populateRoom({ registerItem, onCat }) {
   createMacbook()
     .then((computer) => {
       computer.scale.setScalar(scaleComputer);
-      computer.position.set(-2, 3.15, -2.8);
+      computer.position.set(-2, 3.18, -2.8);
       registerItem(computer);
     })
     .catch((error) => {
@@ -121,17 +121,23 @@ export function populateRoom({ registerItem, onCat }) {
       console.error("Failed to add bamboo plant", error);
     });
 
-  const lamp = createLamp();
-  lamp.scale.setScalar(scaleLamp);
-  lamp.position.set(3.5, 0, 2.1);
-  registerItem(lamp);
+  createLamp()
+    .then((lamp) => {
+      lamp.scale.setScalar(scaleLamp);
+      lamp.position.set(3.5, 0, -3);
+      lamp.rotation.y = -3.14159/2
+      registerItem(lamp, { clickable: false });
+    })
+    .catch((error) => {
+      console.error("Failed to add lamp", error);
+    });
 
   createRug()
     .then((rug) => {
       rug.scale.setScalar(scaleRug);
-      rug.position.set(0, 0.01, 1.3);
+      rug.position.set(3, 0.01, 0);
       registerItem(rug, { clickable: false });
-      rug.rotation.y = 3.14159/2;
+      rug.rotation.y = 3.14159;
     })
     .catch((error) => {
       console.error("Failed to add boho rug", error);
@@ -149,8 +155,8 @@ export function populateRoom({ registerItem, onCat }) {
 
   createChair()
     .then((chair) => {
-      chair.scale.setScalar(3.5);
-      chair.position.set(-1, 0, 1);
+      chair.scale.setScalar(3.2);
+      chair.position.set(-1.3, 0, 1);
       chair.rotation.y = 2;
       registerItem(chair);
     })
@@ -199,8 +205,8 @@ export function addRoomShell(scene) {
     color: 0xffffff,
     roughness: 0.65,
     metalness: 0.05,
-    emissive: new THREE.Color(0xffffff),
-    emissiveIntensity: 0.18,
+    emissive: 0x8b6a4a,      // warm brown, not white
+    emissiveIntensity: 0.30, // small lift
   });
   const floor = new THREE.Mesh(new THREE.BoxGeometry(12, 0.6, 10), floorMat);
   floor.geometry.computeVertexNormals();

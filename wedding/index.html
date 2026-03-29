@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ian & Lizzy — Wedding</title>
+  <title>Ian & Lizzy</title>
   <script type="importmap">
     {
       "imports": {
@@ -126,22 +126,35 @@
     }
 
     /* ── Parallax offset ── */
-    function useParallax(speed = 0.3) {
+    function useParallax(speed = 0.3, maxOffset = 90) {
       const ref = useRef(null);
       const [offset, setOffset] = useState(0);
       useEffect(() => {
+        let frame = null;
         const update = () => {
           const el = ref.current;
           if (!el) return;
           const rect = el.getBoundingClientRect();
           const center = rect.top + rect.height / 2;
           const viewCenter = window.innerHeight / 2;
-          setOffset((center - viewCenter) * speed);
+          const rawOffset = (center - viewCenter) * speed;
+          const clamped = Math.max(-maxOffset, Math.min(maxOffset, rawOffset));
+          setOffset(clamped);
+          frame = null;
         };
-        window.addEventListener('scroll', update, { passive: true });
+        const onScrollOrResize = () => {
+          if (frame !== null) return;
+          frame = window.requestAnimationFrame(update);
+        };
+        window.addEventListener('scroll', onScrollOrResize, { passive: true });
+        window.addEventListener('resize', onScrollOrResize);
         update();
-        return () => window.removeEventListener('scroll', update);
-      }, [speed]);
+        return () => {
+          window.removeEventListener('scroll', onScrollOrResize);
+          window.removeEventListener('resize', onScrollOrResize);
+          if (frame !== null) window.cancelAnimationFrame(frame);
+        };
+      }, [speed, maxOffset]);
       return [ref, offset];
     }
 
@@ -162,7 +175,7 @@
 
     /* ── Hero ── */
     function Hero() {
-      const [parallaxRef, offset] = useParallax(0.4);
+      const [parallaxRef, offset] = useParallax(0.2, 80);
 
       return (
         <section id="home" className="relative min-h-screen flex flex-col overflow-hidden"
@@ -170,8 +183,13 @@
 
           {/* Parallax background */}
           <div className="absolute inset-0" ref={parallaxRef}>
-            <div className="absolute inset-0 photo-placeholder opacity-60 parallax-bg"
-                 style={{ transform: `translateY(${offset}px) scale(1.1)` }}></div>
+            <img
+              src="images/2.webp"
+              alt=""
+              aria-hidden="true"
+              className="absolute -inset-16 w-[calc(100%+8rem)] h-[calc(100%+8rem)] object-cover opacity-60 parallax-bg"
+              style={{ transform: `translateY(${offset}px) scale(1.1)` }}
+            />
             <div className="absolute inset-0 bg-gradient-to-b from-warm-black/40 via-transparent to-warm-black/60"></div>
           </div>
 
@@ -228,8 +246,12 @@
               {/* Left: sticky photo */}
               <div className="md:col-span-2">
                 <div ref={photoRef} className="md:sticky md:top-0 md:h-screen flex items-center py-20">
-                  <div className={`photo-placeholder photo-hover rounded-sm aspect-[3/4] w-full reveal ${photoVisible ? 'visible' : ''}`}
-                       style={{ transitionDelay: '0.1s' }}></div>
+                  <img
+                    src="images/1.webp"
+                    alt="Ian and Lizzy"
+                    className={`photo-hover rounded-sm aspect-[3/4] w-full object-cover reveal ${photoVisible ? 'visible' : ''}`}
+                    style={{ transitionDelay: '0.1s' }}
+                  />
                 </div>
               </div>
 
