@@ -11,7 +11,7 @@ export function createPiano() {
         const pianoGroup = new THREE.Group();
         pianoGroup.userData = {
           title: "Piano Keyboard",
-          description: "Ian likes playing some tunes every now and then. Lizzy is his #1 soundcloud listener.",
+          description: "Ian likes playing some tunes every now and then.\n\nLizzy is his #1 soundcloud listener.",
         };
 
         const pianoMaterial = new THREE.MeshStandardMaterial({ color: 0xf5a3c7 });

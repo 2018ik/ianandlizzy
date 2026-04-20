@@ -11,7 +11,7 @@ export function createCinamaroll() {
         const group = new THREE.Group();
         group.userData = {
           title: "Cinnamoroll",
-          description: "Lizzy",
+          description: "(Lizzy)",
           popupOffsetY: -.5,
         };
 

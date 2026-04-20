@@ -9,9 +9,16 @@ const modalTitle = modal.querySelector(".modal-title");
 const modalPreview = modal.querySelector(".modal-preview");
 const modalBody = modal.querySelector(".modal-body");
 const closeModalButton = document.getElementById("close-modal");
+const discoveryLabel = document.getElementById("discovery-label");
+const discoveryCount = document.getElementById("discovery-count");
+const discoveryBar = document.getElementById("discovery-bar");
+const discoveryReset = document.getElementById("discovery-reset");
+const discoveryProgress = document.querySelector(".discovery-progress");
 
 let breathingCat = null;
 let breathingCatBaseScale = 1;
+const discoveredItems = new Set();
+const discoverableItems = new Set();
 
 const { scene, camera, renderer, controls, clickable } = createRoomScene({
   mountEl: canvasWrap,
@@ -19,6 +26,12 @@ const { scene, camera, renderer, controls, clickable } = createRoomScene({
   onCat: (cat) => {
     breathingCat = cat;
     breathingCatBaseScale = cat.scale.x || 1;
+  },
+  onRegisterItem: (item) => {
+    const title = item?.userData?.title;
+    if (!title) return;
+    discoverableItems.add(title);
+    updateDiscoveryProgress();
   },
 });
 controls.zoomSpeed = 10.0;
@@ -30,6 +43,8 @@ const pointer = new THREE.Vector2();
 let focusTween = null;
 let popup = null;
 let activeItem = null;
+
+updateDiscoveryProgress();
 
 const popupScene = new THREE.Scene();
 const popupCamera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
@@ -72,6 +87,11 @@ resetButton.addEventListener("click", () => {
   resetView();
 });
 
+discoveryReset?.addEventListener("click", () => {
+  discoveredItems.clear();
+  updateDiscoveryProgress();
+});
+
 closeModalButton.addEventListener("click", closeModal);
 modal.addEventListener("click", (event) => {
   if (event.target === modal) closeModal();
@@ -93,6 +113,7 @@ function findClickable(object) {
 function openModal(target) {
   closeModal();
   activeItem = target;
+  markDiscovered(target);
 
   popup = cloneForPopup(target);
   popupScene.add(popup);
@@ -129,6 +150,28 @@ function openModal(target) {
     fromScale: scale * 0.92,
     toScale: scale,
   };
+}
+
+function markDiscovered(target) {
+  const title = target?.userData?.title;
+  if (!title) return;
+  discoveredItems.add(title);
+  updateDiscoveryProgress();
+}
+
+function updateDiscoveryProgress() {
+  if (!discoveryCount || !discoveryBar || !discoveryLabel || !discoveryProgress) return;
+  const total = discoverableItems.size;
+  const discovered = discoveredItems.size;
+  discoveryCount.textContent = `${discovered}/${total}`;
+  const percent = total > 0 ? (discovered / total) * 100 : 0;
+  discoveryBar.style.width = `${percent}%`;
+  const isComplete = total > 0 && discovered === total;
+  discoveryLabel.textContent = isComplete ? "All items discovered!" : "Items discovered";
+  discoveryProgress.classList.toggle("is-complete", isComplete);
+  if (discoveryReset) {
+    discoveryReset.hidden = !isComplete;
+  }
 }
 
 function resetView() {

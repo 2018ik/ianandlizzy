@@ -10,8 +10,8 @@ export function createBambooPlant() {
       (gltf) => {
         const plantGroup = new THREE.Group();
         plantGroup.userData = {
-          title: "Bambo Plant",
-          description: "Bamboo is Chinese and our first date was at a Chinese restaurant (also we are both Chinese). Also we both like planting, not in real life, but in Stardew Valley.",
+          title: "Bamboo Plant",
+          description: "Our first date was at a Chinese restaurant (also we are both Chinese).",
         };
 
         const bamboo = gltf.scene;

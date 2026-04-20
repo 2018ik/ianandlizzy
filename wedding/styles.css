@@ -195,6 +195,20 @@
     }
 
     /* ── Parallax helper ── */
+    .hero-parallax-image {
+      inset: -2rem 0;
+      width: 100%;
+      height: calc(100% + 4rem);
+    }
+
+    @media (min-width: 768px) {
+      .hero-parallax-image {
+        inset: -4rem;
+        width: calc(100% + 8rem);
+        height: calc(100% + 8rem);
+      }
+    }
+
     .parallax-bg {
       will-change: transform;
     }

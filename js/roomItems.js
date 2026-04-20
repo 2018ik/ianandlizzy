@@ -16,7 +16,7 @@ import { createCinamaroll } from "./items/cinamaroll.js";
 import { createBadtz } from "./items/badtz.js";
 import { createChair } from "./items/chair.js";
 
-export function createRegisterItem(scene, clickable) {
+export function createRegisterItem(scene, clickable, onRegisterItem) {
   return function registerItem(group, { clickable: isClickable = true, addToScene = true } = {}) {
     group.traverse((child) => {
       if (child.isMesh) {
@@ -26,6 +26,9 @@ export function createRegisterItem(scene, clickable) {
     });
     if (isClickable && clickable && group.userData && group.userData.title) {
       clickable.push(group);
+      if (onRegisterItem) {
+        onRegisterItem(group);
+      }
     }
     if (addToScene) {
       scene.add(group);

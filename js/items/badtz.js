@@ -11,7 +11,7 @@ export function createBadtz() {
         const group = new THREE.Group();
         group.userData = {
           title: "Badtz-Maru",
-          description: "Ian",
+          description: "(Ian)",
         };
 
         const model = gltf.scene;

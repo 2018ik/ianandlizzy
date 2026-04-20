@@ -13,17 +13,30 @@
     </script>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body data-cursor-hover="wedding/images/hover.webp" data-cursor-clicked="wedding/images/clicked.webp">
     <div id="app">
       <header class="hud">
-        <div class="brand">
-          <div class="badge">Ian & Lizzy</div>
-          <h1>Our Room!</h1>
-          <p>Click around to learn more about us</p>
+        <div class="title-header">
+          <h1>Our Room</h1>
+          <div>Click around to learn more about us</div>
+          <div class="discovery-progress" aria-live="polite">
+            <div class="discovery-progress-copy">
+              <span id="discovery-label">Items discovered</span>
+              <span id="discovery-count">0/0</span>
+            </div>
+            <div class="discovery-progress-track" aria-hidden="true">
+              <div id="discovery-bar" class="discovery-progress-fill"></div>
+            </div>
+            <button id="discovery-reset" class="discovery-reset" type="button" hidden>
+              Reset
+            </button>
+          </div>
         </div>
         <div class="hud-actions">
-          <button id="reset-view" class="pill">Reset view</button>
-          <a class="pill pill-secondary" href="/wedding">Wedding</a>
+          <button id="reset-view" class="pill pill-reset">Reset view</button>
+          <a class="pill pill-secondary" href="/wedding">
+            Wedding
+          </a>
         </div>
       </header>
 
@@ -38,6 +51,7 @@
         </div>
       </div>
 
+    <script src="js/cursor.js"></script>
     <script type="module" src="js/main.js"></script>
   </body>
 </html>

@@ -44,7 +44,7 @@
   </script>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="wedding-page">
+<body class="wedding-page" data-cursor-hover="images/hover.webp" data-cursor-clicked="images/clicked.webp">
   <div id="app">
     <!-- Original 3D Room Hero -->
     <section class="wedding-section wedding-hero">
@@ -65,6 +65,7 @@
 
   <!-- Three.js room animation (original) -->
   <script type="module" src="../js/wedding.js"></script>
+  <script src="../js/cursor.js"></script>
 
   <!-- React wedding site -->
   <script type="text/babel">
@@ -187,7 +188,7 @@
               src="images/2.webp"
               alt=""
               aria-hidden="true"
-              className="absolute -inset-16 w-[calc(100%+8rem)] h-[calc(100%+8rem)] object-cover opacity-60 parallax-bg"
+              className="hero-parallax-image absolute object-cover opacity-60 parallax-bg"
               style={{ transform: `translateY(${offset}px) scale(1.1)` }}
             />
             <div className="absolute inset-0 bg-gradient-to-b from-warm-black/40 via-transparent to-warm-black/60"></div>
@@ -214,9 +215,6 @@
 
             <p className="font-display text-white/80 text-sm tracking-[0.3em] uppercase mb-1">
               Ian & Lizzy
-            </p>
-            <p className="font-body text-white/60 text-sm tracking-[0.15em]">
-              20 September 2026
             </p>
           </div>
 
@@ -268,13 +266,12 @@
                     </h2>
                     <div className="font-body text-charcoal/80 text-base md:text-lg leading-relaxed space-y-1">
                       <p className="font-display text-sm tracking-[0.2em] uppercase text-warm-gray">
-                        DAR Constitution Hall
+                        DAR Headquarters
                       </p>
                       <p>1776 D Street NW, Washington, DC</p>
-                      <p>20006-5303</p>
                     </div>
                     <div className="mt-8 font-body italic text-xl md:text-2xl text-charcoal/70">
-                      20 | September 2026
+                      11 | October 2026
                     </div>
                   </div>
                 </div>
@@ -428,9 +425,12 @@
       const [galleryRef, galleryVisible] = useReveal({ threshold: 0.1 });
 
       const stories = [
-        { heading: 'how we met', body: 'our paths crossed on a starry autumn evening at a small bookshop in downtown portland. emma was searching for a first edition poetry collection, while james was browsing the philosophy section. a shared love for obscure literature and strong coffee brought us together that night, and we\'ve been inseparable ever since.' },
-        { heading: 'the proposal', body: 'three years later, james surprised emma with a weekend getaway to big sur. during a sunset hike along the cliffs, he got down on one knee overlooking the pacific ocean, with tears in her eyes and the sound of crashing waves below, emma said yes to forever.' },
-        { heading: 'looking forward', body: 'we\'re so excited to celebrate this next chapter with our closest family and friends. thank you for being part of our journey and for joining us as we start our life together as husband and wife.' },
+        { heading: '2008', body: 'we met when we were like 8 in the church in dunn loring' },
+        { heading: '2017', body: 'then we were in the same chinese class in tj'},
+        { heading: '2022', body: 'then we randomly talked one time'},
+        { heading: '2024', body: 'then we went to the ftta and we were on the same gospel team :shocked-emoji:'},
+        { heading: '2025', body: 'after the training, we started talking and then dating...'},
+        { heading: '2026', body: 'we got engaged on march 8, 2026!'},
       ];
 
       return (

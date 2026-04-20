@@ -11,7 +11,7 @@ export function createMacbook() {
         const laptopGroup = new THREE.Group();
         laptopGroup.userData = {
           title: "MacBook Pro",
-          description: "We're both pro coders that need probooks to keep us pro.",
+          description: "We're both software engineers.",
         };
 
         const laptop = gltf.scene;

@@ -8,6 +8,7 @@ export function createRoomScene({
   background = 0xf7f4ee,
   enableControls = false,
   onCat,
+  onRegisterItem,
   pointerEvents = true,
   includeHeart = false,
 } = {}) {
@@ -49,7 +50,7 @@ export function createRoomScene({
   addRoomShell(scene);
 
   const clickable = [];
-  const registerItem = createRegisterItem(scene, clickable);
+  const registerItem = createRegisterItem(scene, clickable, onRegisterItem);
   populateRoom({ registerItem, onCat });
 
   let heartRef = null;
