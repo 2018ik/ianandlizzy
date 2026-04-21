@@ -18,15 +18,28 @@ import { createChair } from "./items/chair.js";
 import { createAmazonBox } from "./items/amazon.js";
 import { createMagnolia } from "./items/magnolia.js";
 import { createJohn } from "./items/john.js";
+import { createPlayButton } from "./items/playbutton.js";
 
-export function createRegisterItem(scene, clickable, onRegisterItem) {
+export function createRegisterItem(scene, clickable, onRegisterItem, fadingItems) {
   return function registerItem(group, { clickable: isClickable = true, addToScene = true } = {}) {
+    const fadeMaterials = [];
+    const fadeMeshes = [];
+
     group.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
+        fadeMeshes.push(child);
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material = child.material.map((material) => prepareFadeMaterial(material, fadeMaterials));
+          } else {
+            child.material = prepareFadeMaterial(child.material, fadeMaterials);
+          }
+        }
       }
     });
+
     if (isClickable && clickable && group.userData && group.userData.title) {
       clickable.push(group);
       if (onRegisterItem) {
@@ -36,7 +49,39 @@ export function createRegisterItem(scene, clickable, onRegisterItem) {
     if (addToScene) {
       scene.add(group);
     }
+
+    if (fadeMaterials.length && fadingItems) {
+      const now = performance.now();
+      const lastFade = fadingItems[fadingItems.length - 1];
+      const start = lastFade ? Math.max(now, lastFade.start + lastFade.duration * 0.25) : now;
+      fadeMeshes.forEach((mesh) => {
+        mesh.castShadow = false;
+      });
+      fadingItems.push({
+        materials: fadeMaterials,
+        meshes: fadeMeshes,
+        start,
+        duration: 700,
+      });
+    }
   };
+}
+
+function prepareFadeMaterial(material, fadeMaterials) {
+  if (!material) return material;
+
+  const clone = material.clone();
+  fadeMaterials.push({
+    material: clone,
+    targetOpacity: clone.opacity ?? 1,
+    targetTransparent: clone.transparent,
+    targetDepthWrite: clone.depthWrite,
+  });
+  clone.transparent = true;
+  clone.depthWrite = false;
+  clone.opacity = 0;
+  clone.needsUpdate = true;
+  return clone;
 }
 
 export function populateRoom({ registerItem, onCat }) {
@@ -54,186 +99,194 @@ export function populateRoom({ registerItem, onCat }) {
   const scaleCinamaroll = 1;
   const scaleBadtz = 1.5; 
 
-  createDesk()
-    .then((desk) => {
-      desk.scale.setScalar(scaleDesk);
-      desk.position.set(-2, 0, -2.5);
-      registerItem(desk, { clickable: false });
-    })
-    .catch((error) => {
-      console.error("Failed to add desk", error);
-    });
-
-  createCoffeeMug()
-    .then((mug) => {
-      mug.scale.setScalar(scaleMug);
-      mug.position.set(-.5, 2.49, -2.5);
-      registerItem(mug);
-    })
-    .catch((error) => {
-      console.error("Failed to add coffee mug", error);
-    });
-
   const photoFrame = createPhotoFrame();
   photoFrame.scale.setScalar(0.7);
   photoFrame.position.set(-3.5, 2.52, -2.2);
   photoFrame.rotation.y = 0.8;
   registerItem(photoFrame);
 
-  createCat()
-    .then((cat) => {
-      cat.scale.setScalar(scaleCat);
-      cat.position.set(-1.2, -0.05, -1.4);
-      registerItem(cat);
-      if (onCat) onCat(cat);
-    })
-    .catch((error) => {
-      console.error("Failed to add cat", error);
-    });
+  const stagedLoads = [
+    {
+      loader: createDesk,
+      onResolve: (desk) => {
+        desk.scale.setScalar(scaleDesk);
+        desk.position.set(-2, 0, -2.5);
+        registerItem(desk, { clickable: false });
+      },
+      label: "desk",
+    },
+    {
+      loader: createCoffeeMug,
+      onResolve: (mug) => {
+        mug.scale.setScalar(scaleMug);
+        mug.position.set(-0.5, 2.49, -2.5);
+        registerItem(mug);
+      },
+      label: "coffee mug",
+    },
+    {
+      loader: createCat,
+      onResolve: (cat) => {
+        cat.scale.setScalar(scaleCat);
+        cat.position.set(-1.2, -0.05, -1.4);
+        registerItem(cat);
+        if (onCat) onCat(cat);
+      },
+      label: "cat",
+    },
+    {
+      loader: createPiano,
+      onResolve: (piano) => {
+        piano.scale.setScalar(scalePiano);
+        piano.position.set(-4, 0, 2.3);
+        piano.rotation.y = Math.PI / 2;
+        registerItem(piano);
+      },
+      label: "piano",
+    },
+    {
+      loader: createMacbook,
+      onResolve: (computer) => {
+        computer.scale.setScalar(scaleComputer);
+        computer.position.set(-2, 3.18, -2.8);
+        registerItem(computer);
+      },
+      label: "macbook",
+    },
+    {
+      loader: createBambooPlant,
+      onResolve: (plant) => {
+        plant.scale.setScalar(scalePlant);
+        plant.position.set(5, 0, -1);
+        registerItem(plant);
+      },
+      label: "bamboo plant",
+    },
+    {
+      loader: createLamp,
+      onResolve: (lamp) => {
+        lamp.scale.setScalar(scaleLamp);
+        lamp.position.set(3.5, 0, -3);
+        lamp.rotation.y = -3.14159 / 2;
+        registerItem(lamp, { clickable: false });
+      },
+      label: "lamp",
+    },
+    {
+      loader: createRug,
+      onResolve: (rug) => {
+        rug.scale.setScalar(scaleRug);
+        rug.position.set(3, 0.01, 0);
+        rug.rotation.y = 3.14159;
+        registerItem(rug, { clickable: false });
+      },
+      label: "boho rug",
+    },
+    {
+      loader: createPoster,
+      onResolve: (poster) => {
+        poster.scale.setScalar(scalePoster);
+        poster.position.set(1.6, 3.9, -4.9);
+        registerItem(poster);
+      },
+      label: "poster",
+    },
+    {
+      loader: createPlayButton,
+      onResolve: (playButton) => {
+        playButton.position.set(-3.4, 3.8, -4.95);
+        playButton.rotation.y = -3.14159 / 2;
+        registerItem(playButton, { clickable: false });
+      },
+      label: "play button",
+    },
+    {
+      loader: createChair,
+      onResolve: (chair) => {
+        chair.scale.setScalar(3.2);
+        chair.position.set(-1.3, 0, 1);
+        chair.rotation.y = 2;
+        registerItem(chair);
+      },
+      label: "chair",
+    },
+    {
+      loader: createWallShelf,
+      onResolve: (shelf) => {
+        shelf.scale.setScalar(scaleWallShelf);
+        shelf.position.set(-5.55, 3, -0.4);
+        shelf.rotation.y = Math.PI / 2;
+        registerItem(shelf, { clickable: false });
+      },
+      label: "wall shelf",
+    },
+    {
+      loader: createCinamaroll,
+      onResolve: (cinamaroll) => {
+        cinamaroll.scale.setScalar(scaleCinamaroll);
+        cinamaroll.position.set(-5.6, 2.85, -2.45);
+        cinamaroll.rotation.y = Math.PI / 2;
+        registerItem(cinamaroll, { clickable: true });
+      },
+      label: "cinamaroll",
+    },
+    {
+      loader: createBadtz,
+      onResolve: (badtz) => {
+        badtz.scale.setScalar(scaleBadtz);
+        badtz.position.set(-5.4, 3.08, -1.5);
+        badtz.rotation.y = Math.PI / 2;
+        registerItem(badtz, { clickable: true });
+      },
+      label: "badtz",
+    },
+    {
+      loader: createJohn,
+      onResolve: (john) => {
+        john.position.set(-5.55, 4.5, -0.81);
+        john.scale.setScalar(2);
+        john.rotation.y = (Math.PI / 4) * 3;
+        john.rotation.x = Math.PI / 2;
+        registerItem(john, { clickable: true });
+      },
+      label: "john",
+    },
+    {
+      loader: createMagnolia,
+      onResolve: (magnolia) => {
+        magnolia.position.set(-3.2, 2.49, -2.8);
+        registerItem(magnolia, { clickable: true });
+      },
+      label: "magnolia",
+    },
+    {
+      loader: createAmazonBox,
+      onResolve: (amazon) => {
+        amazon.position.set(4.2, 0, 3.2);
+        amazon.scale.setScalar(3);
+        amazon.rotation.y = Math.PI / 2.5;
+        registerItem(amazon, { clickable: true });
+      },
+      label: "amazon box",
+    },
+  ];
 
-  createPiano()
-    .then((piano) => {
-      piano.scale.setScalar(scalePiano);
-      piano.position.set(-4, 0, 2.3);
-      piano.rotation.y = Math.PI / 2;
-      registerItem(piano);
-    })
-    .catch((error) => {
-      console.error("Failed to add piano", error);
-    });
+  scheduleRoomLoads(stagedLoads);
+}
 
-  // const bookshelf = createBookshelf();
-  // bookshelf.scale.setScalar(scaleBookshelf);
-  // bookshelf.position.set(3.1, 0, -2.4);
-  // registerItem(bookshelf);
+function scheduleRoomLoads(entries) {
+  const initialDelay = 60;
+  const staggerMs = 90;
 
-  createMacbook()
-    .then((computer) => {
-      computer.scale.setScalar(scaleComputer);
-      computer.position.set(-2, 3.18, -2.8);
-      registerItem(computer);
-    })
-    .catch((error) => {
-      console.error("Failed to add macbook", error);
-    });
-
-  createBambooPlant()
-    .then((plant) => {
-      plant.scale.setScalar(scalePlant);
-      plant.position.set(5, 0, -1);
-      registerItem(plant);
-    })
-    .catch((error) => {
-      console.error("Failed to add bamboo plant", error);
-    });
-
-  createLamp()
-    .then((lamp) => {
-      lamp.scale.setScalar(scaleLamp);
-      lamp.position.set(3.5, 0, -3);
-      lamp.rotation.y = -3.14159/2
-      registerItem(lamp, { clickable: false });
-    })
-    .catch((error) => {
-      console.error("Failed to add lamp", error);
-    });
-
-  createRug()
-    .then((rug) => {
-      rug.scale.setScalar(scaleRug);
-      rug.position.set(3, 0.01, 0);
-      registerItem(rug, { clickable: false });
-      rug.rotation.y = 3.14159;
-    })
-    .catch((error) => {
-      console.error("Failed to add boho rug", error);
-    });
-
-  createPoster()
-    .then((poster) => {
-      poster.scale.setScalar(scalePoster);
-      poster.position.set(1.6, 3.9, -4.9);
-      registerItem(poster);
-    })
-    .catch((error) => {
-      console.error("Failed to add poster", error);
-    });
-
-  createChair()
-    .then((chair) => {
-      chair.scale.setScalar(3.2);
-      chair.position.set(-1.3, 0, 1);
-      chair.rotation.y = 2;
-      registerItem(chair);
-    })
-    .catch((error) => {
-      console.error("Failed to add chair", error);
-    });
-
-  createWallShelf()
-    .then((shelf) => {
-      shelf.scale.setScalar(scaleWallShelf);
-      shelf.position.set(-5.55, 3, -0.4);
-      shelf.rotation.y = Math.PI / 2;
-      registerItem(shelf, {clickable: false});
-    })
-    .catch((error) => {
-      console.error("Failed to add wall shelf", error);
-    });
-
-  createCinamaroll()
-    .then((cinamaroll) => {
-      cinamaroll.scale.setScalar(scaleCinamaroll);
-      cinamaroll.position.set(-5.6, 2.85, -2.45);
-      cinamaroll.rotation.y = Math.PI / 2;
-      registerItem(cinamaroll, {clickable: true});
-    })
-    .catch((error) => {
-      console.error("Failed to add cinamaroll", error);
-    });
-
-  createBadtz()
-    .then((badtz) => {
-      badtz.scale.setScalar(scaleBadtz);
-      badtz.position.set(-5.4, 3.08, -1.5);
-      badtz.rotation.y = Math.PI / 2;
-      registerItem(badtz, {clickable: true});
-    })
-    .catch((error) => {
-      console.error("Failed to add badtz", error);
-    });
-
-  createJohn()
-    .then((john) => {
-      john.position.set(-5.55, 4.5, -.81);
-      john.scale.setScalar(2);
-      john.rotation.y = Math.PI / 4 * 3;
-      john.rotation.x = Math.PI/2;
-      registerItem(john, { clickable: true });
-    })
-    .catch((error) => {
-      console.error("Failed to add john", error);
-    });
-
-  createMagnolia()
-    .then((magnolia) => {
-      magnolia.position.set(-3.2, 2.49, -2.8);
-      registerItem(magnolia, { clickable: true });
-    })
-    .catch((error) => {
-      console.error("Failed to add magnolia", error);
-    });
-
-  createAmazonBox()
-    .then((amazon) => {
-      amazon.position.set(4.2, 0, 3.2);
-      amazon.scale.setScalar(3);
-      amazon.rotation.y = Math.PI / 2.5;
-      registerItem(amazon, { clickable: true });
-    })
-    .catch((error) => {
-      console.error("Failed to add amazon box", error);
-    });
+  entries.forEach((entry, index) => {
+    window.setTimeout(() => {
+      entry.loader()
+        .then(entry.onResolve)
+        .catch((error) => {
+          console.error(`Failed to add ${entry.label}`, error);
+        });
+    }, initialDelay + index * staggerMs);
+  });
 }
 
 export function addRoomShell(scene) {

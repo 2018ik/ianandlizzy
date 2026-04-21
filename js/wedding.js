@@ -3,7 +3,7 @@ import { createRoomScene } from "./roomScene.js";
 
 const canvasWrap = document.getElementById("wedding-canvas");
 
-const { scene, camera, renderer, heartRef, heartSparkle } = createRoomScene({
+const { scene, camera, renderer, heartRef, heartSparkle, updateFadeIns } = createRoomScene({
   mountEl: canvasWrap,
   enableControls: false,
   pointerEvents: false,
@@ -14,6 +14,7 @@ const baseCam = new THREE.Vector3(8, 9.4, 8);
 // createRoomScene already wires up resize handling.
 
 function animate(time) {
+  updateFadeIns(time);
   const heart = heartRef();
   if (heart) {
     heart.rotation.y += 0.003;

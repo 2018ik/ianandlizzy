@@ -19,8 +19,9 @@ let breathingCat = null;
 let breathingCatBaseScale = 1;
 const discoveredItems = new Set();
 const discoverableItems = new Set();
+const popupCache = new WeakMap();
 
-const { scene, camera, renderer, controls, clickable } = createRoomScene({
+const { scene, camera, renderer, controls, clickable, updateFadeIns } = createRoomScene({
   mountEl: canvasWrap,
   enableControls: true,
   onCat: (cat) => {
@@ -115,27 +116,13 @@ function openModal(target) {
   activeItem = target;
   markDiscovered(target);
 
-  popup = cloneForPopup(target);
+  const popupEntry = getPopupEntry(target);
+  popup = popupEntry.popup;
+  popup.position.copy(popupEntry.position);
+  popup.rotation.set(0, 0, 0);
+  popup.scale.setScalar(popupEntry.scale * 0.92);
   popupScene.add(popup);
-  const { scale, size } = centerPopup(popup);
-  console.log("[popup] item:", target.userData?.title || target.name || "(unnamed)");
-  console.log("[popup] scaled size:", size);
-  console.log("[popup] scale:", scale);
-  const popupBox = new THREE.Box3().setFromObject(popup);
-  const popupBoxSize = new THREE.Vector3();
-  const popupBoxCenter = new THREE.Vector3();
-  popupBox.getSize(popupBoxSize);
-  popupBox.getCenter(popupBoxCenter);
-  console.log("[popup] box size:", popupBoxSize);
-  console.log("[popup] box center:", popupBoxCenter);
-  setPopupCameraForItem(size, target.userData?.previewAngle);
-  console.log("[popup] camera:", {
-    left: popupCamera.left,
-    right: popupCamera.right,
-    top: popupCamera.top,
-    bottom: popupCamera.bottom,
-    z: popupCamera.position.z,
-  });
+  setPopupCameraForItem(popupEntry.size, target.userData?.previewAngle);
 
   modalTitle.textContent = target.userData.title;
   modalBody.textContent = target.userData.description;
@@ -147,8 +134,8 @@ function openModal(target) {
     start: performance.now(),
     duration: 350,
     mode: "popup",
-    fromScale: scale * 0.92,
-    toScale: scale,
+    fromScale: popupEntry.scale * 0.92,
+    toScale: popupEntry.scale,
   };
 }
 
@@ -198,6 +185,9 @@ window.addEventListener("resize", onResize);
 resetView();
 
 function animate(time) {
+  const modalOpen = !modal.classList.contains("hidden");
+  updateFadeIns(time);
+
   if (focusTween) {
     const elapsed = Math.min((time - focusTween.start) / focusTween.duration, 1);
     const eased = elapsed < 0.5 ? 4 * elapsed * elapsed * elapsed : 1 - Math.pow(-2 * elapsed + 2, 3) / 2;
@@ -217,22 +207,24 @@ function animate(time) {
     }
   }
 
-  if (popup && !modal.classList.contains("hidden")) {
+  if (popup && modalOpen) {
     if (activeItem?.userData?.previewAngle !== "static") {
       popup.rotation.y += 0.005;
     }
     popupRenderer.render(popupScene, popupCamera);
   }
 
-  if (breathingCat) {
+  if (!modalOpen && breathingCat) {
     const t = time * 0.001;
     const breathe = 1.1 + Math.sin(t) * 0.06;
     const base = breathingCatBaseScale || breathingCat.scale.x || 1;
     breathingCat.scale.set(base, base * breathe, base);
   }
 
-  controls.update();
-  renderer.render(scene, camera);
+  if (!modalOpen) {
+    controls.update();
+    renderer.render(scene, camera);
+  }
   requestAnimationFrame(animate);
 }
 
@@ -271,15 +263,22 @@ function cloneForPopup(target) {
   return clone;
 }
 
-function centerPopup(object) {
+function getPopupEntry(target) {
+  let entry = popupCache.get(target);
+  if (entry) {
+    return entry;
+  }
+  const popupClone = cloneForPopup(target);
+  entry = centerPopup(popupClone, target);
+  popupCache.set(target, entry);
+  return entry;
+}
+
+function centerPopup(object, target) {
   object.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(object);
   const size = new THREE.Vector3();
-  const center = new THREE.Vector3();
   box.getSize(size);
-  box.getCenter(center);
-  console.log("[popup] raw size:", size);
-  console.log("[popup] raw center:", center);
   const maxDim = Math.max(size.x, size.y, size.z);
   const scale = 1.8 / Math.max(maxDim, 0.001);
   const scaled = scale * 0.92;
@@ -290,13 +289,18 @@ function centerPopup(object) {
   const scaledCenter = new THREE.Vector3();
   scaledBox.getSize(scaledSize);
   scaledBox.getCenter(scaledCenter);
-  console.log("[popup] scaled center:", scaledCenter);
   object.position.sub(scaledCenter);
-  if (activeItem?.userData?.popupOffsetY) {
-    object.position.y += activeItem.userData.popupOffsetY;
+  if (target?.userData?.popupOffsetY) {
+    object.position.y += target.userData.popupOffsetY;
   }
   object.updateMatrixWorld(true);
-  return { scale: scaled, size: scaledSize };
+
+  return {
+    popup: object,
+    position: object.position.clone(),
+    scale: scaled,
+    size: scaledSize.clone(),
+  };
 }
 
 function updatePopupSize() {

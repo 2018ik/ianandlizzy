@@ -50,7 +50,8 @@ export function createRoomScene({
   addRoomShell(scene);
 
   const clickable = [];
-  const registerItem = createRegisterItem(scene, clickable, onRegisterItem);
+  const fadingItems = [];
+  const registerItem = createRegisterItem(scene, clickable, onRegisterItem, fadingItems);
   populateRoom({ registerItem, onCat });
 
   let heartRef = null;
@@ -115,11 +116,39 @@ export function createRoomScene({
     renderer,
     controls,
     clickable,
+    updateFadeIns,
     registerItem,
     onResize,
     heartRef: () => heartRef,
     heartSparkle: () => heartSparkle,
   };
+
+  function updateFadeIns(time) {
+    if (!fadingItems.length) return;
+
+    for (let index = fadingItems.length - 1; index >= 0; index -= 1) {
+      const entry = fadingItems[index];
+      const progress = Math.min((time - entry.start) / entry.duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      entry.materials.forEach((item) => {
+        item.material.opacity = item.targetOpacity * eased;
+        if (progress === 1) {
+          item.material.opacity = item.targetOpacity;
+          item.material.transparent = item.targetTransparent;
+          item.material.depthWrite = item.targetDepthWrite;
+          item.material.needsUpdate = true;
+        }
+      });
+
+      if (progress === 1) {
+        entry.meshes.forEach((mesh) => {
+          mesh.castShadow = true;
+        });
+        fadingItems.splice(index, 1);
+      }
+    }
+  }
 }
 
 function addLights(scene) {
