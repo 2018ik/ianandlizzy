@@ -411,8 +411,7 @@ canvas {
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgba(21, 21, 26, 0.45);
-  backdrop-filter: blur(4px);
+  background: rgba(21, 21, 26, 0.62);
   z-index: 10;
   transition: opacity 0.2s ease;
 }

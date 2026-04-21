@@ -23,7 +23,7 @@ export function createRoomScene({
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(mountEl.clientWidth || window.innerWidth, mountEl.clientHeight || window.innerHeight);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
@@ -130,18 +130,18 @@ export function createRoomScene({
       const entry = fadingItems[index];
       const progress = Math.min((time - entry.start) / entry.duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
+      const scale = THREE.MathUtils.lerp(0.94, 1, eased);
 
-      entry.materials.forEach((item) => {
-        item.material.opacity = item.targetOpacity * eased;
-        if (progress === 1) {
-          item.material.opacity = item.targetOpacity;
-          item.material.transparent = item.targetTransparent;
-          item.material.depthWrite = item.targetDepthWrite;
-          item.material.needsUpdate = true;
-        }
-      });
+      if (progress > 0 && !entry.group.visible) {
+        entry.group.visible = true;
+      }
+
+      entry.group.scale.copy(entry.targetScale).multiplyScalar(scale);
+      entry.group.position.lerpVectors(entry.startPosition, entry.targetPosition, eased);
 
       if (progress === 1) {
+        entry.group.scale.copy(entry.targetScale);
+        entry.group.position.copy(entry.targetPosition);
         entry.meshes.forEach((mesh) => {
           mesh.castShadow = true;
         });
@@ -158,8 +158,8 @@ function addLights(scene) {
   const sun = new THREE.DirectionalLight(0xffffff, 0.9);
   sun.position.set(8, 12, 6);
   sun.castShadow = true;
-  sun.shadow.mapSize.width = 1024;
-  sun.shadow.mapSize.height = 1024;
+  sun.shadow.mapSize.width = 512;
+  sun.shadow.mapSize.height = 512;
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 30;
   sun.shadow.camera.left = -12;

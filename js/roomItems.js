@@ -22,7 +22,6 @@ import { createPlayButton } from "./items/playbutton.js";
 
 export function createRegisterItem(scene, clickable, onRegisterItem, fadingItems) {
   return function registerItem(group, { clickable: isClickable = true, addToScene = true } = {}) {
-    const fadeMaterials = [];
     const fadeMeshes = [];
 
     group.traverse((child) => {
@@ -30,13 +29,6 @@ export function createRegisterItem(scene, clickable, onRegisterItem, fadingItems
         child.castShadow = true;
         child.receiveShadow = true;
         fadeMeshes.push(child);
-        if (child.material) {
-          if (Array.isArray(child.material)) {
-            child.material = child.material.map((material) => prepareFadeMaterial(material, fadeMaterials));
-          } else {
-            child.material = prepareFadeMaterial(child.material, fadeMaterials);
-          }
-        }
       }
     });
 
@@ -50,38 +42,32 @@ export function createRegisterItem(scene, clickable, onRegisterItem, fadingItems
       scene.add(group);
     }
 
-    if (fadeMaterials.length && fadingItems) {
+    if (fadeMeshes.length && fadingItems) {
       const now = performance.now();
       const lastFade = fadingItems[fadingItems.length - 1];
       const start = lastFade ? Math.max(now, lastFade.start + lastFade.duration * 0.25) : now;
+      const targetScale = group.scale.clone();
+      const targetPosition = group.position.clone();
+      const startPosition = targetPosition.clone();
+      startPosition.y -= 0.12;
+
+      group.visible = false;
+      group.scale.copy(targetScale).multiplyScalar(0.94);
+      group.position.copy(startPosition);
       fadeMeshes.forEach((mesh) => {
         mesh.castShadow = false;
       });
       fadingItems.push({
-        materials: fadeMaterials,
+        group,
         meshes: fadeMeshes,
+        targetScale,
+        targetPosition,
+        startPosition,
         start,
         duration: 700,
       });
     }
   };
-}
-
-function prepareFadeMaterial(material, fadeMaterials) {
-  if (!material) return material;
-
-  const clone = material.clone();
-  fadeMaterials.push({
-    material: clone,
-    targetOpacity: clone.opacity ?? 1,
-    targetTransparent: clone.transparent,
-    targetDepthWrite: clone.depthWrite,
-  });
-  clone.transparent = true;
-  clone.depthWrite = false;
-  clone.opacity = 0;
-  clone.needsUpdate = true;
-  return clone;
 }
 
 export function populateRoom({ registerItem, onCat }) {
