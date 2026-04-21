@@ -15,6 +15,9 @@ import { createWallShelf } from "./items/wallshelf.js";
 import { createCinamaroll } from "./items/cinamaroll.js";
 import { createBadtz } from "./items/badtz.js";
 import { createChair } from "./items/chair.js";
+import { createAmazonBox } from "./items/amazon.js";
+import { createMagnolia } from "./items/magnolia.js";
+import { createJohn } from "./items/john.js";
 
 export function createRegisterItem(scene, clickable, onRegisterItem) {
   return function registerItem(group, { clickable: isClickable = true, addToScene = true } = {}) {
@@ -198,6 +201,38 @@ export function populateRoom({ registerItem, onCat }) {
     })
     .catch((error) => {
       console.error("Failed to add badtz", error);
+    });
+
+  createJohn()
+    .then((john) => {
+      john.position.set(-5.55, 4.5, -.81);
+      john.scale.setScalar(2);
+      john.rotation.y = Math.PI / 4 * 3;
+      john.rotation.x = Math.PI/2;
+      registerItem(john, { clickable: true });
+    })
+    .catch((error) => {
+      console.error("Failed to add john", error);
+    });
+
+  createMagnolia()
+    .then((magnolia) => {
+      magnolia.position.set(-3.2, 2.49, -2.8);
+      registerItem(magnolia, { clickable: true });
+    })
+    .catch((error) => {
+      console.error("Failed to add magnolia", error);
+    });
+
+  createAmazonBox()
+    .then((amazon) => {
+      amazon.position.set(4.2, 0, 3.2);
+      amazon.scale.setScalar(3);
+      amazon.rotation.y = Math.PI / 2.5;
+      registerItem(amazon, { clickable: true });
+    })
+    .catch((error) => {
+      console.error("Failed to add amazon box", error);
     });
 }
 
