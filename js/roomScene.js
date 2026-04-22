@@ -3,6 +3,31 @@ import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/cont
 import { addRoomShell, createRegisterItem, populateRoom } from "./roomItems.js";
 import { createHeart } from "./items/heart.js";
 
+const MATERIAL_TEXTURE_KEYS = [
+  "map",
+  "alphaMap",
+  "aoMap",
+  "bumpMap",
+  "clearcoatMap",
+  "clearcoatNormalMap",
+  "clearcoatRoughnessMap",
+  "displacementMap",
+  "emissiveMap",
+  "envMap",
+  "iridescenceMap",
+  "iridescenceThicknessMap",
+  "lightMap",
+  "metalnessMap",
+  "normalMap",
+  "roughnessMap",
+  "sheenColorMap",
+  "sheenRoughnessMap",
+  "specularColorMap",
+  "specularIntensityMap",
+  "thicknessMap",
+  "transmissionMap",
+];
+
 export function createRoomScene({
   mountEl,
   background = 0xf7f4ee,
@@ -19,8 +44,12 @@ export function createRoomScene({
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(background);
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true,
+    powerPreference: "high-performance",
+  });
+  renderer.setPixelRatio(getMainRendererPixelRatio());
   renderer.setSize(mountEl.clientWidth || window.innerWidth, mountEl.clientHeight || window.innerHeight);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -51,8 +80,42 @@ export function createRoomScene({
 
   const clickable = [];
   const fadingItems = [];
-  const registerItem = createRegisterItem(scene, clickable, onRegisterItem, fadingItems);
+  const warmedTextures = new WeakSet();
+  const warmedObjects = new WeakSet();
+  const warmSceneObject = (object) => {
+    if (!object) return;
+
+    object.traverse((child) => {
+      if (!child.isMesh || !child.material) return;
+      const materials = Array.isArray(child.material) ? child.material : [child.material];
+      materials.forEach((material) => {
+        if (!material) return;
+        MATERIAL_TEXTURE_KEYS.forEach((key) => {
+          const texture = material[key];
+          if (!texture || !texture.isTexture || warmedTextures.has(texture)) return;
+          warmedTextures.add(texture);
+          renderer.initTexture(texture);
+        });
+      });
+    });
+
+    if (warmedObjects.has(object) || typeof renderer.compileAsync !== "function") return;
+    warmedObjects.add(object);
+    renderer.compileAsync(object, camera, scene).catch(() => {
+      warmedObjects.delete(object);
+    });
+  };
+  const registerItem = createRegisterItem({
+    scene,
+    clickable,
+    onRegisterItem,
+    fadingItems,
+    warmObject: warmSceneObject,
+  });
   populateRoom({ registerItem, onCat });
+  if (typeof renderer.compileAsync === "function") {
+    renderer.compileAsync(scene, camera).catch(() => {});
+  }
 
   let heartRef = null;
   let heartSparkle = null;
@@ -99,6 +162,7 @@ export function createRoomScene({
   function onResize() {
     const width = mountEl.clientWidth || window.innerWidth;
     const height = mountEl.clientHeight || window.innerHeight;
+    renderer.setPixelRatio(getMainRendererPixelRatio());
     renderer.setSize(width, height);
     const aspect = width / height;
     camera.left = (frustumSize * aspect) / -2;
@@ -145,6 +209,7 @@ export function createRoomScene({
         entry.meshes.forEach((mesh) => {
           mesh.castShadow = true;
         });
+        entry.onRevealComplete?.();
         fadingItems.splice(index, 1);
       }
     }
@@ -188,4 +253,11 @@ function createCamera(mountEl, frustumSize) {
   camera.position.set(8, 10, 8);
   camera.lookAt(0, 2.2, 0);
   return camera;
+}
+
+function getMainRendererPixelRatio() {
+  if (window.innerWidth <= 768) {
+    return Math.min(window.devicePixelRatio, .8);
+  }
+  return Math.min(window.devicePixelRatio, 1);
 }

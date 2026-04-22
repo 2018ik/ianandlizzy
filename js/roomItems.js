@@ -20,8 +20,11 @@ import { createMagnolia } from "./items/magnolia.js";
 import { createJohn } from "./items/john.js";
 import { createPlayButton } from "./items/playbutton.js";
 
-export function createRegisterItem(scene, clickable, onRegisterItem, fadingItems) {
-  return function registerItem(group, { clickable: isClickable = true, addToScene = true } = {}) {
+export function createRegisterItem({ scene, clickable, onRegisterItem, fadingItems, warmObject }) {
+  return function registerItem(
+    group,
+    { clickable: isClickable = true, addToScene = true, staticTransforms = true } = {}
+  ) {
     const fadeMeshes = [];
 
     group.traverse((child) => {
@@ -40,6 +43,7 @@ export function createRegisterItem(scene, clickable, onRegisterItem, fadingItems
     }
     if (addToScene) {
       scene.add(group);
+      warmObject?.(group);
     }
 
     if (fadeMeshes.length && fadingItems) {
@@ -65,7 +69,10 @@ export function createRegisterItem(scene, clickable, onRegisterItem, fadingItems
         startPosition,
         start,
         duration: 700,
+        onRevealComplete: staticTransforms ? () => lockStaticTransforms(group) : null,
       });
+    } else if (staticTransforms) {
+      lockStaticTransforms(group);
     }
   };
 }
@@ -111,11 +118,21 @@ export function populateRoom({ registerItem, onCat }) {
       label: "coffee mug",
     },
     {
+      loader: createAmazonBox,
+      onResolve: (amazon) => {
+        amazon.position.set(4.2, 0, 3.2);
+        amazon.scale.setScalar(3);
+        amazon.rotation.y = Math.PI / 2.5;
+        registerItem(amazon, { clickable: true });
+      },
+      label: "amazon box",
+    },
+    {
       loader: createCat,
       onResolve: (cat) => {
         cat.scale.setScalar(scaleCat);
         cat.position.set(-1.2, -0.05, -1.4);
-        registerItem(cat);
+        registerItem(cat, { staticTransforms: false });
         if (onCat) onCat(cat);
       },
       label: "cat",
@@ -245,34 +262,28 @@ export function populateRoom({ registerItem, onCat }) {
       },
       label: "magnolia",
     },
-    {
-      loader: createAmazonBox,
-      onResolve: (amazon) => {
-        amazon.position.set(4.2, 0, 3.2);
-        amazon.scale.setScalar(3);
-        amazon.rotation.y = Math.PI / 2.5;
-        registerItem(amazon, { clickable: true });
-      },
-      label: "amazon box",
-    },
   ];
 
-  scheduleRoomLoads(stagedLoads);
+  void scheduleRoomLoads(stagedLoads);
 }
 
-function scheduleRoomLoads(entries) {
-  const initialDelay = 60;
-  const staggerMs = 90;
+async function scheduleRoomLoads(entries) {
+  const initialDelay = 80;
+  const staggerMs = 140;
+  const latePhaseIndex = Math.max(entries.length - 3, 0);
 
-  entries.forEach((entry, index) => {
-    window.setTimeout(() => {
-      entry.loader()
-        .then(entry.onResolve)
-        .catch((error) => {
-          console.error(`Failed to add ${entry.label}`, error);
-        });
-    }, initialDelay + index * staggerMs);
-  });
+  await wait(initialDelay);
+
+  for (let index = 0; index < entries.length; index += 1) {
+    const entry = entries[index];
+    const latePhase = index >= latePhaseIndex;
+    await waitForIdle(700 + index * 120);
+    await loadRoomEntry(entry);
+
+    if (index < entries.length - 1) {
+      await wait(latePhase ? 260 : staggerMs);
+    }
+  }
 }
 
 export function addRoomShell(scene) {
@@ -349,5 +360,41 @@ export function addRoomShell(scene) {
   corner.receiveShadow = true;
   group.add(corner);
 
+  lockStaticTransforms(group);
   scene.add(group);
+}
+
+async function loadRoomEntry(entry) {
+  try {
+    const object = await entry.loader();
+    await waitForIdle(500);
+    entry.onResolve(object);
+  } catch (error) {
+    console.error(`Failed to add ${entry.label}`, error);
+  }
+}
+
+function lockStaticTransforms(group) {
+  group.updateMatrixWorld(true);
+  group.traverse((child) => {
+    child.updateMatrix();
+    child.matrixAutoUpdate = false;
+    child.matrixWorldAutoUpdate = false;
+  });
+}
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function waitForIdle(timeout) {
+  return new Promise((resolve) => {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(() => resolve(), { timeout });
+      return;
+    }
+    window.setTimeout(resolve, 0);
+  });
 }

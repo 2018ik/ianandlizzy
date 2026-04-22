@@ -53,7 +53,7 @@ popupCamera.position.set(0, 0.6, 3.2);
 popupCamera.lookAt(0, 0.6, 0);
 
 const popupRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-popupRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+popupRenderer.setPixelRatio(getPopupRendererPixelRatio());
 popupRenderer.setSize(1, 1, false);
 popupRenderer.outputColorSpace = THREE.SRGBColorSpace;
 popupRenderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -247,8 +247,12 @@ function cloneForPopup(target) {
   const clone = SkeletonUtils.clone(target);
   clone.position.set(0, 0, 0);
   clone.rotation.set(0, 0, 0);
+  clone.matrixAutoUpdate = true;
+  clone.matrixWorldAutoUpdate = true;
   clone.updateMatrixWorld(true);
   clone.traverse((child) => {
+    child.matrixAutoUpdate = true;
+    child.matrixWorldAutoUpdate = true;
     if (!child.isMesh) return;
     child.castShadow = false;
     child.receiveShadow = false;
@@ -307,6 +311,7 @@ function updatePopupSize() {
   if (!modalPreview) return;
   const rect = modalPreview.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
+  popupRenderer.setPixelRatio(getPopupRendererPixelRatio());
   const size = Math.min(rect.width, rect.height);
   popupRenderer.setSize(size, size, false);
   popupCamera.aspect = 1;
@@ -347,4 +352,11 @@ function setPopupCameraForItem(size, previewAngle) {
   popupCamera.position.set(0, 0, distance);
   popupCamera.lookAt(0, 0, 0);
   popupCamera.updateProjectionMatrix();
+}
+
+function getPopupRendererPixelRatio() {
+  if (window.innerWidth <= 768) {
+    return Math.min(window.devicePixelRatio, 0.8);
+  }
+  return Math.min(window.devicePixelRatio, 1);
 }
