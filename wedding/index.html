@@ -16,27 +16,30 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Splitting.js for character animation -->
+  <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css" />
+  <!-- Lenis smooth scroll -->
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,400&family=Luxurious+Script&family=Pinyon+Script&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            cream: '#f5f0ea',
-            'cream-dark': '#ebe4da',
-            blush: '#e8cfc9',
-            'blush-light': '#f0d9d3',
-            rose: '#d4a69a',
-            charcoal: '#2a2a2a',
-            'warm-black': '#1a1714',
-            'warm-gray': '#8a8078',
+            parchment:    '#f8f5f0',
+            'parchment-2':'#f0ebe3',
+            border:       '#e0d8ce',
+            ink:          '#1a1714',
+            'ink-2':      '#7a7068',
+            'ink-3':      '#b0a898',
+            blush:        '#e8cfc9',
           },
           fontFamily: {
-            display: ['"Playfair Display"', 'Georgia', 'serif'],
-            body: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans:    ['"Space Grotesk"', 'system-ui', 'sans-serif'],
           },
         },
       },
@@ -46,7 +49,7 @@
 </head>
 <body class="wedding-page" data-cursor-hover="images/hover.webp" data-cursor-clicked="images/clicked.webp">
   <div id="app">
-    <!-- Original 3D Room Hero -->
+    <!-- 3D Room Hero — untouched -->
     <section class="wedding-section wedding-hero">
       <div id="wedding-canvas" class="wedding-canvas"></div>
       <header class="wedding-hud">
@@ -67,509 +70,54 @@
   <script type="module" src="../js/wedding.js"></script>
   <script src="../js/cursor.js"></script>
 
-  <!-- React wedding site -->
-  <script type="text/babel">
-    const { useState, useEffect, useRef, useCallback } = React;
+  <!-- React wedding site — hooks and components in separate files -->
+  <script type="text/babel" src="js/hooks.js"></script>
+  <script type="text/babel" src="js/components/nav.js"></script>
+  <script type="text/babel" src="js/components/hero.js"></script>
+  <script type="text/babel" src="js/components/invitation.js"></script>
+  <script type="text/babel" src="js/components/schedule.js"></script>
+  <script type="text/babel" src="js/components/venue.js"></script>
+  <script type="text/babel" src="js/components/story.js"></script>
+  <script type="text/babel" src="js/components/faq.js"></script>
+  <script type="text/babel" src="js/components/footer.js"></script>
+  <script type="text/babel" src="js/app.js"></script>
 
-    /* ═══════════════════════════════════════════
-       HOOKS
-       ═══════════════════════════════════════════ */
-
-    /* ── Countdown ── */
-    function useCountdown(targetDate) {
-      const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      useEffect(() => {
-        const tick = () => {
-          const diff = Math.max(0, new Date(targetDate) - new Date());
-          setTime({
-            days: Math.floor(diff / 86400000),
-            hours: Math.floor((diff % 86400000) / 3600000),
-            minutes: Math.floor((diff % 3600000) / 60000),
-            seconds: Math.floor((diff % 60000) / 1000),
-          });
-        };
-        tick();
-        const id = setInterval(tick, 1000);
-        return () => clearInterval(id);
-      }, [targetDate]);
-      return time;
+  <style>
+    /* Story grid mobile collapse */
+    @media (max-width: 767px) {
+      .story-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .story-grid > div {
+        grid-column: 1 !important;
+        border-top: 1px solid #e0d8ce !important;
+      }
+      .story-grid > div:first-child {
+        border-top: none !important;
+      }
     }
-
-    /* ── Intersection Observer for scroll reveals ── */
-    function useReveal(options = {}) {
-      const ref = useRef(null);
-      const [visible, setVisible] = useState(false);
-      useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        const obs = new IntersectionObserver(
-          ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.unobserve(el); } },
-          { threshold: options.threshold || 0.15, rootMargin: options.rootMargin || '0px' }
-        );
-        obs.observe(el);
-        return () => obs.disconnect();
-      }, []);
-      return [ref, visible];
+    /* Venue grid mobile */
+    @media (max-width: 767px) {
+      #venue > div {
+        grid-template-columns: 1fr !important;
+      }
+      #venue > div > div:first-child {
+        border-right: none !important;
+        border-bottom: 1px solid #e0d8ce;
+      }
     }
-
-    /* ── Scroll progress (0-1) ── */
-    function useScrollProgress() {
-      const [progress, setProgress] = useState(0);
-      useEffect(() => {
-        const update = () => {
-          const h = document.documentElement.scrollHeight - window.innerHeight;
-          setProgress(h > 0 ? window.scrollY / h : 0);
-        };
-        window.addEventListener('scroll', update, { passive: true });
-        return () => window.removeEventListener('scroll', update);
-      }, []);
-      return progress;
+    /* Footer mobile */
+    @media (max-width: 767px) {
+      footer {
+        grid-template-columns: 1fr !important;
+        text-align: center !important;
+      }
+      footer > div:last-child {
+        text-align: center !important;
+      }
     }
-
-    /* ── Parallax offset ── */
-    function useParallax(speed = 0.3, maxOffset = 90) {
-      const ref = useRef(null);
-      const [offset, setOffset] = useState(0);
-      useEffect(() => {
-        let frame = null;
-        const update = () => {
-          const el = ref.current;
-          if (!el) return;
-          const rect = el.getBoundingClientRect();
-          const center = rect.top + rect.height / 2;
-          const viewCenter = window.innerHeight / 2;
-          const rawOffset = (center - viewCenter) * speed;
-          const clamped = Math.max(-maxOffset, Math.min(maxOffset, rawOffset));
-          setOffset(clamped);
-          frame = null;
-        };
-        const onScrollOrResize = () => {
-          if (frame !== null) return;
-          frame = window.requestAnimationFrame(update);
-        };
-        window.addEventListener('scroll', onScrollOrResize, { passive: true });
-        window.addEventListener('resize', onScrollOrResize);
-        update();
-        return () => {
-          window.removeEventListener('scroll', onScrollOrResize);
-          window.removeEventListener('resize', onScrollOrResize);
-          if (frame !== null) window.cancelAnimationFrame(frame);
-        };
-      }, [speed, maxOffset]);
-      return [ref, offset];
-    }
-
-    /* ═══════════════════════════════════════════
-       COMPONENTS
-       ═══════════════════════════════════════════ */
-
-    /* ── Scroll Progress Bar ── */
-    function ScrollProgress() {
-      const progress = useScrollProgress();
-      return (
-        <div
-          className="scroll-progress"
-          style={{ width: `${progress * 100}%` }}
-        />
-      );
-    }
-
-    /* ── Hero ── */
-    function Hero() {
-      const [parallaxRef, offset] = useParallax(0.2, 80);
-
-      return (
-        <section id="home" className="relative min-h-screen flex flex-col overflow-hidden"
-          style={{ background: 'linear-gradient(180deg, #2a2520 0%, #1a1714 40%, #2a2520 100%)' }}>
-
-          {/* Parallax background */}
-          <div className="absolute inset-0" ref={parallaxRef}>
-            <img
-              src="images/2.webp"
-              alt=""
-              aria-hidden="true"
-              className="hero-parallax-image absolute object-cover opacity-60 parallax-bg"
-              style={{ transform: `translateY(${offset}px) scale(1.1)` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-warm-black/40 via-transparent to-warm-black/60"></div>
-          </div>
-
-          {/* Nav */}
-          <nav className="relative z-10 w-full flex-shrink-0">
-            <div className="max-w-6xl mx-auto px-6 py-5 flex justify-between items-center">
-              <a href="#home" className="wedding-nav-link">Home</a>
-              <a href="#schedule" className="wedding-nav-link">Schedule</a>
-              <a href="#story" className="wedding-nav-link">Story</a>
-              <a href="#faqs" className="wedding-nav-link">FAQs</a>
-            </div>
-          </nav>
-
-          {/* Centered monogram */}
-          <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4">
-            <div className="monogram monogram-glow mb-2 select-none" style={{ fontStyle: 'italic' }}>
-              <span style={{ position: 'relative' }}>
-                <span>I</span>
-                <span style={{ marginLeft: '-0.15em' }}>L</span>
-              </span>
-            </div>
-
-            <p className="font-display text-white/80 text-sm tracking-[0.3em] uppercase mb-1">
-              Ian & Lizzy
-            </p>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="relative z-10 flex justify-center pb-8">
-            <div className="scroll-indicator flex flex-col items-center gap-2">
-              <span className="font-display text-white/40 text-[9px] tracking-[0.3em] uppercase">Scroll</span>
-              <svg width="16" height="24" viewBox="0 0 16 24" fill="none" className="text-white/40">
-                <path d="M8 4L8 18M8 18L3 13M8 18L13 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    /* ── Invitation ── */
-    function Invitation() {
-      const [ref, visible] = useReveal();
-      const [photoRef, photoVisible] = useReveal({ threshold: 0.2 });
-
-      return (
-        <section className="bg-cream">
-          <div className="max-w-6xl mx-auto w-full px-6">
-            <div className="md:grid md:grid-cols-5 md:gap-20">
-
-              {/* Left: sticky photo */}
-              <div className="md:col-span-2">
-                <div ref={photoRef} className="md:sticky md:top-0 md:h-screen flex items-center py-20">
-                  <img
-                    src="images/1.webp"
-                    alt="Ian and Lizzy"
-                    className={`photo-hover rounded-sm aspect-[3/4] w-full object-cover reveal ${photoVisible ? 'visible' : ''}`}
-                    style={{ transitionDelay: '0.1s' }}
-                  />
-                </div>
-              </div>
-
-              {/* Right: scrolling content */}
-              <div className="md:col-span-3">
-                {/* Text — centered in first viewport */}
-                <div className="min-h-screen flex items-center">
-                  <div ref={ref}
-                       className={`flex flex-col items-center md:items-start text-center md:text-left reveal ${visible ? 'visible' : ''}`}
-                       style={{ transitionDelay: '0.3s' }}>
-                    <h2 className="font-display text-3xl md:text-5xl tracking-wide mb-8"
-                        style={{ fontVariant: 'small-caps' }}>
-                      You're Invited
-                    </h2>
-                    <div className="font-body text-charcoal/80 text-base md:text-lg leading-relaxed space-y-1">
-                      <p className="font-display text-sm tracking-[0.2em] uppercase text-warm-gray">
-                        DAR Headquarters
-                      </p>
-                      <p>1776 D Street NW, Washington, DC</p>
-                    </div>
-                    <div className="mt-8 font-body italic text-xl md:text-2xl text-charcoal/70">
-                      11 | October 2026
-                    </div>
-                  </div>
-                </div>
-
-                {/* Landscape photo — scrolls up past the sticky photo */}
-                <div className="pb-20 flex justify-end">
-                  <div className="w-2/3">
-                    <div className="photo-placeholder-warm rounded-sm aspect-[4/3]"></div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    /* ── Rolling Digit ── */
-    function RollingDigit({ value }) {
-      const [changing, setChanging] = useState(false);
-      const prev = useRef(value);
-      useEffect(() => {
-        if (prev.current !== value) {
-          setChanging(true);
-          const t = setTimeout(() => setChanging(false), 400);
-          prev.current = value;
-          return () => clearTimeout(t);
-        }
-      }, [value]);
-      return <span className={`digit-roll ${changing ? 'changing' : ''}`}>{value}</span>;
-    }
-
-    /* ── Countdown ── */
-    function Countdown() {
-      const { days, hours, minutes, seconds } = useCountdown('2026-09-20T16:00:00');
-      const pad = (n) => String(n).padStart(2, '0');
-      const [ref, visible] = useReveal({ threshold: 0.3 });
-
-      return (
-        <section ref={ref} className="py-20 md:py-28 flex flex-col items-center justify-center"
-          style={{ background: 'linear-gradient(180deg, #1a1714, #2a2520)' }}>
-          <div className={`flex items-baseline gap-3 md:gap-6 px-4 reveal ${visible ? 'visible' : ''}`}>
-            {[
-              { value: days, label: 'Days' },
-              { value: hours, label: 'Hours' },
-              { value: minutes, label: 'Minutes' },
-              { value: seconds, label: 'Seconds' },
-            ].map((item, i) => (
-              <React.Fragment key={item.label}>
-                {i > 0 && <span className="countdown-separator self-start mt-1">:</span>}
-                <div className="flex flex-col items-center">
-                  <span className="countdown-digit">
-                    {pad(item.value).split('').map((d, j) => (
-                      <RollingDigit key={`${item.label}-${j}`} value={d} />
-                    ))}
-                  </span>
-                  <span className="font-display text-white/50 text-[10px] md:text-xs tracking-[0.25em] uppercase mt-2">
-                    {item.label}
-                  </span>
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
-        </section>
-      );
-    }
-
-    /* ── Order of Events ── */
-    function OrderOfEvents() {
-      const events = [
-        { time: '4:00', label: 'Ceremony' },
-        { time: '5:00', label: 'Cocktail Hour' },
-        { time: '6:00', label: 'Dinner' },
-        { time: '7:00', label: 'Reception' },
-      ];
-      const [titleRef, titleVisible] = useReveal();
-      const [timeRef, timeVisible] = useReveal();
-      const [photoRef, photoVisible] = useReveal({ threshold: 0.2 });
-
-      return (
-        <section id="schedule" className="bg-blush-light py-20 md:py-28 overflow-hidden">
-          <div className="grid md:grid-cols-3 gap-12 items-center">
-            {/* Title */}
-            <div ref={titleRef}
-                 className={`text-center md:text-left px-6 md:pl-[max(1.5rem,calc((100vw-64rem)/2))] reveal ${titleVisible ? 'visible' : ''}`}>
-              <p className="font-display text-charcoal/60 text-lg tracking-wide uppercase">Order</p>
-              <p className="font-display text-charcoal/60 text-lg tracking-wide uppercase">of</p>
-              <p className="script-heading text-5xl md:text-6xl text-charcoal mt-1">Events</p>
-            </div>
-
-            {/* Timeline — staggered reveal */}
-            <div ref={timeRef} className={`space-y-8 px-6 reveal-stagger ${timeVisible ? 'visible' : ''}`}>
-              {events.map((evt, i) => (
-                <div key={evt.label} className="reveal-child" style={{ transitionDelay: `${i * 0.12}s` }}>
-                  <p className="font-display text-lg md:text-xl tracking-wide">{evt.time}</p>
-                  <p className="font-display text-sm tracking-[0.2em] uppercase text-charcoal/60">
-                    {evt.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Photo */}
-            <div ref={photoRef} className={`px-6 md:px-0 reveal ${photoVisible ? 'visible' : ''}`}
-                 style={{ transitionDelay: '0.2s' }}>
-              <div className="photo-placeholder-warm photo-hover rounded-l-sm md:rounded-r-none aspect-[4/3] overflow-hidden"></div>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    /* ── Venue ── */
-    function Venue() {
-      const [textRef, textVisible] = useReveal();
-      const [photoRef, photoVisible] = useReveal({ threshold: 0.1 });
-
-      return (
-        <section className="bg-blush overflow-hidden min-h-screen">
-          <div className="grid md:grid-cols-5 items-stretch min-h-screen">
-            {/* Text + photo below */}
-            <div ref={textRef}
-                 className={`md:col-span-2 px-6 md:pl-[max(1.5rem,calc((100vw-64rem)/2))] md:pr-8 flex flex-col justify-center py-20 md:py-28 reveal ${textVisible ? 'visible' : ''}`}>
-              <div className="font-body text-charcoal/80 text-sm md:text-base leading-relaxed space-y-3 text-right">
-                <p>
-                  text something about the wedding texttext
-                  something about the wedding texttext
-                  something about the wedding text
-                </p>
-              </div>
-              {/* Near-square portrait photo */}
-              <div className="photo-placeholder-light photo-hover rounded-sm aspect-[5/6] w-full mt-10 overflow-hidden"></div>
-            </div>
-
-            {/* Photo — full height */}
-            <div ref={photoRef}
-                 className={`md:col-span-3 px-6 md:px-0 reveal ${photoVisible ? 'visible' : ''}`}
-                 style={{ transitionDelay: '0.15s' }}>
-              <div className="photo-placeholder rounded-l-sm md:rounded-r-none h-full"></div>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    /* ── Our Story ── */
-    function OurStory() {
-      const [titleRef, titleVisible] = useReveal();
-      const [textRef, textVisible] = useReveal();
-      const [galleryRef, galleryVisible] = useReveal({ threshold: 0.1 });
-
-      const stories = [
-        { heading: '2008', body: 'we met when we were like 8 in the church in dunn loring' },
-        { heading: '2017', body: 'then we were in the same chinese class in tj'},
-        { heading: '2022', body: 'then we randomly talked one time'},
-        { heading: '2024', body: 'then we went to the ftta and we were on the same gospel team :shocked-emoji:'},
-        { heading: '2025', body: 'after the training, we started talking and then dating...'},
-        { heading: '2026', body: 'we got engaged on march 8, 2026!'},
-      ];
-
-      return (
-        <section id="story" className="bg-cream py-20 md:py-28 px-6">
-          <div className="max-w-5xl mx-auto">
-            <h2 ref={titleRef}
-                className={`script-heading text-4xl md:text-5xl text-charcoal mb-10 reveal ${titleVisible ? 'visible' : ''}`}>
-              Our Story
-            </h2>
-
-            <div ref={textRef}
-                 className={`font-body text-charcoal/80 text-sm md:text-base leading-relaxed space-y-6 max-w-2xl reveal-stagger ${textVisible ? 'visible' : ''}`}>
-              {stories.map((s, i) => (
-                <div key={s.heading} className="reveal-child" style={{ transitionDelay: `${i * 0.15}s` }}>
-                  <p className="font-display text-xs tracking-[0.2em] uppercase text-warm-gray mb-2">
-                    {s.heading}
-                  </p>
-                  <p>{s.body}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Staggered photo gallery */}
-            <div ref={galleryRef}
-                 className={`grid grid-cols-2 md:grid-cols-4 gap-3 mt-12 reveal-stagger ${galleryVisible ? 'visible' : ''}`}>
-              <div className="reveal-child photo-placeholder photo-hover rounded-sm aspect-[3/4] md:mt-12 overflow-hidden"
-                   style={{ transitionDelay: '0s' }}></div>
-              <div className="reveal-child photo-placeholder-warm photo-hover rounded-sm aspect-[3/4] overflow-hidden"
-                   style={{ transitionDelay: '0.1s' }}></div>
-              <div className="reveal-child photo-placeholder-light photo-hover rounded-sm aspect-[3/4] md:mt-12 overflow-hidden"
-                   style={{ transitionDelay: '0.2s' }}></div>
-              <div className="reveal-child photo-placeholder photo-hover rounded-sm aspect-[3/4] overflow-hidden"
-                   style={{ transitionDelay: '0.3s' }}></div>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    /* ── FAQ Item ── */
-    function FAQItem({ question, answer }) {
-      const [open, setOpen] = useState(false);
-      return (
-        <div>
-          <button
-            onClick={() => setOpen(!open)}
-            className="w-full flex justify-between items-center py-5 text-left font-display text-sm md:text-base tracking-[0.15em] uppercase text-charcoal hover:text-charcoal/70 transition-colors bg-transparent border-none cursor-pointer"
-          >
-            <span>{question}</span>
-            <span className={`text-xl transition-transform duration-300 ${open ? 'rotate-45' : ''}`}>
-              +
-            </span>
-          </button>
-          <div className={`faq-answer ${open ? 'open' : ''}`}>
-            <p className="font-body text-charcoal/70 text-sm md:text-base leading-relaxed pb-2">
-              {answer}
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    /* ── FAQs ── */
-    function FAQs() {
-      const faqs = [
-        {
-          question: 'Can I bring kids?',
-          answer: 'We love your little ones! However, this will be an adults-only celebration. We hope this gives you a chance to enjoy a night out.',
-        },
-        {
-          question: 'Where should I park?',
-          answer: 'There is a parking garage located directly beneath the venue. Street parking is also available along D Street and E Street NW.',
-        },
-        {
-          question: 'Will there be alcohol?',
-          answer: 'Yes! We will have a full open bar with cocktails, wine, and beer throughout the evening.',
-        },
-      ];
-
-      const [titleRef, titleVisible] = useReveal();
-      const [lineRef, lineVisible] = useReveal({ threshold: 0.1 });
-
-      return (
-        <section id="faqs" className="bg-cream py-20 md:py-28">
-          <div className="px-6">
-            <h2 ref={titleRef}
-                className={`script-heading text-4xl md:text-5xl text-center mb-12 text-charcoal reveal ${titleVisible ? 'visible' : ''}`}>
-              FAQs
-            </h2>
-          </div>
-          <div ref={lineRef}>
-            {/* Top line — animates width */}
-            <div className={`border-t border-charcoal/15 line-reveal ${lineVisible ? 'visible' : ''}`}></div>
-            {faqs.map((faq, i) => (
-              <div key={faq.question} className="faq-row">
-                <div className={`border-b border-charcoal/15 line-reveal ${lineVisible ? 'visible' : ''}`}
-                     style={{ transitionDelay: `${(i + 1) * 0.12}s` }}>
-                </div>
-                <div className="max-w-4xl mx-auto px-6" style={{ marginTop: '-1px' }}>
-                  <FAQItem question={faq.question} answer={faq.answer} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      );
-    }
-
-    /* ── Footer ── */
-    function Footer() {
-      const [ref, visible] = useReveal();
-      return (
-        <footer ref={ref} className={`bg-cream pb-16 pt-8 text-center px-6 reveal ${visible ? 'visible' : ''}`}>
-          <div className="font-display text-warm-gray text-xs tracking-[0.2em] uppercase">
-            Ian & Lizzy &middot; September 20, 2026
-          </div>
-        </footer>
-      );
-    }
-
-    /* ── App ── */
-    function App() {
-      return (
-        <div>
-          <ScrollProgress />
-          <Hero />
-          <Invitation />
-          <Countdown />
-          <OrderOfEvents />
-          <Venue />
-          <OurStory />
-          <FAQs />
-          <Footer />
-        </div>
-      );
-    }
-
-    const root = ReactDOM.createRoot(document.getElementById('wedding-root'));
-    root.render(<App />);
-  </script>
+    /* Scroll progress above nav */
+    .scroll-progress { z-index: 102; }
+  </style>
 </body>
 </html>
