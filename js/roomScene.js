@@ -28,6 +28,21 @@ const MATERIAL_TEXTURE_KEYS = [
   "transmissionMap",
 ];
 
+const LAMP_GLOW_CONFIG = {
+  // Move these first: the beam starts at position and points toward target.
+  position: new THREE.Vector3(-1.5, 6, -3),
+  target: new THREE.Vector3(-1.5, 0.9, -3),
+  color: 0xffb45f,
+  intensity: 2.2,
+  distance: 5.5,
+  angle: Math.PI * 0.14,
+  penumbra: 0.9,
+  decay: 1.6,
+  beamLength: 3.4,
+  beamRadius: 1.35,
+  beamOpacity: 0.08,
+};
+
 export function createRoomScene({
   mountEl,
   background = 0xf7f4ee,
@@ -67,15 +82,21 @@ export function createRoomScene({
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
-    controls.minZoom = 0.6;
-    controls.maxZoom = 10;
+    controls.rotateSpeed = 0.75;
+    controls.zoomSpeed = 1.35;
+    controls.enablePan = false;
+    controls.minZoom = 0.85;
+    controls.maxZoom = 2.6;
     controls.maxPolarAngle = Math.PI * 0.48;
     controls.minPolarAngle = Math.PI * 0.2;
+    controls.minAzimuthAngle = -Math.PI * 0.08;
+    controls.maxAzimuthAngle = Math.PI * 0.58;
     controls.target.set(0, 2.2, 0);
     controls.update();
   }
 
-  addLights(scene);
+  const animatedLights = addLights(scene);
+  const lampGlow = animatedLights[0] || null;
   addRoomShell(scene);
 
   const clickable = [];
@@ -181,6 +202,8 @@ export function createRoomScene({
     controls,
     clickable,
     updateFadeIns,
+    updateSceneMotion,
+    toggleLampGlow,
     registerItem,
     onResize,
     heartRef: () => heartRef,
@@ -214,6 +237,40 @@ export function createRoomScene({
       }
     }
   }
+
+  function updateSceneMotion(time) {
+    const seconds = time * 0.001;
+    animatedLights.forEach(({ light, beam, baseIntensity, baseOpacity, enabled }, index) => {
+      if (!enabled) {
+        light.intensity = 0;
+        beam.material.opacity = 0;
+        beam.visible = false;
+        return;
+      }
+
+      light.visible = true;
+      beam.visible = true;
+      const pulse = 0.92 + Math.sin(seconds * 1.5 + index) * 0.08;
+      light.intensity = baseIntensity * pulse;
+      beam.material.opacity = baseOpacity * pulse;
+    });
+  }
+
+  function toggleLampGlow(forceEnabled) {
+    if (!lampGlow) return false;
+
+    const enabled = typeof forceEnabled === "boolean" ? forceEnabled : !lampGlow.enabled;
+    lampGlow.enabled = enabled;
+    lampGlow.light.visible = enabled;
+    lampGlow.beam.visible = enabled;
+
+    if (!enabled) {
+      lampGlow.light.intensity = 0;
+      lampGlow.beam.material.opacity = 0;
+    }
+
+    return enabled;
+  }
 }
 
 function addLights(scene) {
@@ -236,6 +293,63 @@ function addLights(scene) {
   const fill = new THREE.DirectionalLight(0xffffff, 0.35);
   fill.position.set(-6, 6, -4);
   scene.add(fill);
+
+  return [addLampGlow(scene)];
+}
+
+function addLampGlow(scene) {
+  const light = new THREE.SpotLight(
+    LAMP_GLOW_CONFIG.color,
+    LAMP_GLOW_CONFIG.intensity,
+    LAMP_GLOW_CONFIG.distance,
+    LAMP_GLOW_CONFIG.angle,
+    LAMP_GLOW_CONFIG.penumbra,
+    LAMP_GLOW_CONFIG.decay
+  );
+  light.position.copy(LAMP_GLOW_CONFIG.position);
+  light.castShadow = false;
+  light.visible = false;
+  light.intensity = 0;
+
+  const target = new THREE.Object3D();
+  target.position.copy(LAMP_GLOW_CONFIG.target);
+  scene.add(target);
+  light.target = target;
+  scene.add(light);
+
+  const beamGeometry = new THREE.ConeGeometry(
+    LAMP_GLOW_CONFIG.beamRadius,
+    LAMP_GLOW_CONFIG.beamLength,
+    48,
+    1,
+    true
+  );
+  beamGeometry.translate(0, -LAMP_GLOW_CONFIG.beamLength / 2, 0);
+  const beamMaterial = new THREE.MeshBasicMaterial({
+    color: LAMP_GLOW_CONFIG.color,
+    transparent: true,
+    opacity: LAMP_GLOW_CONFIG.beamOpacity,
+    depthWrite: false,
+    depthTest: true,
+    side: THREE.DoubleSide,
+    blending: THREE.AdditiveBlending,
+  });
+  const beam = new THREE.Mesh(beamGeometry, beamMaterial);
+  beam.renderOrder = 999;
+  beam.visible = false;
+  beam.material.opacity = 0;
+  beam.position.copy(LAMP_GLOW_CONFIG.position);
+  const beamDirection = LAMP_GLOW_CONFIG.target.clone().sub(LAMP_GLOW_CONFIG.position).normalize();
+  beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), beamDirection);
+  scene.add(beam);
+
+  return {
+    light,
+    beam,
+    enabled: false,
+    baseIntensity: LAMP_GLOW_CONFIG.intensity,
+    baseOpacity: LAMP_GLOW_CONFIG.beamOpacity,
+  };
 }
 
 function createCamera(mountEl, frustumSize) {

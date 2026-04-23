@@ -171,7 +171,10 @@ export function populateRoom({ registerItem, onCat }) {
         lamp.scale.setScalar(scaleLamp);
         lamp.position.set(3.5, 0, -3);
         lamp.rotation.y = -3.14159 / 2;
-        registerItem(lamp, { clickable: false });
+        lamp.userData.action = "toggleLampGlow";
+        lamp.userData.hoverTransform = false;
+        lamp.userData.skipDiscovery = true;
+        registerItem(lamp);
       },
       label: "lamp",
     },

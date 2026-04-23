@@ -20,8 +20,9 @@ let breathingCatBaseScale = 1;
 const discoveredItems = new Set();
 const discoverableItems = new Set();
 const popupCache = new WeakMap();
+const hoverStates = new Map();
 
-const { scene, camera, renderer, controls, clickable, updateFadeIns } = createRoomScene({
+const { scene, camera, renderer, controls, clickable, updateFadeIns, updateSceneMotion, toggleLampGlow } = createRoomScene({
   mountEl: canvasWrap,
   enableControls: true,
   onCat: (cat) => {
@@ -31,11 +32,13 @@ const { scene, camera, renderer, controls, clickable, updateFadeIns } = createRo
   onRegisterItem: (item) => {
     const title = item?.userData?.title;
     if (!title) return;
-    discoverableItems.add(title);
+    if (!item.userData.skipDiscovery) {
+      discoverableItems.add(title);
+    }
+    ensureHoverState(item);
     updateDiscoveryProgress();
   },
 });
-controls.zoomSpeed = 10.0;
 renderer.domElement.style.touchAction = "none";
 
 const raycaster = new THREE.Raycaster();
@@ -44,6 +47,10 @@ const pointer = new THREE.Vector2();
 let focusTween = null;
 let popup = null;
 let activeItem = null;
+let hoveredItem = null;
+let pointerIsInside = false;
+let pointerDown = null;
+let lastFrameTime = performance.now();
 
 updateDiscoveryProgress();
 
@@ -66,22 +73,40 @@ const popupKey = new THREE.DirectionalLight(0xffffff, 0.7);
 popupKey.position.set(2, 3, 4);
 popupScene.add(popupKey);
 
+renderer.domElement.addEventListener("pointermove", (event) => {
+  if (!modal.classList.contains("hidden")) return;
+  pointerIsInside = true;
+  updatePointerFromEvent(event);
+});
+
+renderer.domElement.addEventListener("pointerleave", () => {
+  pointerIsInside = false;
+  pointerDown = null;
+  setHoveredItem(null);
+});
+
 renderer.domElement.addEventListener("pointerdown", (event) => {
   if (!modal.classList.contains("hidden")) return;
+  pointerIsInside = true;
+  updatePointerFromEvent(event);
+  pointerDown = {
+    x: event.clientX,
+    y: event.clientY,
+  };
+});
 
-  const bounds = renderer.domElement.getBoundingClientRect();
-  pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
-  pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+renderer.domElement.addEventListener("pointerup", (event) => {
+  if (!modal.classList.contains("hidden") || !pointerDown) return;
+  updatePointerFromEvent(event);
 
-  raycaster.setFromCamera(pointer, camera);
-  const hits = raycaster.intersectObjects(clickable, true);
+  const moved = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
+  pointerDown = null;
+  if (moved > 7) return;
 
-  if (!hits.length) return;
-
-  const target = findClickable(hits[0].object);
+  const target = raycastClickable();
   if (!target) return;
 
-  openModal(target);
+  handleClickableTarget(target);
 });
 
 resetButton.addEventListener("click", () => {
@@ -111,8 +136,123 @@ function findClickable(object) {
   return null;
 }
 
+function updatePointerFromEvent(event) {
+  const bounds = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+  pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+}
+
+function raycastClickable() {
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(clickable, true);
+  if (!hits.length) return null;
+  return findClickable(hits[0].object);
+}
+
+function updateHoveredItem() {
+  if (!pointerIsInside || !modal.classList.contains("hidden")) {
+    setHoveredItem(null);
+    return;
+  }
+
+  setHoveredItem(raycastClickable());
+}
+
+function setHoveredItem(target) {
+  if (hoveredItem === target) return;
+
+  if (hoveredItem && hoverStates.has(hoveredItem)) {
+    hoverStates.get(hoveredItem).target = 0;
+  }
+
+  hoveredItem = target;
+  renderer.domElement.style.cursor = hoveredItem ? "pointer" : "";
+
+  if (hoveredItem) {
+    ensureHoverState(hoveredItem).target = 1;
+  }
+}
+
+function ensureHoverState(item) {
+  let state = hoverStates.get(item);
+  if (state) return state;
+
+  state = {
+    basePosition: item.position.clone(),
+    baseScale: item.scale.clone(),
+    hover: 0,
+    target: 0,
+    animateTransform: item.userData?.hoverTransform !== false,
+    lift: getHoverLift(item),
+    scale: getHoverScale(item),
+  };
+  hoverStates.set(item, state);
+  return state;
+}
+
+function getHoverLift(item) {
+  const title = item?.userData?.title || "";
+  if (title.includes("Poster") || title.includes("Frame")) return 0.025;
+  if (title.includes("Piano")) return 0.035;
+  return 0.08;
+}
+
+function getHoverScale(item) {
+  const title = item?.userData?.title || "";
+  if (title.includes("Poster") || title.includes("Frame")) return 1.04;
+  if (title.includes("Piano")) return 1.03;
+  return 1.08;
+}
+
+function updateHoverAnimations(delta) {
+  const alpha = 1 - Math.pow(0.0008, Math.min(delta, 0.05));
+
+  hoverStates.forEach((state, item) => {
+    state.hover = THREE.MathUtils.lerp(state.hover, state.target, alpha);
+    if (state.hover < 0.001 && state.target === 0) {
+      state.hover = 0;
+    }
+
+    if (!state.animateTransform) return;
+
+    item.position.y = state.basePosition.y + state.lift * state.hover;
+
+    if (item !== breathingCat) {
+      const scale = THREE.MathUtils.lerp(1, state.scale, state.hover);
+      item.scale.copy(state.baseScale).multiplyScalar(scale);
+    }
+
+    item.updateMatrix();
+    item.updateMatrixWorld(true);
+  });
+}
+
+function resetHoverState(item) {
+  const state = hoverStates.get(item);
+  if (!state) return;
+
+  state.hover = 0;
+  state.target = 0;
+  item.position.copy(state.basePosition);
+  item.scale.copy(state.baseScale);
+  item.updateMatrix();
+  item.updateMatrixWorld(true);
+}
+
+function handleClickableTarget(target) {
+  if (target.userData?.action === "toggleLampGlow") {
+    setHoveredItem(null);
+    toggleLampGlow();
+    return;
+  }
+
+  openModal(target);
+}
+
 function openModal(target) {
   closeModal();
+  setHoveredItem(null);
+  resetHoverState(target);
   activeItem = target;
   markDiscovered(target);
 
@@ -186,7 +326,11 @@ resetView();
 
 function animate(time) {
   const modalOpen = !modal.classList.contains("hidden");
+  const delta = Math.max((time - lastFrameTime) / 1000, 0);
+  lastFrameTime = time;
+
   updateFadeIns(time);
+  updateSceneMotion(time);
 
   if (focusTween) {
     const elapsed = Math.min((time - focusTween.start) / focusTween.duration, 1);
@@ -222,8 +366,12 @@ function animate(time) {
   }
 
   if (!modalOpen) {
+    updateHoveredItem();
+    updateHoverAnimations(delta);
     controls.update();
     renderer.render(scene, camera);
+  } else {
+    setHoveredItem(null);
   }
   requestAnimationFrame(animate);
 }
