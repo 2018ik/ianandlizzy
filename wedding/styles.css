@@ -45,7 +45,7 @@ html.lenis { height: auto; }
 
 /* ── Nav ── */
 .nav-modern {
-  position: fixed;
+  position: absolute;
   top: 0; left: 0; right: 0;
   height: 56px;
   z-index: 100;
@@ -322,7 +322,7 @@ html.lenis { height: auto; }
   overflow-x: auto;
   overflow-y: hidden;
   align-items: center;
-  height: 100vh;
+  height: 75vh;
   scrollbar-width: none;
   -ms-overflow-style: none;
   cursor: grab;

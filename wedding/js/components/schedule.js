@@ -2,10 +2,10 @@
 function OrderOfEvents() {
   const hScrollRef = useHorizontalScroll();
   const events = [
-    { time: '4:00 PM', label: 'Ceremony' },
-    { time: '5:00 PM', label: 'Cocktail Hour' },
-    { time: '6:00 PM', label: 'Dinner' },
-    { time: '7:00 PM', label: 'Reception' },
+    { time: '3:30 PM', label: 'Welcome Party', date: 'October 10', img: 'images/flowers_handdrawn2.png' },
+    { time: '4:00 PM', label: 'Ceremony',       date: 'October 11', img: 'images/DAR_handdrawn2.png' },
+    { time: '5:00 PM', label: 'Cocktail Hour',  date: 'October 11', img: 'images/drinks_handdrawn2.png' },
+    { time: '6:00 PM', label: 'Dinner',         date: 'October 11', img: 'images/bbq_handdrawn2.png' },
   ];
 
   return (
@@ -35,16 +35,23 @@ function OrderOfEvents() {
           <div key={evt.label}
                className="h-scroll-card"
                style={{ alignSelf: i % 2 === 0 ? 'flex-start' : 'flex-end',
-                        paddingTop: i % 2 === 0 ? 'clamp(60px,10vh,120px)' : '0',
-                        paddingBottom: i % 2 === 1 ? 'clamp(60px,10vh,120px)' : '0' }}>
+                        paddingTop: i % 2 === 0 ? 'clamp(12px,1.5vh,20px)' : '0',
+                        paddingBottom: i % 2 === 1 ? 'clamp(12px,1.5vh,20px)' : '0' }}>
             <div className="event-watermark">{evt.time.split(' ')[0]}</div>
+            <img src={evt.img} alt={evt.label} style={{
+              display: 'block',
+              width: 'clamp(120px, 18vw, 220px)',
+              height: 'auto',
+              marginBottom: '20px',
+              position: 'relative',
+            }} />
             <div className="event-label">{evt.label}</div>
-            <span className="event-time-label">{evt.time}</span>
+            <span className="event-time-label">{evt.time} · {evt.date}</span>
           </div>
         ))}
 
         {/* Right padding */}
-        <div style={{ flexShrink: 0, width: 'clamp(24px, 6vw, 80px)' }} />
+        <div style={{ flexShrink: 0, width: 'clamp(80px, 12vw, 160px)' }} />
       </div>
     </section>
   );

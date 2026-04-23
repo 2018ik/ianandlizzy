@@ -2,22 +2,6 @@
 function Invitation() {
   const [photoRef, photoVisible] = useReveal({ threshold: 0.08 });
   const [cardRef, cardVisible] = useReveal({ threshold: 0.12 });
-  const photoElRef = useRef(null);
-
-  // Slow parallax on sticky photo
-  useEffect(() => {
-    const el = photoElRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      const section = el.closest('#invitation');
-      if (!section) return;
-      const rect = section.getBoundingClientRect();
-      const progress = Math.max(0, Math.min(1, -rect.top / (rect.height - window.innerHeight)));
-      el.style.transform = `translateY(${progress * -60}px)`;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   return (
     <section id="invitation" style={{ background: '#f8f5f0' }}>
@@ -25,7 +9,7 @@ function Invitation() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(40px, 6vw, 100px)' }}
              className="invitation-grid">
 
-          {/* Left: sticky photo with parallax */}
+          {/* Left: sticky portrait photo */}
           <div ref={photoRef} style={{ position: 'sticky', top: 0, height: '100vh', display: 'flex', alignItems: 'center' }}>
             <div style={{
               width: '100%',
@@ -34,7 +18,6 @@ function Invitation() {
               transition: 'clip-path 1.3s cubic-bezier(0.76, 0, 0.24, 1)',
             }}>
               <img
-                ref={photoElRef}
                 src="images/1.webp"
                 alt="Ian and Lizzy"
                 className="editorial-photo"
@@ -44,17 +27,24 @@ function Invitation() {
                   aspectRatio: '3/4',
                   objectFit: 'cover',
                   objectPosition: 'center top',
-                  willChange: 'transform',
                 }}
               />
             </div>
           </div>
 
-          {/* Right: scrolling panels */}
+          {/* Right: text sticks, then photo scrolls past */}
           <div>
 
-            {/* Panel 1 — invitation details */}
-            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', padding: 'clamp(60px, 8vh, 100px) 0' }}>
+            {/* Panel 1 — sticky invitation text */}
+            <div style={{
+              position: 'sticky',
+              top: 0,
+              height: '100vh',
+              display: 'flex',
+              alignItems: 'center',
+              zIndex: 1,
+              background: '#f8f5f0',
+            }}>
               <div ref={cardRef} style={{
                 width: '100%',
                 opacity: cardVisible ? 1 : 0,
@@ -121,12 +111,14 @@ function Invitation() {
               </div>
             </div>
 
-            {/* Panel 2 — second photo */}
-            <div style={{
-              padding: 'clamp(16px, 2vh, 28px) 0 clamp(80px, 12vh, 140px)',
-            }}>
-              <div className="photo-placeholder editorial-photo"
-                   style={{ width: '100%', aspectRatio: '4/3', borderRadius: '2px' }} />
+            {/* Panel 2 — photo scrolls up past the stuck text */}
+            <div style={{ position: 'relative', zIndex: 2, paddingBottom: 'clamp(80px, 12vh, 140px)' }}>
+              <img
+                src="images/2.webp"
+                alt="Ian and Lizzy"
+                className="editorial-photo"
+                style={{ display: 'block', width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: '2px' }}
+              />
             </div>
 
           </div>

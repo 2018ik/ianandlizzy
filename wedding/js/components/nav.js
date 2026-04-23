@@ -141,7 +141,7 @@ function Nav() {
   return (
     <>
       <nav className={`nav-modern ${scrolled ? 'scrolled' : ''}`}>
-        <a href="#" className="nav-monogram">IL</a>
+        <a href="#" className="nav-monogram" style={{ opacity: scrolled ? 1 : 0, transition: 'opacity 0.4s ease' }}>IL</a>
         <div className="nav-links">
           {links.map(l => (
             <a key={l.id} href={l.href}
