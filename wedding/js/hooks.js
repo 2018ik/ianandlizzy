@@ -25,9 +25,15 @@ function useReveal(options = {}) {
 function useScrollProgress() {
   const [progress, setProgress] = useState(0);
   useEffect(() => {
+    let ticking = false;
     const update = () => {
-      const h = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(h > 0 ? window.scrollY / h : 0);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        setProgress(h > 0 ? window.scrollY / h : 0);
+        ticking = false;
+      });
     };
     window.addEventListener('scroll', update, { passive: true });
     return () => window.removeEventListener('scroll', update);

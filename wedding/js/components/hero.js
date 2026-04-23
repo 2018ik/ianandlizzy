@@ -32,9 +32,11 @@ function MonogramHero() {
     const ro = new ResizeObserver(resize);
     ro.observe(section);
 
-    // Fade loop — very slowly clear the canvas each frame
+    // Fade loop — only runs while hero is visible
     let fadeAlpha = 0;
+    let isVisible = true;
     const fade = () => {
+      if (!isVisible) { rafId = null; return; }
       if (fadeAlpha > 0) {
         ctx.globalCompositeOperation = 'destination-out';
         ctx.fillStyle = `rgba(0,0,0,${fadeAlpha})`;
@@ -44,6 +46,11 @@ function MonogramHero() {
       }
       rafId = requestAnimationFrame(fade);
     };
+    const visObs = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible && !rafId) rafId = requestAnimationFrame(fade);
+    }, { threshold: 0 });
+    visObs.observe(section);
     rafId = requestAnimationFrame(fade);
 
     // Bloom colors — warm watercolor palette
@@ -120,6 +127,7 @@ function MonogramHero() {
     return () => {
       cancelAnimationFrame(rafId);
       ro.disconnect();
+      visObs.disconnect();
       section.removeEventListener('mousedown', onDown);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);

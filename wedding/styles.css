@@ -1,4 +1,4 @@
-html { scroll-behavior: smooth; overflow-x: hidden; }
+html { overflow-x: hidden; }
 
 /* Verse scroll animations */
 @keyframes verseOut {
@@ -45,7 +45,7 @@ html.lenis { height: auto; }
 
 /* ── Nav ── */
 .nav-modern {
-  position: absolute;
+  position: fixed;
   top: 0; left: 0; right: 0;
   height: 56px;
   z-index: 100;
