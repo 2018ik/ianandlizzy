@@ -4,32 +4,35 @@ function StoryEntry({ s, i }) {
   const isLeft = i % 2 === 0;
   return (
     <div ref={entryRef}
-         className={`story-entry clip-reveal-v ${entryVisible ? 'visible' : ''}`}
          style={{
            gridColumn: isLeft ? 1 : 2,
-           padding: 'clamp(32px, 4vh, 52px) 0',
-           borderTop: i >= 2 ? '1px solid #e0d8ce' : 'none',
-           transitionDelay: `${(i % 2) * 0.1}s`,
          }}>
-      <div className="story-watermark">{s.year}</div>
-      <span className="eyebrow" style={{ marginBottom: '12px' }}>Chapter {s.chapter}</span>
-      <p style={{
-        fontFamily: "'Cormorant Garamond', Georgia, serif",
-        fontWeight: 400,
-        fontSize: 'clamp(18px, 2.2vw, 24px)',
-        color: '#1a1714',
-        lineHeight: 1.7,
-        margin: '0 0 16px 0',
-      }}>
-        {s.body}
-      </p>
-      <span style={{
-        fontFamily: "'Space Grotesk', sans-serif",
-        fontSize: '10px',
-        fontWeight: 500,
-        letterSpacing: '0.2em',
-        color: '#b0a898',
-      }}>{s.year}</span>
+      <div className={`story-entry clip-reveal-v ${entryVisible ? 'visible' : ''}`}
+           style={{
+             padding: 'clamp(32px, 4vh, 52px) 0',
+             borderTop: i >= 2 ? '1px solid #e0d8ce' : 'none',
+             transitionDelay: `${(i % 2) * 0.1}s`,
+           }}>
+        <div className="story-watermark">{s.year}</div>
+        <span className="eyebrow" style={{ marginBottom: '12px' }}>Chapter {s.chapter}</span>
+        <p style={{
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontWeight: 400,
+          fontSize: 'clamp(18px, 2.2vw, 24px)',
+          color: '#1a1714',
+          lineHeight: 1.7,
+          margin: '0 0 16px 0',
+        }}>
+          {s.body}
+        </p>
+        <span style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: '10px',
+          fontWeight: 500,
+          letterSpacing: '0.2em',
+          color: '#b0a898',
+        }}>{s.year}</span>
+      </div>
     </div>
   );
 }

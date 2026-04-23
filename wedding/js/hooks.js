@@ -8,16 +8,26 @@ const { useState, useEffect, useRef, useCallback } = React;
 function useReveal(options = {}) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
+  const threshold = options.threshold ?? 0.12;
+  const rootMargin = options.rootMargin ?? '0px';
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    if (!('IntersectionObserver' in window)) {
+      setVisible(true);
+      return;
+    }
+
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.unobserve(el); } },
-      { threshold: options.threshold || 0.12, rootMargin: options.rootMargin || '0px' }
+      { threshold, rootMargin }
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [threshold, rootMargin]);
+
   return [ref, visible];
 }
 
