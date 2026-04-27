@@ -244,12 +244,9 @@ export function createRoomScene({
       if (!enabled) {
         light.intensity = 0;
         beam.material.opacity = 0;
-        beam.visible = false;
         return;
       }
 
-      light.visible = true;
-      beam.visible = true;
       const pulse = 0.92 + Math.sin(seconds * 1.5 + index) * 0.08;
       light.intensity = baseIntensity * pulse;
       beam.material.opacity = baseOpacity * pulse;
@@ -261,8 +258,6 @@ export function createRoomScene({
 
     const enabled = typeof forceEnabled === "boolean" ? forceEnabled : !lampGlow.enabled;
     lampGlow.enabled = enabled;
-    lampGlow.light.visible = enabled;
-    lampGlow.beam.visible = enabled;
 
     if (!enabled) {
       lampGlow.light.intensity = 0;
@@ -308,7 +303,7 @@ function addLampGlow(scene) {
   );
   light.position.copy(LAMP_GLOW_CONFIG.position);
   light.castShadow = false;
-  light.visible = false;
+  light.visible = true;
   light.intensity = 0;
 
   const target = new THREE.Object3D();
@@ -336,7 +331,7 @@ function addLampGlow(scene) {
   });
   const beam = new THREE.Mesh(beamGeometry, beamMaterial);
   beam.renderOrder = 999;
-  beam.visible = false;
+  beam.visible = true;
   beam.material.opacity = 0;
   beam.position.copy(LAMP_GLOW_CONFIG.position);
   const beamDirection = LAMP_GLOW_CONFIG.target.clone().sub(LAMP_GLOW_CONFIG.position).normalize();

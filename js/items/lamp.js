@@ -15,12 +15,19 @@ export function createLamp() {
         };
 
         const lamp = gltf.scene;
+        const bakedFloorMeshes = [];
         lamp.traverse((child) => {
+          if (child.isMesh && (child.name === "FLOOR" || child.material?.name === "FLOOR")) {
+            bakedFloorMeshes.push(child);
+            return;
+          }
+
           if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
           }
         });
+        bakedFloorMeshes.forEach((mesh) => mesh.parent?.remove(mesh));
 
         const box = new THREE.Box3().setFromObject(lamp);
         const size = new THREE.Vector3();

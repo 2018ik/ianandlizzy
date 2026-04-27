@@ -40,6 +40,9 @@ const { scene, camera, renderer, controls, clickable, updateFadeIns, updateScene
   },
 });
 renderer.domElement.style.touchAction = "none";
+renderer.domElement.addEventListener("contextmenu", (event) => event.preventDefault());
+document.getElementById("app")?.addEventListener("selectstart", (event) => event.preventDefault());
+document.getElementById("app")?.addEventListener("contextmenu", (event) => event.preventDefault());
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();

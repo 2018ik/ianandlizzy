@@ -169,7 +169,7 @@ export function populateRoom({ registerItem, onCat }) {
       loader: createLamp,
       onResolve: (lamp) => {
         lamp.scale.setScalar(scaleLamp);
-        lamp.position.set(3.5, 0, -3);
+        lamp.position.set(.95, 0, -3);
         lamp.rotation.y = -3.14159 / 2;
         lamp.userData.action = "toggleLampGlow";
         lamp.userData.hoverTransform = false;
