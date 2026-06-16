@@ -49,29 +49,20 @@
 </head>
 <body class="wedding-page" data-cursor-hover="images/hover.webp" data-cursor-clicked="images/clicked.webp">
   <div id="app">
-    <!-- 3D Room Hero — untouched -->
-    <section class="wedding-section wedding-hero">
-      <div id="wedding-canvas" class="wedding-canvas"></div>
-      <header class="wedding-hud">
-        <div>
-          <div class="badge">Ian & Lizzy</div>
-          <h1 class="wedding-title">Together, always.</h1>
-          <p class="wedding-subtitle">Details, schedule, and travel info below.</p>
-        </div>
-        <a class="pill pill-secondary" href="/">Explore our room</a>
-      </header>
-    </section>
+    <!-- Top bar — link back to the 3D room -->
+    <header class="wedding-topbar">
+      <a class="pill pill-secondary" href="/">Explore our room</a>
+    </header>
 
     <!-- React Wedding Site Mounts Here -->
     <div id="wedding-root"></div>
   </div>
 
-  <!-- Three.js room animation (original) -->
-  <script type="module" src="../js/wedding.js"></script>
   <script src="../js/cursor.js"></script>
 
   <!-- React wedding site — hooks and components in separate files -->
   <script type="text/babel" src="js/hooks.js"></script>
+  <script type="text/babel" src="js/content.js"></script>
   <script type="text/babel" src="js/components/nav.js"></script>
   <script type="text/babel" src="js/components/hero.js"></script>
   <script type="text/babel" src="js/components/invitation.js"></script>
@@ -118,6 +109,20 @@
     }
     /* Scroll progress above nav */
     .scroll-progress { z-index: 102; }
+
+    /* Top bar — holds the "Explore our room" button */
+    .wedding-topbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 16px clamp(16px, 4vw, 32px);
+      background: #f8f5f0;
+      position: relative;
+      z-index: 103;
+    }
+    .wedding-topbar .pill {
+      text-decoration: none;
+    }
   </style>
 </body>
 </html>

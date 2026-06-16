@@ -540,3 +540,38 @@ html.lenis { height: auto; }
 @media (min-width: 768px) {
   .nav-overlay { display: none; }
 }
+
+/* ── Content reveal after password unlock ──
+   Soft blur-to-sharp fade so text resolves into focus rather than snapping in.
+   Sections are staggered for a gentle cascade.
+
+   NOTE: we intentionally do NOT animate the wrapper or the fixed-position
+   children (scroll bar, dot nav, top nav). A retained transform/filter on an
+   ancestor turns it into the containing block for position:fixed descendants,
+   which would break them. Using fill-mode `backwards` means no transform is
+   kept after the animation finishes. */
+@keyframes contentFadeIn {
+  0%   { opacity: 0; filter: blur(14px); transform: translateY(18px); }
+  60%  { filter: blur(4px); }
+  100% { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+/* Sections only (4 = hero … 10 = footer); 1-3 are fixed UI, left untouched. */
+.content-reveal > section,
+.content-reveal > footer {
+  animation: contentFadeIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.content-reveal > *:nth-child(4)  { animation-delay: 0.05s; } /* hero */
+.content-reveal > *:nth-child(5)  { animation-delay: 0.18s; } /* invitation */
+.content-reveal > *:nth-child(6)  { animation-delay: 0.30s; } /* schedule */
+.content-reveal > *:nth-child(7)  { animation-delay: 0.42s; } /* venue */
+.content-reveal > *:nth-child(8)  { animation-delay: 0.54s; } /* story */
+.content-reveal > *:nth-child(9)  { animation-delay: 0.66s; } /* faq */
+.content-reveal > *:nth-child(10) { animation-delay: 0.78s; } /* footer */
+
+@media (prefers-reduced-motion: reduce) {
+  .content-reveal > section,
+  .content-reveal > footer {
+    animation: none;
+  }
+}

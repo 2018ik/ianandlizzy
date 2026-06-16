@@ -1,5 +1,6 @@
 /* ── Monogram Hero ── */
 function MonogramHero() {
+  const content = useContent();
   const [ready, setReady] = useState(false);
   const cardRef = useRef(null);
   const monogramRef = useRef(null);
@@ -175,13 +176,7 @@ function MonogramHero() {
   }, [ready]);
 
   // Cycling verses
-  const verses = [
-    { text: "Let him kiss me with the kisses of his mouth: for thy love is better than wine.", ref: "1:2" },
-    { text: "Draw me, we will run after thee.", ref: "1:4" },
-    { text: "I am my beloved's and my beloved is mine.", ref: "6:3" },
-    { text: "Come, my beloved, let us go forth into the field... there will I give thee my loves.", ref: "7:12" },
-    { text: "Who is this that cometh up from the wilderness, leaning upon her beloved?", ref: "8:5" },
-  ];
+  const verses = content.hero.verses;
   const [verseIdx, setVerseIdx] = useState(0);
   const [verseKey, setVerseKey] = useState(0);
   const advanceLock = useRef(false);
@@ -257,7 +252,7 @@ function MonogramHero() {
           transform: ready ? 'translateY(0)' : 'translateY(16px)',
           transition: 'opacity 0.8s ease 1.1s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 1.1s',
         }}>
-          {Math.max(0, Math.floor((new Date('2026-10-11') - new Date()) / 86400000))}
+          {Math.max(0, Math.floor((new Date(content.meta.countdownDate) - new Date()) / 86400000))}
         </span>
       </div>
 
@@ -281,14 +276,14 @@ function MonogramHero() {
           letterSpacing: '0.35em',
           textTransform: 'uppercase',
           color: '#b0a898',
-        }}>Ian &amp; Lizzy</span>
+        }}>{content.meta.names}</span>
         <span style={{
           fontFamily: "'Space Grotesk', sans-serif",
           fontSize: '10px',
           fontWeight: 300,
           letterSpacing: '0.2em',
           color: '#b0a898',
-        }}>Oct 11, 2026</span>
+        }}>{content.meta.dateLabel}</span>
       </div>
 
       {/* Portrait card — tilt-3D wrapper */}
@@ -356,24 +351,13 @@ function MonogramHero() {
             color: 'rgba(248,245,240,0.5)',
             writingMode: 'vertical-rl',
             paddingBottom: '4px',
-          }}>Washington, D.C.</span>
+          }}>{content.meta.location}</span>
         </div>
       </div>
 
       {/* Marquee band */}
       {(() => {
-        const items = [
-          "I am my beloved's and my beloved is mine",
-          "Ian & Lizzy",
-          "Draw me, we will run after thee",
-          "October 11 · 2026",
-          "Let him kiss me with the kisses of his mouth",
-          "Washington, D.C.",
-          "Come, my beloved, let us go forth",
-          "Ian & Lizzy",
-          "Who is this that cometh up from the wilderness",
-          "October 11 · 2026",
-        ];
+        const items = content.hero.marquee;
         const sep = <span style={{
           display: 'inline-block',
           margin: '0 28px',
@@ -420,7 +404,7 @@ function MonogramHero() {
         transform: ready ? 'translateY(0)' : 'translateY(10px)',
         transition: 'opacity 0.8s cubic-bezier(0.16,1,0.3,1) 0.5s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 0.5s',
       }}>
-        Welcome, [Guest name]!
+        {content.hero.guestGreeting}
       </p>
 
       {/* Scroll indicator */}

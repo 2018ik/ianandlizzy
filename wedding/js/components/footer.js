@@ -1,5 +1,6 @@
 /* ── Footer ── */
 function Footer() {
+  const content = useContent();
   const [ref, visible] = useReveal({ threshold: 0.3 });
   return (
     <footer ref={ref}
@@ -23,7 +24,7 @@ function Footer() {
           color: '#1a1714',
           letterSpacing: '-0.02em',
           margin: 0,
-        }}>Ian &amp; Lizzy</p>
+        }}>{content.footer.names}</p>
       </div>
 
       {/* Center: watermark monogram */}
@@ -49,7 +50,7 @@ function Footer() {
           color: '#7a7068',
           margin: '0 0 4px 0',
           textTransform: 'uppercase',
-        }}>October 11, 2026</p>
+        }}>{content.footer.dateLabel}</p>
         <p style={{
           fontFamily: "'Space Grotesk', sans-serif",
           fontWeight: 300,
@@ -58,7 +59,7 @@ function Footer() {
           color: '#b0a898',
           margin: 0,
           textTransform: 'uppercase',
-        }}>Washington, D.C.</p>
+        }}>{content.footer.location}</p>
       </div>
     </footer>
   );

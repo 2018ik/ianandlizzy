@@ -1,7 +1,10 @@
 /* ── App ── */
 function App() {
+  const [content, setContent] = useState(loadCachedContent);
+
   useEffect(() => {
-    // Lenis smooth scroll
+    // Lenis smooth scroll — only needed once there's a scrollable page.
+    if (!content) return;
     if (typeof Lenis !== 'undefined') {
       const lenis = new Lenis({
         duration: 1.2,
@@ -11,21 +14,33 @@ function App() {
       requestAnimationFrame(raf);
       return () => lenis.destroy();
     }
-  }, []);
+  }, [content]);
 
+  // Locked: show only the password gate (no informational text yet).
+  if (!content) {
+    return (
+      <div style={{ background: '#f8f5f0' }}>
+        <PasswordGate onUnlock={setContent} />
+      </div>
+    );
+  }
+
+  // Unlocked: provide content to every section and reveal with a soft fade.
   return (
-    <div style={{ background: '#f8f5f0' }}>
-      <ScrollProgress />
-      <DotNav />
-      <Nav />
-      <MonogramHero />
-      <Invitation />
-      <OrderOfEvents />
-      <Venue />
-      <OurStory />
-      <FAQs />
-      <Footer />
-    </div>
+    <WeddingContentContext.Provider value={content}>
+      <div className="content-reveal" style={{ background: '#f8f5f0' }}>
+        <ScrollProgress />
+        <DotNav />
+        <Nav />
+        <MonogramHero />
+        <Invitation />
+        <OrderOfEvents />
+        <Venue />
+        <OurStory />
+        <FAQs />
+        <Footer />
+      </div>
+    </WeddingContentContext.Provider>
   );
 }
 

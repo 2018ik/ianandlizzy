@@ -55,20 +55,8 @@ function FAQItem({ question, answer, index }) {
 
 /* ── FAQs ── */
 function FAQs() {
-  const faqs = [
-    {
-      question: 'Can I bring kids?',
-      answer: 'We love your little ones! However, this will be an adults-only celebration. We hope this gives you a chance to enjoy a night out.',
-    },
-    {
-      question: 'Where should I park?',
-      answer: 'There is a parking garage located directly beneath the venue. Street parking is also available along D Street and E Street NW.',
-    },
-    {
-      question: 'Will there be alcohol?',
-      answer: 'Yes! We will have a full open bar with cocktails, wine, and beer throughout the evening.',
-    },
-  ];
+  const content = useContent();
+  const faqs = content.faq.items;
 
   const [titleRef, titleVisible] = useReveal({ threshold: 0.2 });
 
@@ -105,7 +93,7 @@ function FAQs() {
                 letterSpacing: '-0.02em',
                 margin: 0,
               }}>
-            Frequently Asked
+            {content.faq.title}
           </h2>
         </div>
         <div style={{ maxWidth: '56rem', margin: '0 auto' }}>

@@ -1,5 +1,7 @@
 /* ── Venue ── */
 function Venue() {
+  const content = useContent();
+  const v = content.venue;
   const [textRef, textVisible] = useReveal({ threshold: 0.1 });
   const [photoRef, photoVisible] = useReveal({ threshold: 0.05 });
   const magnetRef = useMagnet(0.3);
@@ -19,7 +21,7 @@ function Venue() {
                justifyContent: 'center',
                borderRight: '1px solid #e0d8ce',
              }}>
-          <span className="eyebrow" style={{ marginBottom: '28px' }}>The Venue</span>
+          <span className="eyebrow" style={{ marginBottom: '28px' }}>{v.eyebrow}</span>
 
           <h2 style={{
             fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -31,7 +33,9 @@ function Venue() {
             letterSpacing: '-0.02em',
             margin: '0 0 28px 0',
           }}>
-            DAR<br />Headquarters
+            {v.venueName.map((line, i) => (
+              <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>
+            ))}
           </h2>
 
           <div style={{
@@ -50,16 +54,18 @@ function Venue() {
             lineHeight: 1.7,
             marginBottom: '8px',
           }}>
-            1776 D Street NW<br />Washington, DC 20006
+            {v.addressLines.map((line, i) => (
+              <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>
+            ))}
           </p>
 
           <div style={{ marginTop: '48px' }}>
             <a ref={magnetRef}
-               href="https://maps.google.com/?q=1776+D+Street+NW+Washington+DC"
+               href={v.directionsUrl}
                target="_blank"
                rel="noopener noreferrer"
                className="magnetic-btn">
-              Get Directions →
+              {v.directionsLabel}
             </a>
           </div>
 

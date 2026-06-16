@@ -1,5 +1,7 @@
 /* ── Invitation ── */
 function Invitation() {
+  const content = useContent();
+  const inv = content.invitation;
   const [photoRef, photoVisible] = useReveal({ threshold: 0.08 });
   const [cardRef, cardVisible] = useReveal({ threshold: 0.12 });
 
@@ -53,7 +55,7 @@ function Invitation() {
               }}>
 
                 {/* Eyebrow */}
-                <span className="eyebrow" style={{ display: 'block', marginBottom: '32px' }}>You're Invited</span>
+                <span className="eyebrow" style={{ display: 'block', marginBottom: '32px' }}>{inv.eyebrow}</span>
 
                 {/* Venue name */}
                 <h2 style={{
@@ -66,7 +68,9 @@ function Invitation() {
                   margin: '0 0 32px 0',
                   letterSpacing: '-0.02em',
                 }}>
-                  DAR<br />Headquarters
+                  {inv.venueName.map((line, i) => (
+                    <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>
+                  ))}
                 </h2>
 
                 {/* Thin rule */}
@@ -83,7 +87,9 @@ function Invitation() {
                   margin: '0 0 8px 0',
                   lineHeight: 1.8,
                 }}>
-                  1776 D Street NW<br />Washington, DC 20006
+                  {inv.addressLines.map((line, i) => (
+                    <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>
+                  ))}
                 </p>
 
                 {/* Date */}
@@ -95,7 +101,7 @@ function Invitation() {
                   color: '#1a1714',
                   margin: '28px 0 8px 0',
                 }}>
-                  October 11, 2026
+                  {inv.date}
                 </p>
 
                 {/* Time + dress code */}
@@ -106,7 +112,7 @@ function Invitation() {
                   letterSpacing: '0.28em',
                   textTransform: 'uppercase',
                   color: '#b0a898',
-                }}>4:00 PM · Black Tie Optional</span>
+                }}>{inv.timeAndDressCode}</span>
 
               </div>
             </div>

@@ -1,12 +1,8 @@
 /* ── Order of Events ── */
 function OrderOfEvents() {
+  const content = useContent();
   const hScrollRef = useHorizontalScroll();
-  const events = [
-    { time: '3:30 PM', label: 'Welcome Party', date: 'October 10', img: 'images/flowers_handdrawn2.png' },
-    { time: '4:00 PM', label: 'Ceremony',       date: 'October 11', img: 'images/DAR_handdrawn2.png' },
-    { time: '5:00 PM', label: 'Cocktail Hour',  date: 'October 11', img: 'images/drinks_handdrawn2.png' },
-    { time: '6:00 PM', label: 'Dinner',         date: 'October 11', img: 'images/bbq_handdrawn2.png' },
-  ];
+  const events = content.schedule.events;
 
   return (
     <section id="schedule" style={{ background: '#f8f5f0', overflow: 'hidden' }}>
@@ -17,7 +13,7 @@ function OrderOfEvents() {
         alignItems: 'baseline',
         gap: '20px',
       }}>
-        <span className="eyebrow">Order of Events</span>
+        <span className="eyebrow">{content.schedule.eyebrow}</span>
         <span style={{
           fontFamily: "'Space Grotesk', sans-serif",
           fontSize: '10px',
