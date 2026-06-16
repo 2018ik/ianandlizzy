@@ -26,7 +26,7 @@ function StoryEntry({ s, i }) {
           {s.body}
         </p>
         <span style={{
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "'Fragment Mono', monospace",
           fontSize: '10px',
           fontWeight: 500,
           letterSpacing: '0.2em',
@@ -52,13 +52,13 @@ function OurStory() {
         <h2 ref={titleRef}
             className={`reveal ${titleVisible ? 'visible' : ''}`}
             style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontWeight: 300,
-              fontStyle: 'italic',
-              fontSize: 'clamp(48px, 7vw, 96px)',
+              fontFamily: "'Pinyon Script', cursive",
+              fontWeight: 400,
+              fontStyle: 'normal',
+              fontSize: 'clamp(64px, 9vw, 120px)',
               color: '#1a1714',
               lineHeight: 0.9,
-              letterSpacing: '-0.03em',
+              letterSpacing: '0em',
               marginBottom: 'clamp(48px, 7vh, 80px)',
             }}>
           {content.story.title}
@@ -72,16 +72,30 @@ function OurStory() {
           ))}
         </div>
 
-        {/* Masonry gallery */}
+        {/* Photo gallery */}
         <div ref={galleryRef}
-             className={`masonry-grid reveal ${galleryVisible ? 'visible' : ''}`}
-             style={{ marginTop: 'clamp(48px, 6vh, 80px)' }}>
-          <div className="masonry-photo photo-placeholder" style={{ aspectRatio: '3/4' }} />
-          <div className="masonry-photo photo-placeholder-warm" style={{ aspectRatio: '4/5' }} />
-          <div className="masonry-photo photo-placeholder-light" style={{ aspectRatio: '3/4' }} />
-          <div className="masonry-photo photo-placeholder" style={{ aspectRatio: '4/3' }} />
-          <div className="masonry-photo photo-placeholder-light" style={{ aspectRatio: '3/4' }} />
-          <div className="masonry-photo photo-placeholder-warm" style={{ aspectRatio: '3/5' }} />
+             className={`reveal ${galleryVisible ? 'visible' : ''}`}
+             style={{
+               marginTop: 'clamp(48px, 6vh, 80px)',
+               display: 'flex',
+               gap: '12px',
+               alignItems: 'flex-start',
+             }}>
+          {['engagement4', 'engagement8', 'engagement7', 'engagement5'].map((name, i) => (
+            <img
+              key={name}
+              src={`images/${name}.jpg`}
+              alt="Ian and Lizzy"
+              className="masonry-photo"
+              style={{
+                flex: '1',
+                width: '0',
+                aspectRatio: '3/4',
+                objectFit: 'cover',
+                marginTop: i % 2 === 0 ? '0' : 'clamp(32px, 5vw, 64px)',
+              }}
+            />
+          ))}
         </div>
       </div>
     </section>

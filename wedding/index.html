@@ -23,7 +23,7 @@
   <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,400&family=Luxurious+Script&family=Pinyon+Script&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Fragment+Mono&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300;1,9..144,400&family=Luxurious+Script&family=Pinyon+Script&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <script>
     tailwind.config = {
       theme: {
@@ -49,11 +49,6 @@
 </head>
 <body class="wedding-page" data-cursor-hover="images/hover.webp" data-cursor-clicked="images/clicked.webp">
   <div id="app">
-    <!-- Top bar — link back to the 3D room -->
-    <header class="wedding-topbar">
-      <a class="pill pill-secondary" href="/">Explore our room</a>
-    </header>
-
     <!-- React Wedding Site Mounts Here -->
     <div id="wedding-root"></div>
   </div>
@@ -67,8 +62,8 @@
   <script type="text/babel" src="js/components/hero.js"></script>
   <script type="text/babel" src="js/components/invitation.js"></script>
   <script type="text/babel" src="js/components/schedule.js"></script>
-  <script type="text/babel" src="js/components/venue.js"></script>
   <script type="text/babel" src="js/components/story.js"></script>
+  <script type="text/babel" src="js/components/registry.js"></script>
   <script type="text/babel" src="js/components/faq.js"></script>
   <script type="text/babel" src="js/components/footer.js"></script>
   <script type="text/babel" src="js/app.js"></script>
@@ -110,19 +105,6 @@
     /* Scroll progress above nav */
     .scroll-progress { z-index: 102; }
 
-    /* Top bar — holds the "Explore our room" button */
-    .wedding-topbar {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 16px clamp(16px, 4vw, 32px);
-      background: #f8f5f0;
-      position: relative;
-      z-index: 103;
-    }
-    .wedding-topbar .pill {
-      text-decoration: none;
-    }
   </style>
 </body>
 </html>

@@ -20,7 +20,7 @@ function Invitation() {
               transition: 'clip-path 1.3s cubic-bezier(0.76, 0, 0.24, 1)',
             }}>
               <img
-                src="images/1.webp"
+                src="images/engagement2.jpg"
                 alt="Ian and Lizzy"
                 className="editorial-photo"
                 style={{
@@ -59,10 +59,10 @@ function Invitation() {
 
                 {/* Venue name */}
                 <h2 style={{
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontWeight: 300,
-                  fontStyle: 'italic',
-                  fontSize: 'clamp(40px, 5.5vw, 72px)',
+                  fontFamily: "'Pinyon Script', cursive",
+                  fontWeight: 400,
+                  fontStyle: 'normal',
+                  fontSize: 'clamp(52px, 7vw, 90px)',
                   color: '#1a1714',
                   lineHeight: 1.0,
                   margin: '0 0 32px 0',
@@ -78,7 +78,7 @@ function Invitation() {
 
                 {/* Address */}
                 <p style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: "'Fragment Mono', monospace",
                   fontWeight: 300,
                   fontSize: '12px',
                   letterSpacing: '0.18em',
@@ -106,7 +106,7 @@ function Invitation() {
 
                 {/* Time + dress code */}
                 <span style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: "'Fragment Mono', monospace",
                   fontWeight: 300,
                   fontSize: '10px',
                   letterSpacing: '0.28em',
@@ -120,7 +120,7 @@ function Invitation() {
             {/* Panel 2 — photo scrolls up past the stuck text */}
             <div style={{ position: 'relative', zIndex: 2, paddingBottom: 'clamp(80px, 12vh, 140px)' }}>
               <img
-                src="images/2.webp"
+                src="images/engagement3.jpg"
                 alt="Ian and Lizzy"
                 className="editorial-photo"
                 style={{ display: 'block', width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: '2px' }}

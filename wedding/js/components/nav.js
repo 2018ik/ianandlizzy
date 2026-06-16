@@ -3,8 +3,8 @@ const DOT_SECTIONS = [
   { id: 'home',       label: 'Home' },
   { id: 'invitation', label: 'Invitation' },
   { id: 'schedule',   label: 'Schedule' },
-  { id: 'venue',      label: 'Venue' },
   { id: 'story',      label: 'Our Story' },
+  { id: 'registry',   label: 'Registry' },
   { id: 'faq',        label: 'FAQ' },
 ];
 // Only show the nav on these sections
@@ -55,7 +55,7 @@ function DotNav() {
 
       {/* "Home" label — only shown on home section */}
       {activeId === 'home' && <span style={{
-        fontFamily: "'Space Grotesk', sans-serif",
+        fontFamily: "'Fragment Mono', monospace",
         fontSize: '8px',
         fontWeight: 500,
         letterSpacing: '0.4em',
@@ -115,7 +115,7 @@ function Nav() {
   }, []);
 
   useEffect(() => {
-    const ids = ['invitation', 'schedule', 'venue', 'story', 'faqs'];
+    const ids = ['invitation', 'schedule', 'story', 'registry', 'faqs'];
     const observers = ids.map(id => {
       const el = document.getElementById(id);
       if (!el) return null;
@@ -130,10 +130,11 @@ function Nav() {
   }, []);
 
   const links = [
-    { href: '#invitation', label: 'Details', id: 'invitation' },
+    { href: '#invitation', label: 'Details',  id: 'invitation' },
     { href: '#schedule',   label: 'Schedule', id: 'schedule' },
-    { href: '#story',      label: 'Story', id: 'story' },
-    { href: '#faqs',       label: 'FAQs', id: 'faqs' },
+    { href: '#story',      label: 'Story',    id: 'story' },
+    { href: '#registry',   label: 'Registry', id: 'registry' },
+    { href: '#faqs',       label: 'FAQs',     id: 'faqs' },
   ];
 
   const closeMenu = () => setMenuOpen(false);
@@ -141,8 +142,26 @@ function Nav() {
   return (
     <>
       <nav className={`nav-modern ${scrolled ? 'scrolled' : ''}`}>
-        <a href="#" className="nav-monogram" style={{ opacity: scrolled ? 1 : 0, transition: 'opacity 0.4s ease' }}>IL</a>
-        <div className="nav-links">
+        <a href="/" style={{
+          fontFamily: "'Fragment Mono', monospace",
+          fontSize: '9px',
+          fontWeight: 500,
+          letterSpacing: '0.25em',
+          textTransform: 'uppercase',
+          color: '#7a7068',
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          whiteSpace: 'nowrap',
+          opacity: 1,
+          transition: 'opacity 0.4s ease',
+        }}>← Our Room</a>
+        <div className="nav-links" style={{
+          opacity: scrolled ? 1 : 0,
+          pointerEvents: scrolled ? 'auto' : 'none',
+          transition: 'opacity 0.4s ease',
+        }}>
           {links.map(l => (
             <a key={l.id} href={l.href}
                className={`nav-link-modern ${activeSection === l.id ? 'active' : ''}`}>

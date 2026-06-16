@@ -35,8 +35,8 @@ function App() {
         <MonogramHero />
         <Invitation />
         <OrderOfEvents />
-        <Venue />
         <OurStory />
+        <Registry />
         <FAQs />
         <Footer />
       </div>

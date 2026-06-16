@@ -43,7 +43,7 @@ function Footer() {
       {/* Right */}
       <div style={{ textAlign: 'right' }}>
         <p style={{
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "'Fragment Mono', monospace",
           fontWeight: 300,
           fontSize: '11px',
           letterSpacing: '0.2em',
@@ -52,7 +52,7 @@ function Footer() {
           textTransform: 'uppercase',
         }}>{content.footer.dateLabel}</p>
         <p style={{
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "'Fragment Mono', monospace",
           fontWeight: 300,
           fontSize: '11px',
           letterSpacing: '0.2em',

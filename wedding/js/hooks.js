@@ -78,46 +78,49 @@ function useMagnet(strength = 0.35) {
   return ref;
 }
 
-/* ── Horizontal scroll (converts wheel Y → scrollLeft) ── */
-function useHorizontalScroll() {
-  const ref = useRef(null);
+/* ── Pinned horizontal scroll (sticky wrapper + translateX) ── */
+function usePinnedHScroll() {
+  const wrapperRef = useRef(null);
+  const trackRef = useRef(null);
+
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const handler = (e) => {
-      if (window.innerWidth < 768) return;
-      e.preventDefault();
-      el.scrollLeft += e.deltaY * 1.5;
+    const wrapper = wrapperRef.current;
+    const track = trackRef.current;
+    if (!wrapper || !track) return;
+
+    const isMobile = () => window.innerWidth < 768;
+
+    const setHeight = () => {
+      if (isMobile()) {
+        wrapper.style.height = '';
+        track.style.transform = '';
+        return;
+      }
+      const shift = track.scrollWidth - window.innerWidth;
+      wrapper.style.height = `${window.innerHeight + Math.max(0, shift)}px`;
     };
-    // Drag-to-scroll
-    let isDown = false;
-    let startX = 0;
-    let scrollLeft = 0;
-    const mouseDown = (e) => {
-      isDown = true;
-      el.classList.add('is-grabbing');
-      startX = e.pageX - el.offsetLeft;
-      scrollLeft = el.scrollLeft;
+
+    // Defer one frame so React has finished painting
+    const rafId = requestAnimationFrame(setHeight);
+    window.addEventListener('resize', setHeight);
+
+    const onScroll = () => {
+      if (isMobile()) return;
+      const top = -wrapper.getBoundingClientRect().top;
+      const max = wrapper.offsetHeight - window.innerHeight;
+      if (top <= 0) { track.style.transform = 'translateX(0)'; return; }
+      if (top >= max) { track.style.transform = `translateX(${-(track.scrollWidth - window.innerWidth)}px)`; return; }
+      track.style.transform = `translateX(${-top}px)`;
     };
-    const mouseUp = () => { isDown = false; el.classList.remove('is-grabbing'); };
-    const mouseMove = (e) => {
-      if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - el.offsetLeft;
-      el.scrollLeft = scrollLeft - (x - startX) * 1.5;
-    };
-    el.addEventListener('wheel', handler, { passive: false });
-    el.addEventListener('mousedown', mouseDown);
-    el.addEventListener('mouseup', mouseUp);
-    el.addEventListener('mouseleave', mouseUp);
-    el.addEventListener('mousemove', mouseMove);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
     return () => {
-      el.removeEventListener('wheel', handler);
-      el.removeEventListener('mousedown', mouseDown);
-      el.removeEventListener('mouseup', mouseUp);
-      el.removeEventListener('mouseleave', mouseUp);
-      el.removeEventListener('mousemove', mouseMove);
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', setHeight);
+      window.removeEventListener('scroll', onScroll);
     };
   }, []);
-  return ref;
+
+  return [wrapperRef, trackRef];
 }

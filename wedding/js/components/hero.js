@@ -229,7 +229,7 @@ function MonogramHero() {
       }} className="hero-side-panel">
         {/* Rotated label */}
         <span style={{
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "'Fragment Mono', monospace",
           fontSize: '8px',
           fontWeight: 500,
           letterSpacing: '0.4em',
@@ -262,7 +262,7 @@ function MonogramHero() {
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: 'min(600px, calc((100vh - 260px) * 0.75))',
         padding: '0 4px',
         marginBottom: '28px',
         opacity: ready ? 1 : 0,
@@ -270,7 +270,7 @@ function MonogramHero() {
         transition: 'opacity 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s',
       }}>
         <span style={{
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "'Fragment Mono', monospace",
           fontSize: '10px',
           fontWeight: 500,
           letterSpacing: '0.35em',
@@ -278,7 +278,7 @@ function MonogramHero() {
           color: '#b0a898',
         }}>{content.meta.names}</span>
         <span style={{
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "'Fragment Mono', monospace",
           fontSize: '10px',
           fontWeight: 300,
           letterSpacing: '0.2em',
@@ -290,14 +290,14 @@ function MonogramHero() {
       <div ref={cardRef} style={{
         position: 'relative',
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: 'min(600px, calc((100vh - 260px) * 0.75))',
         opacity: ready ? 1 : 0,
         willChange: 'transform',
         transition: 'opacity 1s cubic-bezier(0.16,1,0.3,1) 0.2s, transform 1s cubic-bezier(0.16,1,0.3,1) 0.2s',
       }}>
         {/* Photo */}
         <img
-          src="images/2.webp"
+          src="images/engagement1.jpg"
           alt="Ian and Lizzy"
           style={{
             display: 'block',
@@ -343,7 +343,7 @@ function MonogramHero() {
             }}>L</span>
           </span>
           <span style={{
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "'Fragment Mono', monospace",
             fontSize: '9px',
             fontWeight: 300,
             letterSpacing: '0.3em',
@@ -367,7 +367,7 @@ function MonogramHero() {
         }}>✦</span>;
         const row = items.map((t, i) => (
           <span key={i} style={{
-            fontFamily: i % 2 === 0 ? "'Fraunces', Georgia, serif" : "'Space Grotesk', sans-serif",
+            fontFamily: i % 2 === 0 ? "'Cormorant Garamond', Georgia, serif" : "'Fragment Mono', monospace",
             fontStyle: i % 2 === 0 ? 'italic' : 'normal',
             fontWeight: 300,
             fontSize: i % 2 === 0 ? '13px' : '9px',
@@ -393,10 +393,10 @@ function MonogramHero() {
 
       {/* Bottom caption */}
       <p style={{
-        fontFamily: "'Fraunces', Georgia, serif",
+        fontFamily: "'Cormorant Garamond', Georgia, serif",
         fontWeight: 300,
         fontStyle: 'italic',
-        fontSize: '18px',
+        fontSize: '20px',
         color: '#7a7068',
         marginTop: '24px',
         letterSpacing: '0.02em',
@@ -418,6 +418,34 @@ function MonogramHero() {
         <span>Scroll</span>
         <div className="scroll-indicator-line" />
       </div>
+
+      {/* Back to Our Room — mirrors scroll indicator on the left */}
+      <a
+        href="/"
+        style={{
+          position: 'absolute',
+          bottom: '32px',
+          left: '32px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontFamily: "'Fragment Mono', monospace",
+          fontSize: '9px',
+          fontWeight: 300,
+          letterSpacing: '0.35em',
+          textTransform: 'uppercase',
+          color: '#b0a898',
+          textDecoration: 'none',
+          zIndex: 10,
+          opacity: ready ? 1 : 0,
+          transition: 'opacity 0.6s ease 1s, color 0.3s ease',
+        }}
+        onMouseEnter={e => e.currentTarget.style.color = '#7a6a5a'}
+        onMouseLeave={e => e.currentTarget.style.color = '#b0a898'}
+      >
+        <span style={{ fontSize: '13px', lineHeight: 1 }}>←</span>
+        <span>Our Room</span>
+      </a>
     </section>
   );
 }

@@ -124,7 +124,7 @@ function PasswordGate({ onUnlock }) {
           style={{
             width: '100%',
             padding: '14px 18px',
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "'Fragment Mono', monospace",
             fontSize: '13px',
             letterSpacing: '0.15em',
             textAlign: 'center',
@@ -148,7 +148,7 @@ function PasswordGate({ onUnlock }) {
         </button>
 
         <span style={{
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "'Fragment Mono', monospace",
           fontSize: '11px',
           letterSpacing: '0.12em',
           color: '#b08a7a',

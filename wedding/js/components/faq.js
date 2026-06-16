@@ -20,7 +20,7 @@ function FAQItem({ question, answer, index }) {
         }}
         aria-expanded={open}>
         <span style={{
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "'Fragment Mono', monospace",
           fontSize: '10px',
           fontWeight: 300,
           letterSpacing: '0.2em',
@@ -38,9 +38,9 @@ function FAQItem({ question, answer, index }) {
       <div className={`faq-body-wrap ${open ? 'open' : ''}`}>
         <div className="faq-body-inner">
           <p style={{
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontWeight: 300,
-            fontSize: '15px',
+            fontSize: '18px',
             lineHeight: 1.75,
             color: '#7a7068',
             padding: `0 clamp(16px, 4vw, 40px) clamp(20px, 3vh, 28px) calc(40px + clamp(16px, 4vw, 40px) + 24px)`,
@@ -85,10 +85,10 @@ function FAQs() {
           <h2 ref={titleRef}
               className={`reveal ${titleVisible ? 'visible' : ''}`}
               style={{
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontWeight: 300,
-                fontStyle: 'italic',
-                fontSize: 'clamp(40px, 6vw, 72px)',
+                fontFamily: "'Pinyon Script', cursive",
+                fontWeight: 400,
+                fontStyle: 'normal',
+                fontSize: 'clamp(56px, 8vw, 96px)',
                 color: '#1a1714',
                 letterSpacing: '-0.02em',
                 margin: 0,
