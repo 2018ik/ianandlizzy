@@ -15,7 +15,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- Splitting.js for character animation -->
   <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css" />
@@ -49,21 +49,49 @@
 </head>
 <body class="wedding-page" data-cursor-hover="images/hover.webp" data-cursor-clicked="images/clicked.webp">
   <div id="app">
-      }
+    <!-- React Wedding Site Mounts Here -->
+    <div id="wedding-root"></div>
+  </div>
+
+  <script src="../js/cursor.js"></script>
+
+  <!-- React wedding site — hooks and components in separate files -->
+  <script type="text/babel" src="js/hooks.js"></script>
+  <script type="text/babel" src="js/content.js"></script>
+  <script type="text/babel" src="js/components/nav.js"></script>
+  <script type="text/babel" src="js/components/hero.js"></script>
+  <script type="text/babel" src="js/components/invitation.js"></script>
+  <script type="text/babel" src="js/components/schedule.js"></script>
+  <script type="text/babel" src="js/components/story.js"></script>
   <script type="text/babel" src="js/components/registry.js"></script>
+  <script type="text/babel" src="js/components/faq.js"></script>
+  <script type="text/babel" src="js/components/footer.js"></script>
+  <script type="text/babel" src="js/app.js"></script>
+
+  <style>
+    /* Story grid mobile collapse */
+    @media (max-width: 767px) {
+      .story-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .story-grid > div {
+        grid-column: 1 !important;
+        border-top: 1px solid #e0d8ce !important;
+      }
       .story-grid > div:first-child {
         border-top: none !important;
+      }
+    }
     /* Venue grid mobile */
     @media (max-width: 767px) {
       #venue > div {
         grid-template-columns: 1fr !important;
-  <script type="text/babel" src="js/content.js"></script>
       }
       #venue > div > div:first-child {
         border-right: none !important;
         border-bottom: 1px solid #e0d8ce;
+      }
     }
-  <script type="text/babel" src="js/components/registry.js"></script>
     /* Footer mobile */
     @media (max-width: 767px) {
       footer {
@@ -80,5 +108,3 @@
   </style>
 </body>
 </html>
-
-
