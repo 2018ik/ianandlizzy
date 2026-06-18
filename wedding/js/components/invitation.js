@@ -6,7 +6,7 @@ function Invitation() {
   const [cardRef, cardVisible] = useReveal({ threshold: 0.12 });
 
   return (
-    <section id="invitation" style={{ background: '#f8f5f0' }}>
+    <section id="invitation" style={{ background: '#d6b8bc' }}>
       <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '0 clamp(24px, 5vw, 64px)' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(40px, 6vw, 100px)' }}
              className="invitation-grid">
@@ -29,6 +29,7 @@ function Invitation() {
                   aspectRatio: '3/4',
                   objectFit: 'cover',
                   objectPosition: 'center top',
+                  border: '6px solid white',
                 }}
               />
             </div>
@@ -45,7 +46,7 @@ function Invitation() {
               display: 'flex',
               alignItems: 'center',
               zIndex: 1,
-              background: '#f8f5f0',
+              background: '#d6b8bc',
             }}>
               <div ref={cardRef} style={{
                 width: '100%',
@@ -63,7 +64,7 @@ function Invitation() {
                   fontWeight: 400,
                   fontStyle: 'normal',
                   fontSize: 'clamp(52px, 7vw, 90px)',
-                  color: '#1a1714',
+                  color: '#6b2d3e',
                   lineHeight: 1.0,
                   margin: '0 0 32px 0',
                   letterSpacing: '-0.02em',
@@ -98,7 +99,7 @@ function Invitation() {
                   fontWeight: 300,
                   fontStyle: 'italic',
                   fontSize: 'clamp(20px, 2.2vw, 26px)',
-                  color: '#1a1714',
+                  color: '#6b2d3e',
                   margin: '28px 0 8px 0',
                 }}>
                   {inv.date}
@@ -118,12 +119,12 @@ function Invitation() {
             </div>
 
             {/* Panel 2 — photo scrolls up past the stuck text */}
-            <div style={{ position: 'relative', zIndex: 2, paddingBottom: 'clamp(80px, 12vh, 140px)' }}>
+            <div style={{ position: 'relative', zIndex: 2, paddingBottom: 'clamp(80px, 100vh, 800px)' }}>
               <img
                 src="images/engagement3.jpg"
                 alt="Ian and Lizzy"
                 className="editorial-photo"
-                style={{ display: 'block', width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: '2px' }}
+                style={{ display: 'block', width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: '2px', border: '6px solid white' }}
               />
             </div>
 

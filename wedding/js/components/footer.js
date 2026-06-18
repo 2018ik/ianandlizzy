@@ -21,7 +21,7 @@ function Footer() {
           fontWeight: 300,
           fontStyle: 'italic',
           fontSize: 'clamp(28px, 4vw, 44px)',
-          color: '#1a1714',
+          color: '#6b2d3e',
           letterSpacing: '-0.02em',
           margin: 0,
         }}>{content.footer.names}</p>
@@ -33,7 +33,7 @@ function Footer() {
         fontWeight: 300,
         fontStyle: 'italic',
         fontSize: 'clamp(60px, 10vw, 100px)',
-        color: '#1a1714',
+        color: '#6b2d3e',
         opacity: 0.07,
         lineHeight: 1,
         letterSpacing: '-0.04em',

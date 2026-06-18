@@ -9,7 +9,7 @@ function StoryEntry({ s, i }) {
          }}>
       <div className={`story-entry clip-reveal-v ${entryVisible ? 'visible' : ''}`}
            style={{
-             padding: 'clamp(32px, 4vh, 52px) 0',
+             padding: 'clamp(16px, 2vh, 28px) 0',
              borderTop: i >= 2 ? '1px solid #e0d8ce' : 'none',
              transitionDelay: `${(i % 2) * 0.1}s`,
            }}>
@@ -18,10 +18,10 @@ function StoryEntry({ s, i }) {
         <p style={{
           fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontWeight: 400,
-          fontSize: 'clamp(18px, 2.2vw, 24px)',
-          color: '#1a1714',
+          fontSize: 'clamp(12px, 1.3vw, 15px)',
+          color: '#6b2d3e',
           lineHeight: 1.7,
-          margin: '0 0 16px 0',
+          margin: '0 0 10px 0',
         }}>
           {s.body}
         </p>
@@ -46,33 +46,41 @@ function OurStory() {
   const stories = content.story.entries;
 
   return (
-    <section id="story" style={{ background: '#f8f5f0', padding: 'clamp(60px,8vh,100px) clamp(24px,6vw,80px)' }}>
-      <div style={{ maxWidth: '64rem', margin: '0 auto' }}>
+    <section id="story" style={{
+      background: '#f8f5f0',
+      padding: 'clamp(60px,8vh,100px) clamp(24px,6vw,80px)',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
 
-        <h2 ref={titleRef}
-            className={`reveal ${titleVisible ? 'visible' : ''}`}
-            style={{
-              fontFamily: "'Pinyon Script', cursive",
-              fontWeight: 400,
-              fontStyle: 'normal',
-              fontSize: 'clamp(64px, 9vw, 120px)',
-              color: '#1a1714',
-              lineHeight: 0.9,
-              letterSpacing: '0em',
-              marginBottom: 'clamp(48px, 7vh, 80px)',
-            }}>
-          {content.story.title}
-        </h2>
+      <h2 ref={titleRef}
+          className={`reveal ${titleVisible ? 'visible' : ''}`}
+          style={{
+            fontFamily: "'Pinyon Script', cursive",
+            fontWeight: 400,
+            fontStyle: 'normal',
+            fontSize: 'clamp(64px, 9vw, 120px)',
+            color: '#6b2d3e',
+            lineHeight: 0.9,
+            letterSpacing: '0em',
+            marginBottom: 0,
+          }}>
+        {content.story.title}
+      </h2>
 
+      <div style={{ maxWidth: '34rem', marginLeft: 'auto', marginTop: 'auto' }}>
         {/* Alternating two-column timeline */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 60px' }}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 36px' }}
              className="story-grid">
           {stories.map((s, i) => (
             <StoryEntry key={s.year} s={s} i={i} />
           ))}
         </div>
+      </div>
 
-        {/* Photo gallery */}
+      {/* Photo gallery — full-width, original sizing */}
+      <div style={{ maxWidth: '64rem', margin: '0 auto', width: '100%' }}>
         <div ref={galleryRef}
              className={`reveal ${galleryVisible ? 'visible' : ''}`}
              style={{

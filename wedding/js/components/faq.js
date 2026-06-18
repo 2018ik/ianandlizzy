@@ -12,7 +12,7 @@ function FAQItem({ question, answer, index }) {
           gridTemplateColumns: '40px 1fr 24px',
           alignItems: 'center',
           gap: '24px',
-          padding: 'clamp(20px, 3vh, 28px) clamp(16px, 4vw, 40px)',
+          padding: 'clamp(8px, 1vh, 12px) clamp(16px, 4vw, 40px)',
           background: 'none',
           border: 'none',
           cursor: 'pointer',
@@ -22,16 +22,18 @@ function FAQItem({ question, answer, index }) {
         <span style={{
           fontFamily: "'Fragment Mono', monospace",
           fontSize: '10px',
-          fontWeight: 300,
+          fontWeight: 400,
           letterSpacing: '0.2em',
           color: '#b0a898',
         }}>{num}</span>
         <span style={{
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontFamily: "'Fragment Mono', monospace",
           fontWeight: 400,
-          fontSize: 'clamp(17px, 2vw, 21px)',
-          color: '#1a1714',
-          lineHeight: 1.3,
+          fontSize: 'clamp(12px, 1.4vw, 14px)',
+          color: '#6b2d3e',
+          lineHeight: 1.4,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
         }}>{question}</span>
         <div className={`faq-cross ${open ? 'open' : ''}`} />
       </button>
@@ -40,8 +42,8 @@ function FAQItem({ question, answer, index }) {
           <p style={{
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontWeight: 300,
-            fontSize: '18px',
-            lineHeight: 1.75,
+            fontSize: '15px',
+            lineHeight: 1.7,
             color: '#7a7068',
             padding: `0 clamp(16px, 4vw, 40px) clamp(20px, 3vh, 28px) calc(40px + clamp(16px, 4vw, 40px) + 24px)`,
           }}>
@@ -72,7 +74,7 @@ function FAQs() {
         fontSize: 'clamp(100px, 20vw, 200px)',
         fontWeight: 300,
         fontStyle: 'italic',
-        color: '#1a1714',
+        color: '#6b2d3e',
         opacity: 0.04,
         lineHeight: 1,
         pointerEvents: 'none',
@@ -89,7 +91,7 @@ function FAQs() {
                 fontWeight: 400,
                 fontStyle: 'normal',
                 fontSize: 'clamp(56px, 8vw, 96px)',
-                color: '#1a1714',
+                color: '#6b2d3e',
                 letterSpacing: '-0.02em',
                 margin: 0,
               }}>

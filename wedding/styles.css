@@ -57,17 +57,14 @@ html.lenis { height: auto; }
   border-bottom: 1px solid transparent;
 }
 .nav-modern.scrolled {
-  background: rgba(248, 245, 240, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom-color: #e0d8ce;
+  background: transparent;
 }
 .nav-monogram {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-weight: 300;
   font-style: italic;
   font-size: 22px;
-  color: #1a1714;
+  color: #6b2d3e;
   text-decoration: none;
   letter-spacing: -0.02em;
 }
@@ -94,12 +91,12 @@ html.lenis { height: auto; }
   left: 0;
   width: 0;
   height: 1px;
-  background: #1a1714;
+  background: #6b2d3e;
   transition: width 0.4s cubic-bezier(0.76, 0, 0.24, 1);
 }
-.nav-link-modern:hover { color: #1a1714; }
+.nav-link-modern:hover { color: #6b2d3e; }
 .nav-link-modern:hover::after { width: 100%; }
-.nav-link-modern.active { color: #1a1714; }
+.nav-link-modern.active { color: #6b2d3e; }
 .nav-link-modern.active::after { width: 100%; }
 
 /* Hamburger */
@@ -116,7 +113,7 @@ html.lenis { height: auto; }
   display: block;
   width: 24px;
   height: 1px;
-  background: #1a1714;
+  background: #6b2d3e;
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -147,7 +144,7 @@ html.lenis { height: auto; }
   font-weight: 300;
   font-style: italic;
   font-size: 48px;
-  color: #1a1714;
+  color: #6b2d3e;
   text-decoration: none;
   transition: color 0.3s ease;
 }
@@ -159,7 +156,7 @@ html.lenis { height: auto; }
   top: 0;
   left: 0;
   height: 1px;
-  background: #1a1714;
+  background: #6b2d3e;
   z-index: 101;
   transition: none;
   pointer-events: none;
@@ -198,7 +195,7 @@ html.lenis { height: auto; }
 /* ── Line expand ── */
 .line-expand {
   height: 1px;
-  background: #1a1714;
+  background: #6b2d3e;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 1s cubic-bezier(0.76, 0, 0.24, 1);
@@ -260,7 +257,7 @@ html.lenis { height: auto; }
   font-style: italic;
   line-height: 0.85;
   letter-spacing: -0.04em;
-  color: #1a1714;
+  color: #6b2d3e;
 }
 
 /* ── Scroll indicator vertical ── */
@@ -296,7 +293,7 @@ html.lenis { height: auto; }
   font-size: clamp(72px, 14vw, 160px);
   font-weight: 300;
   font-style: italic;
-  color: #1a1714;
+  color: #6b2d3e;
   line-height: 0.9;
   letter-spacing: -0.03em;
   display: inline-block;
@@ -321,7 +318,7 @@ html.lenis { height: auto; }
   top: 0;
   height: 100vh;
   overflow: hidden;
-  background: #f8f5f0;
+  background: #f0ebe3;
   display: flex;
   flex-direction: column;
 }
@@ -347,7 +344,7 @@ html.lenis { height: auto; }
   font-size: clamp(100px, 14vw, 180px);
   font-weight: 300;
   font-style: italic;
-  color: #1a1714;
+  color: #6b2d3e;
   opacity: 0.05;
   line-height: 1;
   pointer-events: none;
@@ -359,7 +356,7 @@ html.lenis { height: auto; }
   font-size: clamp(42px, 5.5vw, 60px);
   font-weight: 400;
   font-style: normal;
-  color: #1a1714;
+  color: #6b2d3e;
   line-height: 1.1;
   position: relative;
 }
@@ -419,7 +416,7 @@ html.lenis { height: auto; }
   font-weight: 500;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: #1a1714;
+  color: #6b2d3e;
   text-decoration: none;
   padding: 12px 0;
   position: relative;
@@ -429,7 +426,7 @@ html.lenis { height: auto; }
   content: '';
   display: block;
   height: 1px;
-  background: #1a1714;
+  background: #6b2d3e;
   transform: scaleX(0.25);
   transform-origin: left;
   transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
@@ -491,7 +488,7 @@ html.lenis { height: auto; }
 .faq-cross::before { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
 .faq-cross::after  { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
 .faq-row-modern:hover .faq-cross::before,
-.faq-row-modern:hover .faq-cross::after { background: #1a1714; }
+.faq-row-modern:hover .faq-cross::after { background: #6b2d3e; }
 
 /* ── Photo placeholders (kept for empty slots) ── */
 .photo-placeholder {
@@ -530,7 +527,7 @@ html.lenis { height: auto; }
   font-size: clamp(80px, 12vw, 140px);
   font-weight: 300;
   font-style: italic;
-  color: #1a1714;
+  color: #6b2d3e;
   opacity: 0.04;
   line-height: 1;
   pointer-events: none;

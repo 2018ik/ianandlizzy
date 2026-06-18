@@ -23,7 +23,7 @@ function Registry() {
             fontWeight: 300,
             fontStyle: 'italic',
             fontSize: 'clamp(24px, 3.2vw, 40px)',
-            color: '#1a1714',
+            color: '#6b2d3e',
             lineHeight: 1.45,
             margin: '0 auto 52px',
             maxWidth: '36rem',
@@ -71,7 +71,7 @@ function Registry() {
               fontWeight: 500,
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: '#1a1714',
+              color: '#6b2d3e',
             }}>Apple Vision Pro</span>
             <span style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",

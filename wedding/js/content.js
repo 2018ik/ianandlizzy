@@ -86,7 +86,7 @@ function PasswordGate({ onUnlock }) {
       <span style={{
         fontFamily: "'Pinyon Script', cursive",
         fontSize: 'clamp(64px, 12vw, 110px)',
-        color: '#1a1714',
+        color: '#6b2d3e',
         lineHeight: 0.9,
         marginBottom: '8px',
       }}>I&amp;L</span>
@@ -128,7 +128,7 @@ function PasswordGate({ onUnlock }) {
             fontSize: '13px',
             letterSpacing: '0.15em',
             textAlign: 'center',
-            color: '#1a1714',
+            color: '#6b2d3e',
             background: 'transparent',
             border: 'none',
             borderBottom: `1px solid ${status === 'error' ? '#b08a7a' : '#c8bfb5'}`,

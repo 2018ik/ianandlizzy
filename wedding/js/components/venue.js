@@ -28,7 +28,7 @@ function Venue() {
             fontWeight: 300,
             fontStyle: 'italic',
             fontSize: 'clamp(36px, 5vw, 60px)',
-            color: '#1a1714',
+            color: '#6b2d3e',
             lineHeight: 1.1,
             letterSpacing: '-0.02em',
             margin: '0 0 28px 0',

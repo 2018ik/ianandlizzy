@@ -5,7 +5,7 @@ function OrderOfEvents() {
   const events = content.schedule.events;
 
   return (
-    <section id="schedule" style={{ background: '#f8f5f0' }}>
+    <section id="schedule" style={{ background: '#f0ebe3' }}>
       {/* Wrapper height is set by JS to equal 100vh + horizontal scroll distance */}
       <div ref={wrapperRef}>
         <div className="h-scroll-sticky">
