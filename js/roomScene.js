@@ -274,14 +274,14 @@ function addLights(scene) {
   // and walls land in between. This makes shadowed areas vary in darkness by
   // orientation instead of all reading as one flat tone. Costs nothing extra
   // (one shader term, no shadow map).
-  const hemi = new THREE.HemisphereLight(0xfff3e2, 0x4f4150, 0.62);
+  const hemi = new THREE.HemisphereLight(0xfff3e2, 0x4f4150, 0.8);
   scene.add(hemi);
 
   // Warm key light almost in front of the room (+z dominant, little +x) so the
   // back wall is brightly lit while the side wall gets only grazing light and
   // reads as clearly shadowed. Furniture throws obvious cast shadows.
   const sun = new THREE.DirectionalLight(0xfff3e2, 1.55);
-  sun.position.set(2, 12, 13);
+  sun.position.set(7, 12, 13);
   sun.castShadow = true;
   sun.shadow.mapSize.width = 1024;
   sun.shadow.mapSize.height = 1024;
