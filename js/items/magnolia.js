@@ -42,7 +42,6 @@ export function createMagnolia() {
         const scaledCenter = new THREE.Vector3();
         scaledBox.getCenter(scaledCenter);
         magnolia.position.sub(scaledCenter);
-        magnolia.position.y += (scaledBox.max.y - scaledBox.min.y) * 0.5;
 
         magnoliaGroup.add(magnolia);
         resolve(magnoliaGroup);

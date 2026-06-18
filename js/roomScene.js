@@ -67,7 +67,7 @@ export function createRoomScene({
   renderer.setPixelRatio(getMainRendererPixelRatio());
   renderer.setSize(mountEl.clientWidth || window.innerWidth, mountEl.clientHeight || window.innerHeight);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.shadowMap.type = THREE.VSMShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
@@ -269,23 +269,43 @@ export function createRoomScene({
 }
 
 function addLights(scene) {
-  const ambient = new THREE.AmbientLight(0xffffff, 1.0);
-  scene.add(ambient);
+  // Hemisphere ambient instead of a flat AmbientLight: up-facing surfaces pick
+  // up the warm "sky" tone, down-facing surfaces the darker cool "ground" tone,
+  // and walls land in between. This makes shadowed areas vary in darkness by
+  // orientation instead of all reading as one flat tone. Costs nothing extra
+  // (one shader term, no shadow map).
+  const hemi = new THREE.HemisphereLight(0xfff3e2, 0x4f4150, 0.62);
+  scene.add(hemi);
 
-  const sun = new THREE.DirectionalLight(0xffffff, 0.9);
-  sun.position.set(8, 12, 6);
+  // Warm key light almost in front of the room (+z dominant, little +x) so the
+  // back wall is brightly lit while the side wall gets only grazing light and
+  // reads as clearly shadowed. Furniture throws obvious cast shadows.
+  const sun = new THREE.DirectionalLight(0xfff3e2, 1.55);
+  sun.position.set(2, 12, 13);
   sun.castShadow = true;
-  sun.shadow.mapSize.width = 512;
-  sun.shadow.mapSize.height = 512;
+  sun.shadow.mapSize.width = 1024;
+  sun.shadow.mapSize.height = 1024;
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 30;
-  sun.shadow.camera.left = -12;
-  sun.shadow.camera.right = 12;
-  sun.shadow.camera.top = 12;
-  sun.shadow.camera.bottom = -12;
+  // Tighter frustum than before — fits the room, so the same 512 map gives
+  // crisper shadows at no extra cost.
+  sun.shadow.camera.left = -9;
+  sun.shadow.camera.right = 9;
+  sun.shadow.camera.top = 9;
+  sun.shadow.camera.bottom = -9;
+  // VSM uses a tiny positive bias; negative bias causes leaking with VSM.
+  sun.shadow.bias = 0;
+  sun.shadow.normalBias = 0.04;
+  // With VSMShadowMap, radius blurs the shadow map itself, so this actually
+  // produces a smooth, graduated penumbra (and blurSamples controls quality).
+  // Cost is a small GPU blur pass over the shadow map — no CPU impact.
+  sun.shadow.radius = 3;
+  sun.shadow.blurSamples = 12;
   scene.add(sun);
 
-  const fill = new THREE.DirectionalLight(0xffffff, 0.35);
+  // Very gentle cool fill so the shadowed side isn't crushed to black.
+  // Kept low on purpose to preserve the light/shadow split.
+  const fill = new THREE.DirectionalLight(0xb8c4d6, 0.12);
   fill.position.set(-6, 6, -4);
   scene.add(fill);
 

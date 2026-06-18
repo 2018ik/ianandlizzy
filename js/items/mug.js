@@ -36,7 +36,6 @@ export function createCoffeeMug() {
         scaledBox.getSize(scaledSize);
         scaledBox.getCenter(scaledCenter);
         mug.position.sub(scaledCenter);
-        mug.position.y += scaledSize.y * 0.5;
 
         mugGroup.add(mug);
         resolve(mugGroup);

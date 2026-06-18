@@ -11,6 +11,7 @@ import { createCoffeeMug } from "./items/mug.js";
 import { createPoster } from "./items/poster.js";
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 import { GLTFLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+import { RoundedBoxGeometry } from "https://unpkg.com/three@0.160.0/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { createWallShelf } from "./items/wallshelf.js";
 import { createCinamaroll } from "./items/cinamaroll.js";
 import { createBadtz } from "./items/badtz.js";
@@ -112,7 +113,7 @@ export function populateRoom({ registerItem, onCat }) {
       loader: createCoffeeMug,
       onResolve: (mug) => {
         mug.scale.setScalar(scaleMug);
-        mug.position.set(-0.5, 2.49, -2.5);
+        mug.position.set(-0.5, 2.96, -2.5);
         registerItem(mug);
       },
       label: "coffee mug",
@@ -151,7 +152,7 @@ export function populateRoom({ registerItem, onCat }) {
       loader: createMacbook,
       onResolve: (computer) => {
         computer.scale.setScalar(scaleComputer);
-        computer.position.set(-2, 3.18, -2.8);
+        computer.position.set(-2, 3.15, -2.8);
         registerItem(computer);
       },
       label: "macbook",
@@ -260,7 +261,7 @@ export function populateRoom({ registerItem, onCat }) {
     {
       loader: createMagnolia,
       onResolve: (magnolia) => {
-        magnolia.position.set(-3.2, 2.49, -2.8);
+        magnolia.position.set(-3.2, 2.97, -2.8);
         registerItem(magnolia, { clickable: true });
       },
       label: "magnolia",
@@ -297,10 +298,12 @@ export function addRoomShell(scene) {
     roughness: 0.65,
     metalness: 0.05,
     emissive: 0x8b6a4a,      // warm brown, not white
-    emissiveIntensity: 0.30, // small lift
+    emissiveIntensity: 0.12, // small lift only — let the key light do the shading
   });
-  const floor = new THREE.Mesh(new THREE.BoxGeometry(12, 0.6, 10), floorMat);
-  floor.geometry.computeVertexNormals();
+  // Rounded floor — soft pillowy edges. Radius is near half the 0.6 thickness
+  // so the top/bottom edges read as a generous bevel; the flat top stays at y=0
+  // (interior is flat, so items still sit correctly).
+  const floor = new THREE.Mesh(new RoundedBoxGeometry(12, 0.6, 10, 6, 0.28), floorMat);
   floor.position.set(0, -0.3, 0);
   floor.receiveShadow = true;
   group.add(floor);
@@ -345,23 +348,23 @@ export function addRoomShell(scene) {
 
   const wallMat = new THREE.MeshStandardMaterial({
     color: 0xf7d2dc,
-    emissive: new THREE.Color(0xff7d2dc),
-    emissiveIntensity: 0.5,
+    emissive: new THREE.Color(0xf7d2dc),
+    emissiveIntensity: 0.1,
   });
-  const backWall = new THREE.Mesh(new THREE.BoxGeometry(12, 6, 0.4), wallMat);
-  backWall.position.set(0, 2.4, -5.2);
+  // The back and side walls are each extended by one wall-thickness toward the
+  // corner so their rounded ends get buried inside the perpendicular wall. This
+  // leaves a crisp 90° inner seam where the two walls meet, while every other
+  // edge (tops, front-facing verticals) stays softly rounded. The old separate
+  // corner filler is no longer needed — the overlap fills the junction.
+  const backWall = new THREE.Mesh(new RoundedBoxGeometry(12.4, 6, 0.4, 6, 0.19), wallMat);
+  backWall.position.set(-0.2, 2.4, -5.2);
   backWall.receiveShadow = true;
   group.add(backWall);
 
-  const sideWall = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6, 10), wallMat);
-  sideWall.position.set(-6.2, 2.4, 0);
+  const sideWall = new THREE.Mesh(new RoundedBoxGeometry(0.4, 6, 10.4, 6, 0.19), wallMat);
+  sideWall.position.set(-6.2, 2.4, -0.2);
   sideWall.receiveShadow = true;
   group.add(sideWall);
-
-  const corner = new THREE.Mesh(new THREE.BoxGeometry(0.4, 6, 0.4), wallMat);
-  corner.position.set(-6.2, 2.4, -5.2);
-  corner.receiveShadow = true;
-  group.add(corner);
 
   lockStaticTransforms(group);
   scene.add(group);
