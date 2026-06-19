@@ -34,6 +34,12 @@ function DotNav() {
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // On the invitation section, tint the nav to match the cream accent
+  const onInvitation = activeId === 'invitation';
+  const lineColor   = onInvitation ? '#fff3ddff' : '#c8bfb5';
+  const activeColor = onInvitation ? '#fff3ddff' : '#7a6a5a';
+  const dotBorder   = onInvitation ? '#fff3ddff' : '#c8bfb5';
+
   return (
     <div className="dot-nav" style={{
       position: 'fixed',
@@ -51,7 +57,7 @@ function DotNav() {
     }}>
 
       {/* Top hairline */}
-      <div style={{ width: '1px', height: '32px', background: '#c8bfb5' }} />
+      <div style={{ width: '1px', height: '32px', background: lineColor, transition: 'background 0.5s ease' }} />
 
       {/* "Home" label — only shown on home section */}
       {activeId === 'home' && <span style={{
@@ -77,8 +83,8 @@ function DotNav() {
             width: activeId === s.id ? '6px' : '4px',
             height: activeId === s.id ? '6px' : '4px',
             borderRadius: '50%',
-            background: activeId === s.id ? '#7a6a5a' : 'transparent',
-            border: `1px solid ${activeId === s.id ? '#7a6a5a' : '#c8bfb5'}`,
+            background: activeId === s.id ? activeColor : 'transparent',
+            border: `1px solid ${activeId === s.id ? activeColor : dotBorder}`,
             padding: 0,
             cursor: 'pointer',
             transition: 'all 0.3s ease',
@@ -89,7 +95,7 @@ function DotNav() {
       ))}
 
       {/* Bottom hairline */}
-      <div style={{ width: '1px', height: '32px', background: '#c8bfb5' }} />
+      <div style={{ width: '1px', height: '32px', background: lineColor, transition: 'background 0.5s ease' }} />
     </div>
   );
 }

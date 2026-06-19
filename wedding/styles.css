@@ -528,11 +528,16 @@ html.lenis { height: auto; }
   font-weight: 300;
   font-style: italic;
   color: #6b2d3e;
-  opacity: 0.04;
+  opacity: 0;
   line-height: 1;
   pointer-events: none;
   user-select: none;
   white-space: nowrap;
+}
+
+/* Invitation background */
+.limewash-bg {
+  background-color: #d6b8bc;
 }
 
 /* ── Nav responsive ── */

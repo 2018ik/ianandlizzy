@@ -10,21 +10,11 @@ function StoryEntry({ s, i }) {
       <div className={`story-entry clip-reveal-v ${entryVisible ? 'visible' : ''}`}
            style={{
              padding: 'clamp(16px, 2vh, 28px) 0',
-             borderTop: i >= 2 ? '1px solid #e0d8ce' : 'none',
+             borderTop: 'none',
              transitionDelay: `${(i % 2) * 0.1}s`,
            }}>
         <div className="story-watermark">{s.year}</div>
-        <span className="eyebrow" style={{ marginBottom: '12px' }}>Chapter {s.chapter}</span>
-        <p style={{
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontWeight: 400,
-          fontSize: 'clamp(12px, 1.3vw, 15px)',
-          color: '#6b2d3e',
-          lineHeight: 1.7,
-          margin: '0 0 10px 0',
-        }}>
-          {s.body}
-        </p>
+        <span className="eyebrow" style={{ marginBottom: '8px' }}>Chapter {s.chapter}</span>
         <span style={{
           fontFamily: "'Fragment Mono', monospace",
           fontSize: '10px',
@@ -32,6 +22,16 @@ function StoryEntry({ s, i }) {
           letterSpacing: '0.2em',
           color: '#b0a898',
         }}>{s.year}</span>
+        <p style={{
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontWeight: 400,
+          fontSize: 'clamp(12px, 1.3vw, 15px)',
+          color: '#6b2d3e',
+          lineHeight: 1.7,
+          margin: '12px 0 10px 0',
+        }}>
+          {s.body}
+        </p>
       </div>
     </div>
   );

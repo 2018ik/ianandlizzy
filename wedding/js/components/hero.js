@@ -12,7 +12,7 @@ function MonogramHero() {
     return () => clearTimeout(t);
   }, []);
 
-  // Watercolor drag-paint effect
+  // Monet brush-reveal effect
   useEffect(() => {
     const canvas = canvasRef.current;
     const section = sectionRef.current;
@@ -23,27 +23,30 @@ function MonogramHero() {
     let lastX = 0, lastY = 0;
     let rafId = null;
 
-    // Resize canvas to match section
+    const BG = '#f8f5f0';
+
+    // Fill canvas with background color to hide Monet beneath
     const resize = () => {
       const r = section.getBoundingClientRect();
       canvas.width = r.width;
       canvas.height = r.height;
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(section);
 
-    // Fade loop — only runs while hero is visible
-    let fadeAlpha = 0;
+    // Fade loop — slowly re-covers revealed areas with background
+    let fadeAlpha = 1.0;
     let isVisible = true;
     const fade = () => {
       if (!isVisible) { rafId = null; return; }
       if (fadeAlpha > 0) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.fillStyle = `rgba(0,0,0,${fadeAlpha})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.globalCompositeOperation = 'source-over';
-        fadeAlpha = Math.max(0, fadeAlpha - 0.004);
+        ctx.fillStyle = `rgba(248,245,240,${fadeAlpha})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        fadeAlpha = Math.max(0, fadeAlpha - 0.3);
       }
       rafId = requestAnimationFrame(fade);
     };
@@ -54,32 +57,43 @@ function MonogramHero() {
     visObs.observe(section);
     rafId = requestAnimationFrame(fade);
 
-    // Bloom colors — warm watercolor palette
-    const blooms = [
-      'rgba(210, 180, 165, 0.08)',
-      'rgba(190, 155, 140, 0.07)',
-      'rgba(232, 207, 201, 0.09)',
-      'rgba(200, 170, 150, 0.06)',
-      'rgba(220, 195, 175, 0.08)',
-    ];
+    // Paint a directional brushstroke that erases the background to reveal Monet
+    const paintBrush = (x, y, dx, dy) => {
+      const angle = Math.atan2(dy, dx);
+      const speed = Math.hypot(dx, dy);
+      const len = Math.max(58, Math.min(200, speed * 3.5));
+      const width = 8 + Math.random() * 30;
 
-    const paintBloom = (x, y) => {
-      const color = blooms[Math.floor(Math.random() * blooms.length)];
-      const r = 40 + Math.random() * 60;
-      const wobbleX = x + (Math.random() - 0.5) * 18;
-      const wobbleY = y + (Math.random() - 0.5) * 18;
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.translate(x, y);
+      ctx.rotate(angle);
 
-      ctx.globalCompositeOperation = 'source-over';
-      const grad = ctx.createRadialGradient(wobbleX, wobbleY, 0, wobbleX, wobbleY, r);
-      grad.addColorStop(0, color);
-      grad.addColorStop(0.4, color.replace(/[\d.]+\)$/, '0.04)'));
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-
+      // Core stroke — soft radial gradient gives feathered edge
+      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, len);
+      grad.addColorStop(0,   'rgba(0,0,0,0.14)');
+      grad.addColorStop(0.5, 'rgba(0,0,0,0.06)');
+      grad.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.globalAlpha = 1;
       ctx.fillStyle = grad;
       ctx.beginPath();
-      // Slight ellipse wobble for organic feel
-      ctx.ellipse(wobbleX, wobbleY, r * (0.85 + Math.random() * 0.3), r * (0.85 + Math.random() * 0.3), Math.random() * Math.PI, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, len, width * 1.5, 0, 0, Math.PI * 2);
       ctx.fill();
+
+      // Bristle strands — scattered thin ellipses that fan out from the stroke
+      for (let i = 0; i < 5; i++) {
+        const ox = (Math.random() - 0.5) * len * 0.5;
+        const oy = (Math.random() - 0.5) * width * 0.5;
+        const bLen = len * (0.15 + Math.random() * 0.25);
+        const bW   = 1 + Math.random() * 1.5;
+        ctx.globalAlpha = 0.12 + Math.random() * 0.11;
+        ctx.fillStyle = 'rgba(0,0,0,1)';
+        ctx.beginPath();
+        ctx.ellipse(ox, oy, bLen, bW, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
     };
 
     const getPos = (e) => {
@@ -92,30 +106,30 @@ function MonogramHero() {
       isDragging = true;
       const { x, y } = getPos(e);
       lastX = x; lastY = y;
-      // Start fading slowly when dragging
-      fadeAlpha = 0.03;
-      paintBloom(x, y);
+      fadeAlpha = 0.02;
+      paintBrush(x, y, 1, 0);
     };
 
     const onMove = (e) => {
       if (!isDragging) return;
       const { x, y } = getPos(e);
-      const dist = Math.hypot(x - lastX, y - lastY);
-      // Paint every ~12px of movement
-      if (dist > 12) {
-        const steps = Math.ceil(dist / 12);
+      const dx = x - lastX;
+      const dy = y - lastY;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 8) {
+        const steps = Math.ceil(dist / 8);
         for (let i = 0; i < steps; i++) {
           const t = i / steps;
-          paintBloom(lastX + (x - lastX) * t, lastY + (y - lastY) * t);
+          paintBrush(lastX + dx * t, lastY + dy * t, dx, dy);
         }
         lastX = x; lastY = y;
+        fadeAlpha = 0.008;
       }
     };
 
     const onUp = () => {
       isDragging = false;
-      // Fade out gently after release
-      fadeAlpha = 0.06;
+      fadeAlpha = 0.05;
     };
 
     section.addEventListener('mousedown', onDown);
@@ -193,18 +207,28 @@ function MonogramHero() {
     <section id="home" ref={sectionRef} style={{
       background: '#f8f5f0',
       minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingTop: '56px',
-      paddingBottom: '48px',
       position: 'relative',
       overflow: 'hidden',
       userSelect: 'none',
     }}>
 
-      {/* Watercolor paint canvas — sits behind all content, events captured by section */}
+      {/* Monet background — revealed by brush strokes */}
+      <img
+        src="images/monet.jpg"
+        alt=""
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'center',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Brush reveal canvas — initialized opaque, erased on paint to reveal Monet */}
       <canvas ref={canvasRef} style={{
         position: 'absolute',
         inset: 0,
@@ -213,6 +237,19 @@ function MonogramHero() {
         pointerEvents: 'none',
         zIndex: 1,
       }} />
+
+      {/* Content layer — sits above the Monet canvas */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: '56px',
+        paddingBottom: '48px',
+      }}>
 
       {/* Right panel — days remaining, large sculptural number */}
       <div style={{
@@ -245,7 +282,7 @@ function MonogramHero() {
           fontWeight: 300,
           fontStyle: 'italic',
           fontSize: 'clamp(56px, 7vw, 96px)',
-          color: '#1a1714',
+          color: '#6b2d3e',
           lineHeight: 1,
           letterSpacing: '-0.03em',
           opacity: ready ? 1 : 0,
@@ -419,33 +456,7 @@ function MonogramHero() {
         <div className="scroll-indicator-line" />
       </div>
 
-      {/* Back to Our Room — mirrors scroll indicator on the left */}
-      <a
-        href="/"
-        style={{
-          position: 'absolute',
-          bottom: '32px',
-          left: '32px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          fontFamily: "'Fragment Mono', monospace",
-          fontSize: '9px',
-          fontWeight: 300,
-          letterSpacing: '0.35em',
-          textTransform: 'uppercase',
-          color: '#b0a898',
-          textDecoration: 'none',
-          zIndex: 10,
-          opacity: ready ? 1 : 0,
-          transition: 'opacity 0.6s ease 1s, color 0.3s ease',
-        }}
-        onMouseEnter={e => e.currentTarget.style.color = '#7a6a5a'}
-        onMouseLeave={e => e.currentTarget.style.color = '#b0a898'}
-      >
-        <span style={{ fontSize: '13px', lineHeight: 1 }}>←</span>
-        <span>Our Room</span>
-      </a>
+      </div>{/* end content layer */}
     </section>
   );
 }
