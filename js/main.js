@@ -14,9 +14,14 @@ const discoveryCount = document.getElementById("discovery-count");
 const discoveryBar = document.getElementById("discovery-bar");
 const discoveryReset = document.getElementById("discovery-reset");
 const discoveryProgress = document.querySelector(".discovery-progress");
+const roomLoading = document.getElementById("room-loading");
+const roomLoadingBar = document.getElementById("room-loading-bar");
+const roomLoadingPercent = document.getElementById("room-loading-percent");
+const roomLoadingLabel = document.getElementById("room-loading-label");
 
 let breathingCat = null;
 let breathingCatBaseScale = 1;
+let roomIsReady = false;
 const discoveredItems = new Set();
 const discoverableItems = new Set();
 const popupCache = new WeakMap();
@@ -38,6 +43,8 @@ const { scene, camera, renderer, controls, clickable, updateFadeIns, updateScene
     ensureHoverState(item);
     updateDiscoveryProgress();
   },
+  onLoadingProgress: updateRoomLoading,
+  onReady: completeRoomLoading,
 });
 renderer.domElement.style.touchAction = "none";
 renderer.domElement.addEventListener("contextmenu", (event) => event.preventDefault());
@@ -54,6 +61,7 @@ let hoveredItem = null;
 let pointerIsInside = false;
 let pointerDown = null;
 let lastFrameTime = performance.now();
+let modalOpenedAt = 0;
 
 updateDiscoveryProgress();
 
@@ -123,6 +131,7 @@ discoveryReset?.addEventListener("click", () => {
 
 closeModalButton.addEventListener("click", closeModal);
 modal.addEventListener("click", (event) => {
+  if (performance.now() - modalOpenedAt < 350) return;
   if (event.target === modal) closeModal();
 });
 
@@ -270,6 +279,7 @@ function openModal(target) {
   modalTitle.textContent = target.userData.title;
   modalBody.textContent = target.userData.description;
   modal.classList.remove("hidden");
+  modalOpenedAt = performance.now();
   controls.enabled = false;
   requestAnimationFrame(updatePopupSize);
 
@@ -302,6 +312,24 @@ function updateDiscoveryProgress() {
   if (discoveryReset) {
     discoveryReset.hidden = !isComplete;
   }
+}
+
+function updateRoomLoading({ progress, label }) {
+  if (!roomLoadingBar || !roomLoadingPercent) return;
+  const percent = Math.max(0, Math.min(100, Math.round(progress * 100)));
+  roomLoadingBar.style.width = `${percent}%`;
+  roomLoadingPercent.textContent = `${percent}%`;
+  if (roomLoadingLabel) {
+    roomLoadingLabel.textContent = label === "ready" ? "Ready" : "Loading room";
+  }
+}
+
+function completeRoomLoading() {
+  roomIsReady = true;
+  updateRoomLoading({ progress: 1, label: "ready" });
+  window.setTimeout(() => {
+    roomLoading?.classList.add("is-hidden");
+  }, 250);
 }
 
 function resetView() {
@@ -391,7 +419,7 @@ function closeModal() {
   }
   activeItem = null;
   modal.classList.add("hidden");
-  controls.enabled = true;
+  controls.enabled = roomIsReady;
 }
 
 function cloneForPopup(target) {

@@ -51,6 +51,8 @@ export function createRoomScene({
   onRegisterItem,
   pointerEvents = true,
   includeHeart = false,
+  onLoadingProgress,
+  onReady,
 } = {}) {
   if (!mountEl) {
     throw new Error("createRoomScene requires mountEl");
@@ -92,6 +94,7 @@ export function createRoomScene({
     controls.minAzimuthAngle = -Math.PI * 0.08;
     controls.maxAzimuthAngle = Math.PI * 0.58;
     controls.target.set(0, 2.2, 0);
+    controls.enabled = false;
     controls.update();
   }
 
@@ -133,10 +136,29 @@ export function createRoomScene({
     fadingItems,
     warmObject: warmSceneObject,
   });
-  populateRoom({ registerItem, onCat });
-  if (typeof renderer.compileAsync === "function") {
-    renderer.compileAsync(scene, camera).catch(() => {});
-  }
+  const roomLoadPromise = populateRoom({
+    registerItem,
+    onCat,
+    onProgress: ({ loaded, total, label }) => {
+      onLoadingProgress?.({
+        progress: total > 0 ? loaded / total : 0,
+        loaded,
+        total,
+        label,
+      });
+    },
+  });
+  const compilePromise =
+    typeof renderer.compileAsync === "function"
+      ? roomLoadPromise.then(() => renderer.compileAsync(scene, camera)).catch(() => {})
+      : roomLoadPromise;
+  const ready = compilePromise.then(() => {
+    if (controls) {
+      controls.enabled = true;
+    }
+    onLoadingProgress?.({ progress: 1, loaded: 1, total: 1, label: "ready" });
+    onReady?.();
+  });
 
   let heartRef = null;
   let heartSparkle = null;
@@ -208,6 +230,7 @@ export function createRoomScene({
     onResize,
     heartRef: () => heartRef,
     heartSparkle: () => heartSparkle,
+    ready,
   };
 
   function updateFadeIns(time) {

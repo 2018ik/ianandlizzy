@@ -1,5 +1,4 @@
 import { createDesk } from "./items/desk.js";
-import { createBookshelf } from "./items/bookshelf.js";
 import { createMacbook } from "./items/computer.js";
 import { createBambooPlant } from "./items/plant.js";
 import { createLamp } from "./items/lamp.js";
@@ -78,7 +77,7 @@ export function createRegisterItem({ scene, clickable, onRegisterItem, fadingIte
   };
 }
 
-export function populateRoom({ registerItem, onCat }) {
+export function populateRoom({ registerItem, onCat, onProgress }) {
   const scaleDesk = 3.6;
   const scaleBookshelf = 1.6;
   const scaleComputer = 1.8;
@@ -221,7 +220,7 @@ export function populateRoom({ registerItem, onCat }) {
       loader: createWallShelf,
       onResolve: (shelf) => {
         shelf.scale.setScalar(scaleWallShelf);
-        shelf.position.set(-5.55, 3, -0.4);
+        shelf.position.set(-5.6, 3, -0.4);
         shelf.rotation.y = Math.PI / 2;
         registerItem(shelf, { clickable: false });
       },
@@ -268,13 +267,15 @@ export function populateRoom({ registerItem, onCat }) {
     },
   ];
 
-  void scheduleRoomLoads(stagedLoads);
+  onProgress?.({ loaded: 0, total: stagedLoads.length, label: "room shell" });
+  return scheduleRoomLoads(stagedLoads, onProgress);
 }
 
-async function scheduleRoomLoads(entries) {
+async function scheduleRoomLoads(entries, onProgress) {
   const initialDelay = 80;
   const staggerMs = 140;
   const latePhaseIndex = Math.max(entries.length - 3, 0);
+  let loaded = 0;
 
   await wait(initialDelay);
 
@@ -283,6 +284,8 @@ async function scheduleRoomLoads(entries) {
     const latePhase = index >= latePhaseIndex;
     await waitForIdle(700 + index * 120);
     await loadRoomEntry(entry);
+    loaded += 1;
+    onProgress?.({ loaded, total: entries.length, label: entry.label });
 
     if (index < entries.length - 1) {
       await wait(latePhase ? 260 : staggerMs);
