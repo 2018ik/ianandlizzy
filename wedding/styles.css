@@ -287,6 +287,36 @@ html.lenis { height: auto; }
   .scroll-indicator-line { animation: none; height: 56px; }
 }
 
+/* Mobile scroll hint — hidden on desktop, shown under the greeting on mobile */
+.hero-scroll-mobile {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+}
+.hero-scroll-mobile span:first-child {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #b0a898;
+}
+.hero-scroll-caret {
+  font-size: 16px;
+  line-height: 0.6;
+  color: #b0a898;
+  animation: scrollCaretBounce 1.8s ease-in-out infinite;
+}
+@keyframes scrollCaretBounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-caret { animation: none; }
+}
+
 /* ── Countdown ── */
 .countdown-digit-xl {
   font-family: 'Cormorant Garamond', Georgia, serif;
@@ -318,7 +348,7 @@ html.lenis { height: auto; }
   top: 0;
   height: 100vh;
   overflow: hidden;
-  background: #f0ebe3;
+  background: transparent;
   display: flex;
   flex-direction: column;
 }
@@ -370,6 +400,15 @@ html.lenis { height: auto; }
   margin-top: 16px;
   display: block;
 }
+
+/* Schedule — all text in light champagne (footer bg color) */
+#schedule .eyebrow,
+#schedule .event-label,
+#schedule .event-time-label,
+#schedule .event-watermark {
+  color: #f8f5f0;
+}
+#schedule .event-watermark { opacity: 0.18; }
 
 /* Dot nav */
 .dot-nav button { outline: none; background: transparent; }
@@ -453,6 +492,20 @@ html.lenis { height: auto; }
 .masonry-photo:nth-child(3n):hover   { transform: rotate(-0.5deg) scale(1.02); }
 .masonry-photo:hover { filter: grayscale(0%); }
 @media (max-width: 767px) { .masonry-grid { columns: 2; } }
+
+/* Story gallery: 4 photos in a 2x2 grid on mobile (overrides the inline
+   flex/width/margin on each image, so !important is required) */
+@media (max-width: 767px) {
+  .story-gallery {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+  }
+  .story-gallery .masonry-photo {
+    flex: none !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+  }
+}
 
 /* ── FAQ upgraded ── */
 .faq-body-wrap {
@@ -545,6 +598,15 @@ html.lenis { height: auto; }
   .nav-links { display: none; }
   .nav-hamburger { display: flex; }
   .nav-modern { padding: 0 24px; }
+
+  /* Invitation: drop the left photo half, right half goes full width
+     (!important needed to beat the inline styles on these elements) */
+  .inv-grid { grid-template-columns: 1fr !important; }
+  .inv-left { display: none !important; }
+
+  /* Hero: swap the side scroll indicator for the under-greeting hint */
+  .scroll-indicator-v { display: none !important; }
+  .hero-scroll-mobile { display: flex; }
 }
 @media (min-width: 768px) {
   .nav-overlay { display: none; }

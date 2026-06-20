@@ -5,7 +5,7 @@ function Registry() {
 
   return (
     <section id="registry" style={{
-      background: '#f8f5f0',
+      background: 'transparent',
       padding: 'clamp(80px, 10vh, 120px) clamp(24px, 6vw, 80px)',
     }}>
       <div style={{ maxWidth: '56rem', margin: '0 auto', textAlign: 'center' }}>

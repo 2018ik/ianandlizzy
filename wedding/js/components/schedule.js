@@ -2,13 +2,56 @@
 function OrderOfEvents() {
   const content = useContent();
   const [wrapperRef, trackRef] = usePinnedHScroll();
+  const stickyRef = useRef(null);
+  const cardRefs = useRef([]);
   const events = content.schedule.events;
 
+  // Scroll-driven entrance. The pinned section used to hard-cut in because a
+  // simple IntersectionObserver reveal fired the instant the 100vh element
+  // peeked from the bottom — the fade was over before it pinned. Instead we map
+  // the section's approach to the top of the viewport into a 0→1 progress and
+  // drive opacity + a staggered per-card rise off that, so it visibly cross-fades
+  // and gains depth as it settles into the pin.
+  useEffect(() => {
+    const sticky = stickyRef.current;
+    const wrapper = wrapperRef.current;
+    if (!sticky || !wrapper) return;
+
+    const onScroll = () => {
+      const vh = window.innerHeight;
+      const top = wrapper.getBoundingClientRect().top;
+      // p: 0 while the section is still a full viewport below the top, 1 once it
+      // reaches the top and pins. Fade plays over the last ~85vh of approach.
+      const p = Math.max(0, Math.min(1, 1 - top / (vh * 0.85)));
+
+      sticky.style.opacity = p;
+      sticky.style.transform = `translateY(${(1 - p) * 40}px)`;
+
+      cardRefs.current.forEach((card, i) => {
+        if (!card) return;
+        const restY = i % 2 === 0 ? -60 : 60;
+        // Each card lags the one before it, so they rise into the zig-zag in
+        // sequence rather than all at once (adds depth, fixes the flat look).
+        const cp = Math.max(0, Math.min(1, (p - i * 0.04) / 0.55));
+        card.style.opacity = cp;
+        card.style.transform = `translateY(${restY + (1 - cp) * 48}px)`;
+      });
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
   return (
-    <section id="schedule" style={{ background: '#f0ebe3' }}>
+    <section id="schedule" style={{ background: 'transparent' }}>
       {/* Wrapper height is set by JS to equal 100vh + horizontal scroll distance */}
       <div ref={wrapperRef}>
-        <div className="h-scroll-sticky">
+        <div ref={stickyRef} className="h-scroll-sticky" style={{ opacity: 0 }}>
 
           {/* Header — stays fixed while cards scroll past */}
           <div style={{
@@ -22,7 +65,7 @@ function OrderOfEvents() {
             <span style={{
               fontFamily: "'Fragment Mono', monospace",
               fontSize: '10px',
-              color: '#b0a898',
+              color: '#fff3ddff',
               letterSpacing: '0.15em',
             }}>— Scroll →</span>
           </div>
@@ -33,6 +76,7 @@ function OrderOfEvents() {
 
             {events.map((evt, i) => (
               <div key={evt.label}
+                   ref={el => cardRefs.current[i] = el}
                    className="h-scroll-card"
                    style={{ transform: i % 2 === 0 ? 'translateY(-60px)' : 'translateY(60px)' }}>
                 <div className="event-watermark">{evt.time.split(' ')[0]}</div>

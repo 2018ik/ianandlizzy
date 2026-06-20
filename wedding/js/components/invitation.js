@@ -7,10 +7,10 @@ function Invitation() {
 
   return (
     <section id="invitation" className="limewash-bg">
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+      <div className="inv-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
 
         {/* Left half: engagement2 centered on the limewash texture */}
-        <div ref={photoRef} style={{
+        <div ref={photoRef} className="inv-left" style={{
           position: 'sticky',
           top: 0,
           height: '100vh',

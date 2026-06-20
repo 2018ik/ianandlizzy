@@ -444,6 +444,15 @@ function MonogramHero() {
         {content.hero.guestGreeting}
       </p>
 
+      {/* Mobile-only scroll hint — sits under the greeting */}
+      <div className="hero-scroll-mobile" style={{
+        opacity: ready ? 1 : 0,
+        transition: 'opacity 0.8s ease 0.7s',
+      }}>
+        <span>Scroll</span>
+        <span className="hero-scroll-caret" aria-hidden="true">⌄</span>
+      </div>
+
       {/* Scroll indicator */}
       <div className="scroll-indicator-v" style={{
         position: 'absolute',
