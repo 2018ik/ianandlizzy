@@ -99,6 +99,26 @@ html.lenis { height: auto; }
 .nav-link-modern.active { color: #6b2d3e; }
 .nav-link-modern.active::after { width: 100%; }
 
+/* RSVP — same type as the other nav links, but framed as a gold outline chip
+   that fills on hover, so it reads as a gentle CTA. */
+.nav-link-rsvp {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #B3841A;
+  text-decoration: none;
+  padding: 7px 16px;
+  border: 1px solid #B3841A;
+  border-radius: 999px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.nav-link-rsvp:hover {
+  background-color: #B3841A;
+  color: #f8f5f0;
+}
+
 /* Hamburger */
 .nav-hamburger {
   display: none;
@@ -406,7 +426,7 @@ html.lenis { height: auto; }
 #schedule .event-label,
 #schedule .event-time-label,
 #schedule .event-watermark {
-  color: #f8f5f0;
+  color: #6b2d3e;
 }
 #schedule .event-watermark { opacity: 0.18; }
 

@@ -130,12 +130,15 @@ function Invitation() {
             </div>
           </div>
 
-          {/* Panel 2 — photo scrolls up past the stuck text, pushed to the right */}
+          {/* Panel 2 — photo rises and pins centered, then stays pinned until
+              the whole section scrolls away (no mid-section release). */}
           <div style={{
-            position: 'relative',
+            position: 'sticky',
+            top: 0,
+            height: '100vh',
             zIndex: 2,
-            paddingBottom: 'clamp(80px, 100vh, 800px)',
             display: 'flex',
+            alignItems: 'center',
             justifyContent: 'flex-end',
             paddingRight: 'clamp(32px, 5vw, 72px)',
           }}>
@@ -150,6 +153,7 @@ function Invitation() {
                 objectFit: 'cover',
                 borderRadius: '2px',
                 border: '6px solid #B3841A',
+                transform: 'translateY(200px)',
               }}
             />
           </div>

@@ -65,7 +65,7 @@ function OrderOfEvents() {
             <span style={{
               fontFamily: "'Fragment Mono', monospace",
               fontSize: '10px',
-              color: '#fff3ddff',
+              color: '#6b2d3e',
               letterSpacing: '0.15em',
             }}>— Scroll →</span>
           </div>

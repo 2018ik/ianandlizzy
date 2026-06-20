@@ -82,6 +82,7 @@ function App() {
           <Registry />
         </div>
         <FAQs />
+        <RSVP />
         <Footer />
       </div>
     </WeddingContentContext.Provider>

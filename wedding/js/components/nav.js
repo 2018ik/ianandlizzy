@@ -174,6 +174,7 @@ function Nav() {
               {l.label}
             </a>
           ))}
+          <a href="#rsvp" className="nav-link-rsvp">RSVP</a>
         </div>
         <button
           className={`nav-hamburger ${menuOpen ? 'open' : ''}`}
@@ -187,6 +188,7 @@ function Nav() {
         {links.map(l => (
           <a key={l.id} href={l.href} onClick={closeMenu}>{l.label}</a>
         ))}
+        <a href="#rsvp" onClick={closeMenu}>RSVP</a>
       </div>
     </>
   );

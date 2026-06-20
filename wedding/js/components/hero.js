@@ -123,7 +123,7 @@ function MonogramHero() {
           paintBrush(lastX + dx * t, lastY + dy * t, dx, dy);
         }
         lastX = x; lastY = y;
-        fadeAlpha = 0.008;
+        fadeAlpha = 0.01;
       }
     };
 

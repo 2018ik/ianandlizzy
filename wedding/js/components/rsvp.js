@@ -1,0 +1,154 @@
+/* ── RSVP ──
+   Set RSVP_ENDPOINT to a form backend (Formspree, a Worker, Google Apps
+   Script, etc.) to receive submissions. While empty, the form still works and
+   shows the thank-you state without sending anywhere. */
+const RSVP_ENDPOINT = '';
+
+function RSVP() {
+  const content = useContent();
+  const [ref, visible] = useReveal({ threshold: 0.15 });
+  const [form, setForm] = useState({ name: '', email: '', attending: 'yes', guests: '1', note: '' });
+  const [status, setStatus] = useState('idle'); // idle | sending | done | error
+
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (status === 'sending' || !form.name.trim()) return;
+    setStatus('sending');
+    try {
+      if (RSVP_ENDPOINT) {
+        const res = await fetch(RSVP_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form),
+        });
+        if (!res.ok) throw new Error('bad status');
+      }
+      setStatus('done');
+    } catch (err) {
+      setStatus('error');
+    }
+  };
+
+  const labelStyle = {
+    fontFamily: "'Fragment Mono', monospace",
+    fontSize: '10px',
+    fontWeight: 500,
+    letterSpacing: '0.22em',
+    textTransform: 'uppercase',
+    color: '#7a7068',
+    display: 'block',
+    marginBottom: '10px',
+  };
+  const inputStyle = {
+    width: '100%',
+    padding: '12px 0',
+    fontFamily: "'Cormorant Garamond', Georgia, serif",
+    fontSize: '18px',
+    color: '#6b2d3e',
+    background: 'transparent',
+    border: 'none',
+    borderBottom: '1px solid #c8bfb5',
+    outline: 'none',
+    transition: 'border-color 0.3s ease',
+  };
+
+  return (
+    <section id="rsvp" ref={ref}
+             className={`reveal ${visible ? 'visible' : ''}`}
+             style={{
+               background: '#f8f5f0',
+               borderTop: '1px solid #e0d8ce',
+               padding: 'clamp(72px, 10vh, 130px) clamp(24px, 6vw, 80px)',
+             }}>
+      <div style={{ maxWidth: '40rem', margin: '0 auto', textAlign: 'center' }}>
+
+        <span className="eyebrow" style={{ marginBottom: '20px' }}>Will you join us?</span>
+        <h2 style={{
+          fontFamily: "'Pinyon Script', cursive",
+          fontWeight: 400,
+          fontSize: 'clamp(56px, 8vw, 96px)',
+          color: '#6b2d3e',
+          lineHeight: 0.95,
+          margin: '0 0 12px 0',
+        }}>RSVP</h2>
+
+        {status === 'done' ? (
+          <p style={{
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontStyle: 'italic',
+            fontSize: 'clamp(20px, 2.4vw, 26px)',
+            color: '#7a7068',
+            lineHeight: 1.6,
+            marginTop: '32px',
+          }}>
+            Thank you — your response has been received.<br />We can’t wait to celebrate with you.
+          </p>
+        ) : (
+          <form onSubmit={submit} style={{
+            marginTop: '40px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '32px',
+            textAlign: 'left',
+          }}>
+
+            <div>
+              <label style={labelStyle} htmlFor="rsvp-name">Full name</label>
+              <input id="rsvp-name" type="text" value={form.name} onChange={set('name')}
+                     placeholder="Your name" style={inputStyle} required />
+            </div>
+
+            <div>
+              <label style={labelStyle} htmlFor="rsvp-email">Email</label>
+              <input id="rsvp-email" type="email" value={form.email} onChange={set('email')}
+                     placeholder="you@example.com" style={inputStyle} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }} className="rsvp-row">
+              <div>
+                <label style={labelStyle} htmlFor="rsvp-attending">Attending</label>
+                <select id="rsvp-attending" value={form.attending} onChange={set('attending')}
+                        style={{ ...inputStyle, cursor: 'pointer' }}>
+                  <option value="yes">Joyfully accepts</option>
+                  <option value="no">Regretfully declines</option>
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle} htmlFor="rsvp-guests">Guests</label>
+                <select id="rsvp-guests" value={form.guests} onChange={set('guests')}
+                        style={{ ...inputStyle, cursor: 'pointer' }}>
+                  {['1', '2', '3', '4', '5'].map((n) => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label style={labelStyle} htmlFor="rsvp-note">Song request or a note</label>
+              <input id="rsvp-note" type="text" value={form.note} onChange={set('note')}
+                     placeholder="Optional" style={inputStyle} />
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: '8px' }}>
+              <button type="submit" className="magnetic-btn"
+                      disabled={status === 'sending'}
+                      style={{ cursor: status === 'sending' ? 'default' : 'pointer', opacity: status === 'sending' ? 0.6 : 1 }}>
+                {status === 'sending' ? 'Sending…' : 'Send RSVP →'}
+              </button>
+              {status === 'error' && (
+                <p style={{
+                  fontFamily: "'Fragment Mono', monospace",
+                  fontSize: '11px',
+                  letterSpacing: '0.12em',
+                  color: '#b08a7a',
+                  marginTop: '16px',
+                }}>Something went wrong — please try again.</p>
+              )}
+            </div>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+}
