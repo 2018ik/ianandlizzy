@@ -239,7 +239,7 @@ function MonogramHero() {
       }} />
 
       {/* Content layer — sits above the Monet canvas */}
-      <div style={{
+      <div className="hero-content" style={{
         position: 'absolute',
         inset: 0,
         zIndex: 2,

@@ -156,24 +156,31 @@ function Nav() {
           textTransform: 'uppercase',
           color: '#7a7068',
           textDecoration: 'none',
-          display: 'flex',
+          display: 'inline-flex',
           alignItems: 'center',
           gap: '8px',
           whiteSpace: 'nowrap',
+          padding: '8px 4px',
+          position: 'relative',
+          zIndex: 2,
           opacity: 1,
           transition: 'opacity 0.4s ease',
         }}>← Our Room</a>
-        <div className="nav-links" style={{
-          opacity: scrolled ? 1 : 0,
-          pointerEvents: scrolled ? 'auto' : 'none',
-          transition: 'opacity 0.4s ease',
-        }}>
-          {links.map(l => (
-            <a key={l.id} href={l.href}
-               className={`nav-link-modern ${activeSection === l.id ? 'active' : ''}`}>
-              {l.label}
-            </a>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '36px', position: 'relative', zIndex: 2 }}>
+          {/* Section links — only revealed once scrolled */}
+          <div className="nav-links" style={{
+            opacity: scrolled ? 1 : 0,
+            pointerEvents: scrolled ? 'auto' : 'none',
+            transition: 'opacity 0.4s ease',
+          }}>
+            {links.map(l => (
+              <a key={l.id} href={l.href}
+                 className={`nav-link-modern ${activeSection === l.id ? 'active' : ''}`}>
+                {l.label}
+              </a>
+            ))}
+          </div>
+          {/* RSVP — always visible and clickable */}
           <a href="#rsvp" className="nav-link-rsvp">RSVP</a>
         </div>
         <button

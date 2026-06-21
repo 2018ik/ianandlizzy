@@ -627,6 +627,19 @@ html.lenis { height: auto; }
   /* Hero: swap the side scroll indicator for the under-greeting hint */
   .scroll-indicator-v { display: none !important; }
   .hero-scroll-mobile { display: flex; }
+
+  /* RSVP lives in the hamburger overlay on mobile, not the top bar */
+  .nav-link-rsvp { display: none; }
+
+  /* Hero: let the content flow and the section grow instead of clipping the
+     bottom (the marquee was getting cut off when content exceeded 100vh). */
+  #home { min-height: auto !important; }
+  .hero-content {
+    position: relative !important;
+    inset: auto !important;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
 }
 @media (min-width: 768px) {
   .nav-overlay { display: none; }

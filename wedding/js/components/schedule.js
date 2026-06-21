@@ -86,6 +86,7 @@ function OrderOfEvents() {
                   height: 'auto',
                   marginBottom: '20px',
                   position: 'relative',
+                  mixBlendMode: 'multiply',
                 }} />
                 <div className="event-label">{evt.label}</div>
                 <span className="event-time-label">{evt.time} · {evt.date}</span>
