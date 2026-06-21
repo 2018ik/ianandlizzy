@@ -10,8 +10,8 @@ export function createPoster() {
       (gltf) => {
         const group = new THREE.Group();
         group.userData = {
-          title: "Studio poster",
-          description: "A tiny moodboard: constellations, typography, and soft gradients.",
+          title: "Wall Painting",
+          description: "We have gone on three dates to art museums so far. The Phillips Collection (where we ran into some friends), the Virginia Museum of Fine Art (which has an interesting illusory head sculpture), and the National Gallery of Art (where we took our engagement photos). Not that you'd care. But you clicked on this so we have to tell you.",
         };
 
         const poster = gltf.scene;

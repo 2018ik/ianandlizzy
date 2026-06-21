@@ -473,6 +473,7 @@ canvas {
     bottom: 12px;
     font-size: 10px;
   }
+
 }
 
 .modal {
@@ -480,6 +481,7 @@ canvas {
   inset: 0;
   display: grid;
   place-items: center;
+  padding: 16px;
   background: rgba(21, 21, 26, 0.62);
   z-index: 10;
   transition: opacity 0.2s ease;
@@ -494,11 +496,14 @@ canvas {
   position: relative;
   max-width: min(720px, 92vw);
   width: min(92vw, 640px);
+  max-height: calc(100dvh - 32px);
   padding: 56px 26px 28px;
   border-radius: 22px;
   background: #fffaf4;
   box-shadow: 0 30px 90px rgba(15, 18, 28, 0.35);
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-title {
@@ -508,6 +513,7 @@ canvas {
 
 .modal-preview {
   width: min(70vw, 340px);
+  flex: 0 0 auto;
   aspect-ratio: 1 / 1;
   margin: 8px auto 16px;
   border-radius: 18px;
@@ -624,6 +630,22 @@ canvas {
   font-family: "Space Grotesk", "Avenir", sans-serif;
   font-size: 15px;
   line-height: 1.6;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
+  text-align: center;
+  white-space: pre-line;
+}
+
+@media (max-width: 640px) {
+  .modal-preview {
+    width: min(54vw, 220px);
+    margin-bottom: 12px;
+  }
+
+  .modal-body {
+    font-size: 14px;
+  }
 }
 
 .close {

@@ -11,7 +11,7 @@ export function createCoffeeMug() {
         const mugGroup = new THREE.Group();
         mugGroup.userData = {
           title: "Bubble tea",
-          description: "Ian doesn't drink boba. Lizzy needs to drink boba our else she will die.",
+          description: "Ian doesn't drink boba. Lizzy needs to drink boba or else she will die.",
         };
 
         const mug = gltf.scene;

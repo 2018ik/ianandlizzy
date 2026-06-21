@@ -178,7 +178,12 @@ function setHoveredItem(target) {
   }
 
   hoveredItem = target;
-  renderer.domElement.style.cursor = hoveredItem ? "pointer" : "";
+  renderer.domElement.style.cursor = "";
+  window.dispatchEvent(
+    new CustomEvent("sitecursorstate", {
+      detail: { found: Boolean(hoveredItem) },
+    })
+  );
 
   if (hoveredItem) {
     ensureHoverState(hoveredItem).target = 1;

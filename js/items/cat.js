@@ -10,8 +10,8 @@ export function createCat() {
       (gltf) => {
         const catGroup = new THREE.Group();
         catGroup.userData = {
-          title: "Desk cat",
-          description: "A sleepy cat keeping guard under the desk.",
+          title: "Sleepy Cat",
+          description: "Ian grew up with a cat named Mittens that looked kind of like this 3D model. Unfortunately, she passed away earlier this year due to cancer 😔.",
           previewAngle: "top",
         };
 

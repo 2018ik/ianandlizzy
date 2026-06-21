@@ -11,7 +11,7 @@ export function createMagnolia() {
         const magnoliaGroup = new THREE.Group();
         magnoliaGroup.userData = {
           title: "Magnolias",
-          description: "A pretty bunch of magnolias on the desk.",
+          description: "We're going to try and build our own wedding arch by stabbing a bunch of flowers into foam ziptied onto a steel base. Hopefully all goes well.",
         };
 
         const magnolia = gltf.scene;

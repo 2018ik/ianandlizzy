@@ -11,7 +11,7 @@ export function createChair() {
         const group = new THREE.Group();
         group.userData = {
           title: "Chair",
-          description: "A cozy chair pulled up for a quiet moment.",
+          description: "Lizzy is a chair and she likes topgolf.",
         };
 
         const model = gltf.scene;

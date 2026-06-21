@@ -5,6 +5,7 @@
 
     const hoverSrc = body.dataset.cursorHover;
     const clickedSrc = body.dataset.cursorClicked;
+    const foundSrc = body.dataset.cursorFound;
 
     if (!hoverSrc || !clickedSrc) return;
 
@@ -12,12 +13,13 @@
     let cursorEl = null;
     let imageEl = null;
     let isClicked = false;
+    let isFound = false;
 
     function renderState() {
       if (!cursorEl || !imageEl) return;
       cursorEl.classList.toggle("visible", Boolean(cursorEl.dataset.visible === "true"));
       cursorEl.classList.toggle("is-clicked", isClicked);
-      imageEl.src = isClicked ? clickedSrc : hoverSrc;
+      imageEl.src = isClicked ? clickedSrc : isFound && foundSrc ? foundSrc : hoverSrc;
     }
 
     function ensureCursor() {
@@ -43,6 +45,7 @@
       cursorEl = null;
       imageEl = null;
       isClicked = false;
+      isFound = false;
     }
 
     function handleMove(event) {
@@ -72,6 +75,11 @@
       renderState();
     }
 
+    function handleFoundChange(event) {
+      isFound = Boolean(event.detail?.found);
+      renderState();
+    }
+
     function syncEnabledState() {
       if (mediaQuery.matches) {
         ensureCursor();
@@ -89,6 +97,7 @@
     window.addEventListener("mouseleave", handleLeave);
     window.addEventListener("mousedown", handleDown);
     window.addEventListener("mouseup", handleUp);
+    window.addEventListener("sitecursorstate", handleFoundChange);
     window.addEventListener("blur", handleLeave);
   }
 
