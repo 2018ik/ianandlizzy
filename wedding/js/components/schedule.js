@@ -62,12 +62,6 @@ function OrderOfEvents() {
             flexShrink: 0,
           }}>
             <span className="eyebrow">{content.schedule.eyebrow}</span>
-            <span style={{
-              fontFamily: "'Fragment Mono', monospace",
-              fontSize: '10px',
-              color: '#6b2d3e',
-              letterSpacing: '0.15em',
-            }}>— Scroll →</span>
           </div>
 
           {/* Track — translateX is applied here by the hook */}

@@ -64,6 +64,9 @@ function FAQs() {
 
   return (
     <section id="faqs" style={{ background: '#f0ebe3', padding: 'clamp(60px,8vh,100px) 0', position: 'relative', overflow: 'hidden' }}>
+      <img src="images/engagement13.jpg" alt="" aria-hidden="true" className="side-photo"
+           style={{ right: 'clamp(8px, 3vw, 60px)', bottom: '14%' }} />
+
       {/* Watermark */}
       <div style={{
         position: 'absolute',

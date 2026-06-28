@@ -7,6 +7,26 @@ function RSVP() {
   const [form, setForm] = useState({ name: '', email: '', attending: 'yes', guests: '1', note: '' });
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
 
+  // Gold confetti burst for the thank-you moment — small rectangular flecks
+  // that pop radially outward in shades of gold.
+  const petals = React.useMemo(() => {
+    const colors = ['#B3841A', '#c79a24', '#a67615', '#d8b347', '#e6c965'];
+    return Array.from({ length: 38 }, (_, i) => {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 120 + Math.random() * 240;
+      return {
+        tx: Math.cos(angle) * dist,
+        ty: Math.sin(angle) * dist - 50, // slight upward bias
+        r: Math.random() * 720 - 360,
+        w: 2 + Math.random() * 2,
+        h: 7 + Math.random() * 6,
+        delay: Math.random() * 0.22,
+        duration: 1.1 + Math.random() * 0.9,
+        color: colors[i % colors.length],
+      };
+    });
+  }, []);
+
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const submit = async (e) => {
@@ -58,8 +78,30 @@ function RSVP() {
                background: '#f8f5f0',
                borderTop: '1px solid #e0d8ce',
                padding: 'clamp(72px, 10vh, 130px) clamp(24px, 6vw, 80px)',
+               position: 'relative',
+               overflow: 'hidden',
              }}>
-      <div style={{ maxWidth: '40rem', margin: '0 auto', textAlign: 'center' }}>
+      <img src="images/engagement12.jpg" alt="" aria-hidden="true" className="side-photo"
+           style={{ left: 'clamp(8px, 3vw, 60px)', top: '16%' }} />
+
+      {status === 'done' && (
+        <div className="rsvp-petals" aria-hidden="true">
+          {petals.map((p, i) => (
+            <span key={i} className="rsvp-petal" style={{
+              '--tx': `${p.tx}px`,
+              '--ty': `${p.ty}px`,
+              '--r': `${p.r}deg`,
+              width: `${p.w}px`,
+              height: `${p.h}px`,
+              background: p.color,
+              animationDelay: `${p.delay}s`,
+              animationDuration: `${p.duration}s`,
+            }} />
+          ))}
+        </div>
+      )}
+
+      <div style={{ maxWidth: '40rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
 
         <span className="eyebrow" style={{ marginBottom: '20px' }}>Will you join us?</span>
         <h2 style={{

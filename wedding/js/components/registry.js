@@ -7,8 +7,16 @@ function Registry() {
     <section id="registry" style={{
       background: 'transparent',
       padding: 'clamp(80px, 10vh, 120px) clamp(24px, 6vw, 80px)',
+      position: 'relative',
+      overflow: 'hidden',
     }}>
-      <div style={{ maxWidth: '56rem', margin: '0 auto', textAlign: 'center' }}>
+      {/* Decorative photos flanking the content */}
+      <img src="images/engagement10.jpg" alt="" aria-hidden="true" className="side-photo"
+           style={{ left: 'clamp(8px, 3vw, 60px)', top: '14%' }} />
+      <img src="images/engagement11.jpg" alt="" aria-hidden="true" className="side-photo"
+           style={{ right: 'clamp(8px, 3vw, 60px)', bottom: '12%' }} />
+
+      <div style={{ maxWidth: '56rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
 
         {/* Text block */}
         <div ref={textRef} style={{

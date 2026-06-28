@@ -8,7 +8,7 @@ const STORY_HOVER_PHOTOS = {
 };
 
 /* ── Story Entry (extracted so hooks work correctly) ── */
-function StoryEntry({ s, i, onHover }) {
+function StoryEntry({ s, i, onHover, active }) {
   const [entryRef, entryVisible] = useReveal({ threshold: 0.12 });
   const isLeft = i % 2 === 0;
   const year = String(s.year);
@@ -25,13 +25,36 @@ function StoryEntry({ s, i, onHover }) {
              transitionDelay: `${(i % 2) * 0.1}s`,
            }}>
         <div className="story-watermark">{s.year}</div>
-        <span className="eyebrow" style={{ marginBottom: '8px' }}>Chapter {s.chapter}</span>
+        {/* Active chapter — whose photos are currently shown — gets a gold dot
+            and warms in colour so it's clear which one is highlighted. */}
+        <span className="eyebrow" style={{
+          marginBottom: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          color: active ? '#B3841A' : undefined,
+          transition: 'color 0.35s ease',
+        }}>
+          <span>Chapter {s.chapter}</span>
+          {hasHoverPhotos && (
+            <span style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              background: '#B3841A',
+              opacity: active ? 1 : 0,
+              transform: active ? 'scale(1)' : 'scale(0.4)',
+              transition: 'opacity 0.35s ease, transform 0.35s ease',
+            }} />
+          )}
+        </span>
         <span style={{
           fontFamily: "'Fragment Mono', monospace",
           fontSize: '10px',
           fontWeight: 500,
           letterSpacing: '0.2em',
-          color: '#b0a898',
+          color: active ? '#B3841A' : '#b0a898',
+          transition: 'color 0.35s ease',
         }}>{s.year}</span>
         <p style={{
           fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -54,8 +77,24 @@ function OurStory() {
   const [titleRef, titleVisible] = useReveal({ threshold: 0.2 });
   const [galleryRef, galleryVisible] = useReveal({ threshold: 0.05 });
   const [hoveredYear, setHoveredYear] = useState(null);
+  const [hoverHint, setHoverHint] = useState(true);
 
   const stories = content.story.entries;
+
+  // Show the first chapter's photos by default so visitors see what hovering
+  // does; hovering any year takes over, and leaving falls back to the default.
+  const defaultYear = Object.keys(STORY_HOVER_PHOTOS)[0];
+  const activeYear = hoveredYear ?? defaultYear;
+
+  const handleHover = (year) => {
+    setHoveredYear(year);
+    if (year) setHoverHint(false); // they've discovered it
+  };
+
+  useEffect(() => {
+    const t = setTimeout(() => setHoverHint(false), 9000);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <section id="story" style={{
@@ -69,19 +108,23 @@ function OurStory() {
 
       {/* Hover photos — every year reveals into the same open area on the left,
           left of the timeline table and above the gallery (so they don't march
-          down the page with each entry). All sets stay mounted and cross-fade. */}
+          down the page with each entry). All sets stay mounted and cross-fade.
+          The band spans exactly the empty space: from the content's left edge to
+          the table's left edge (the table is 34rem wide, right-aligned), so the
+          photos sit centred in that gap regardless of viewport width. */}
       <div style={{
         position: 'absolute',
         left: 'clamp(24px, 6vw, 80px)',
-        top: '40%',
+        right: 'calc(clamp(24px, 6vw, 80px) + 34rem)',
+        top: '36%',
         transform: 'translateY(-50%)',
-        width: 'min(46%, 480px)',
         height: 'min(58vh, 520px)',
         pointerEvents: 'none',
+        width: 'min(46%, 780px)',
         zIndex: 1,
       }}>
         {Object.entries(STORY_HOVER_PHOTOS).map(([year, imgs]) => {
-          const on = hoveredYear === year;
+          const on = activeYear === year;
           return (
             <div key={year} style={{
               position: 'absolute',
@@ -111,6 +154,18 @@ function OurStory() {
             </div>
           );
         })}
+
+        {/* Transient hint — hover a year to reveal its photos */}
+        <div className="ui-hint" style={{
+          position: 'absolute',
+          bottom: '-36px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          opacity: hoverHint ? 0.7 : 0,
+          transition: 'opacity 0.8s ease',
+        }}>
+          <span className="ui-hint-bob">✦ hover each year</span>
+        </div>
       </div>
 
       <h2 ref={titleRef}
@@ -133,13 +188,13 @@ function OurStory() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 36px' }}
              className="story-grid">
           {stories.map((s, i) => (
-            <StoryEntry key={s.year} s={s} i={i} onHover={setHoveredYear} />
+            <StoryEntry key={s.year} s={s} i={i} onHover={handleHover} active={String(s.year) === activeYear} />
           ))}
         </div>
       </div>
 
       {/* Photo gallery — full-width, original sizing */}
-      <div style={{ maxWidth: '64rem', margin: '0 auto', width: '100%' }}>
+      <div style={{ maxWidth: '64rem', margin: '0 auto', marginTop:'200px', width: '100%' }}>
         <div ref={galleryRef}
              className={`reveal story-gallery ${galleryVisible ? 'visible' : ''}`}
              style={{
@@ -149,19 +204,19 @@ function OurStory() {
                alignItems: 'flex-start',
              }}>
           {['engagement4', 'engagement8', 'engagement7', 'engagement5'].map((name, i) => (
-            <img
-              key={name}
-              src={`images/${name}.jpg`}
-              alt="Ian and Lizzy"
-              className="masonry-photo"
-              style={{
-                flex: '1',
-                width: '0',
-                aspectRatio: '3/4',
-                objectFit: 'cover',
-                marginTop: i % 2 === 0 ? '0' : 'clamp(32px, 5vw, 64px)',
-              }}
-            />
+            /* Dreamy soft-glow (Orton) — a blurred bright copy blended over the
+               sharp photo on hover. */
+            <div key={name} className="orton-wrap"
+                 style={{
+                   flex: '1',
+                   width: '0',
+                   aspectRatio: '3/4',
+                   alignSelf: 'flex-start',
+                   marginTop: i % 2 === 0 ? '0' : 'clamp(32px, 5vw, 64px)',
+                 }}>
+              <img src={`images/${name}.jpg`} alt="Ian and Lizzy" className="orton-base" />
+              <img src={`images/${name}.jpg`} alt="" aria-hidden="true" className="orton-glow" />
+            </div>
           ))}
         </div>
       </div>

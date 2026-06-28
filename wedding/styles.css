@@ -182,6 +182,76 @@ html.lenis { height: auto; }
   pointer-events: none;
 }
 
+/* ── RSVP petal burst (thank-you celebration) ── */
+.rsvp-petals {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.rsvp-petal {
+  position: absolute;
+  border-radius: 1px;
+  opacity: 0;
+  transform: translate(0, 0) rotate(0deg);
+  animation-name: rsvpPetalBurst;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: forwards;
+}
+@keyframes rsvpPetalBurst {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  12%  { opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) rotate(var(--r)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rsvp-petals { display: none; }
+}
+
+/* Decorative side photos flanking the registry / FAQ content. Hidden once the
+   viewport is too narrow to fit them beside the centered column. */
+.side-photo {
+  position: absolute;
+  width: clamp(140px, 14vw, 240px);
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border: 6px solid #B3841A;
+  box-shadow: 0 16px 36px rgba(80, 50, 40, 0.18);
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+@media (max-width: 1100px) {
+  .side-photo { display: none; }
+}
+
+/* Transient interaction hints (monospace) — used on the hero (drag to paint)
+   and the story timeline (hover to reveal). */
+.ui-hint {
+  font-family: 'Fragment Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #6b2d3e;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+.ui-hint-bob {
+  display: inline-block;
+  animation: uiHintBob 2.4s ease-in-out infinite;
+}
+@keyframes uiHintBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-hint-bob { animation: none; }
+}
+
 /* ── Eyebrow label ── */
 .eyebrow {
   font-family: 'Fragment Mono', monospace;
@@ -504,13 +574,45 @@ html.lenis { height: auto; }
   break-inside: avoid;
   margin-bottom: 12px;
   filter: grayscale(20%) contrast(1.05);
-  transition: filter 0.5s ease,
+  transition: filter 0.6s ease,
               transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-.masonry-photo:nth-child(3n+1):hover { transform: rotate(-0.7deg) scale(1.02); }
-.masonry-photo:nth-child(3n+2):hover { transform: rotate(0.4deg) scale(1.02); }
-.masonry-photo:nth-child(3n):hover   { transform: rotate(-0.5deg) scale(1.02); }
-.masonry-photo:hover { filter: grayscale(0%); }
+/* Hover — the photo grows slightly and returns to full colour. */
+.masonry-photo:hover {
+  transform: scale(1.04);
+  filter: grayscale(0%);
+}
+
+/* Dreamy soft-glow (Orton) prototype — sharp base photo with a blurred, bright
+   copy that screens over it on hover for an ethereal, hazy bloom. */
+.orton-wrap {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.orton-wrap:hover { transform: scale(1.04); }
+.orton-base {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(20%) contrast(1.05);
+  transition: filter 0.6s ease;
+}
+.orton-wrap:hover .orton-base { filter: grayscale(0%); }
+.orton-glow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0;
+  filter: blur(7px) brightness(1.05) saturate(1.12);
+  mix-blend-mode: screen;
+  transition: opacity 0.6s ease;
+}
+.orton-wrap:hover .orton-glow { opacity: 0.6; }
 @media (max-width: 767px) { .masonry-grid { columns: 2; } }
 
 /* Story gallery: 4 photos in a 2x2 grid on mobile (overrides the inline
@@ -520,7 +622,8 @@ html.lenis { height: auto; }
     display: grid !important;
     grid-template-columns: 1fr 1fr;
   }
-  .story-gallery .masonry-photo {
+  .story-gallery .masonry-photo,
+  .story-gallery .orton-wrap {
     flex: none !important;
     width: 100% !important;
     margin-top: 0 !important;

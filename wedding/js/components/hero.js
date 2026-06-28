@@ -2,14 +2,67 @@
 function MonogramHero() {
   const content = useContent();
   const [ready, setReady] = useState(false);
+  // Transient "drag to paint" hint — appears near the cursor after the visitor
+  // has hovered the canvas for ~2s without painting, then fades away.
+  const [paintHint, setPaintHint] = useState(false);
   const cardRef = useRef(null);
   const monogramRef = useRef(null);
   const sectionRef = useRef(null);
   const canvasRef = useRef(null);
+  const hintRef = useRef(null);
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 80);
     return () => clearTimeout(t);
+  }, []);
+
+  // Cursor-following hint: reveal after a 2s dwell over the section, follow the
+  // cursor while shown, and dismiss for good once the visitor paints (or leaves).
+  useEffect(() => {
+    const section = sectionRef.current;
+    const hintEl = hintRef.current;
+    if (!section || !hintEl) return;
+
+    let showTimer = null;
+    let hideTimer = null;
+    let started = false;
+    let dismissed = false;
+
+    const place = (e) => {
+      hintEl.style.left = `${e.clientX}px`;
+      hintEl.style.top = `${e.clientY}px`;
+    };
+    const onMove = (e) => {
+      place(e);
+      if (dismissed || started) return;
+      started = true;
+      showTimer = setTimeout(() => {
+        setPaintHint(true);
+        hideTimer = setTimeout(() => { setPaintHint(false); dismissed = true; }, 8000);
+      }, 2000);
+    };
+    const onLeave = () => {
+      clearTimeout(showTimer);
+      started = false;
+      setPaintHint(false);
+    };
+    const onDown = () => {
+      dismissed = true;
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+      setPaintHint(false);
+    };
+
+    section.addEventListener('mousemove', onMove);
+    section.addEventListener('mouseleave', onLeave);
+    section.addEventListener('mousedown', onDown);
+    return () => {
+      clearTimeout(showTimer);
+      clearTimeout(hideTimer);
+      section.removeEventListener('mousemove', onMove);
+      section.removeEventListener('mouseleave', onLeave);
+      section.removeEventListener('mousedown', onDown);
+    };
   }, []);
 
   // Monet brush-reveal effect
@@ -237,6 +290,23 @@ function MonogramHero() {
         pointerEvents: 'none',
         zIndex: 1,
       }} />
+
+      {/* Transient hint — appears near the cursor after a short dwell. Fixed to
+          the viewport and offset down-right of the pointer. */}
+      <div ref={hintRef} className="ui-hint" style={{
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        marginLeft: '44px',
+        marginTop: '20px',
+        zIndex: 60,
+        color: '#9c8d7e',
+        textShadow: '0 1px 6px rgba(248, 245, 240, 0.9)',
+        opacity: paintHint ? 1 : 0,
+        transition: 'opacity 0.6s ease',
+      }}>
+        drag to paint
+      </div>
 
       {/* Content layer — sits above the Monet canvas */}
       <div className="hero-content" style={{
