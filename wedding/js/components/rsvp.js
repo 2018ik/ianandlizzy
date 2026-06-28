@@ -1,8 +1,5 @@
-/* ── RSVP ──
-   Set RSVP_ENDPOINT to a form backend (Formspree, a Worker, Google Apps
-   Script, etc.) to receive submissions. While empty, the form still works and
-   shows the thank-you state without sending anywhere. */
-const RSVP_ENDPOINT = '';
+/* ── RSVP ── */
+const RSVP_ENDPOINT = 'https://bold-glade-8858.kang43.workers.dev/rsvp';
 
 function RSVP() {
   const content = useContent();
