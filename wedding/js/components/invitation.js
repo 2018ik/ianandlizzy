@@ -130,32 +130,24 @@ function Invitation() {
             </div>
           </div>
 
-          {/* Panel 2 — photo rises and pins centered, then stays pinned until
-              the whole section scrolls away (no mid-section release). */}
-          <div style={{
-            position: 'sticky',
-            top: 0,
-            height: '100vh',
-            zIndex: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            paddingRight: 'clamp(32px, 5vw, 72px)',
-          }}>
-            <img
-              src="images/engagement3.jpg"
-              alt="Ian and Lizzy"
-              className="editorial-photo"
-              style={{
-                display: 'block',
-                width: '50%',
-                aspectRatio: '4/3',
-                objectFit: 'cover',
-                borderRadius: '2px',
-                border: '6px solid #B3841A',
-                transform: 'translateY(200px)',
-              }}
-            />
+          {/* Panel 2 — photo rises through the center over the invitation. */}
+          <div className="inv-overlay-panel">
+            <div className="engagement-photo-card">
+              <img
+                src="images/engagement3.jpg"
+                alt="Ian and Lizzy"
+                className="editorial-photo"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  aspectRatio: '4/3',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  borderRadius: '1px',
+                  border: '5px solid #B3841A',
+                }}
+              />
+            </div>
           </div>
 
         </div>

@@ -613,6 +613,31 @@ html.lenis { height: auto; }
   background-color: #d6b8bc;
 }
 
+.inv-overlay-panel {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  margin-left: -50vw;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.engagement-photo-card {
+  width: min(58vw, 760px);
+  min-width: 360px;
+  padding: clamp(8px, 1.2vw, 14px);
+  background: #fff8eb;
+  border: 1px solid rgba(107, 45, 62, 0.18);
+  box-shadow: 0 32px 90px rgba(70, 43, 37, 0.34);
+  transform: translateY(18vh);
+  transform-origin: center;
+}
+
 /* ── Nav responsive ── */
 @media (max-width: 767px) {
   .nav-links { display: none; }
@@ -623,6 +648,17 @@ html.lenis { height: auto; }
      (!important needed to beat the inline styles on these elements) */
   .inv-grid { grid-template-columns: 1fr !important; }
   .inv-left { display: none !important; }
+  .inv-overlay-panel {
+    width: 100%;
+    margin-left: 0;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+  .engagement-photo-card {
+    width: min(100%, 520px);
+    min-width: 0;
+    transform: translateY(12vh);
+  }
 
   /* Hero: swap the side scroll indicator for the under-greeting hint */
   .scroll-indicator-v { display: none !important; }
