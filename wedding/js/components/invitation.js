@@ -27,6 +27,8 @@ function Invitation() {
             display:'flex',
             justifyContent: 'center',
             overflow: 'hidden',
+            padding: '8px 0',
+            boxSizing: 'border-box',
             clipPath: photoVisible ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)',
             transition: 'clip-path 1.3s cubic-bezier(0.76, 0, 0.24, 1)',
           }}>
@@ -40,7 +42,6 @@ function Invitation() {
                 aspectRatio: '3/4',
                 objectFit: 'cover',
                 objectPosition: 'center top',
-                border: '6px solid #B3841A',
               }}
             />
           </div>
@@ -61,6 +62,8 @@ function Invitation() {
             padding: '0 clamp(32px, 5vw, 72px)',
           }}>
             <div ref={cardRef} style={{
+              position: 'relative',
+              zIndex: 1,
               width: '100%',
               opacity: cardVisible ? 1 : 0,
               transform: cardVisible ? 'translateY(0)' : 'translateY(28px)',
@@ -144,7 +147,6 @@ function Invitation() {
                   objectFit: 'cover',
                   objectPosition: 'center',
                   borderRadius: '1px',
-                  border: '5px solid #B3841A',
                 }}
               />
             </div>

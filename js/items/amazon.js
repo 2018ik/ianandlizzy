@@ -11,7 +11,7 @@ export function createAmazonBox() {
         const amazonGroup = new THREE.Group();
         amazonGroup.userData = {
           title: "Amazon Box",
-          description: "A package that just arrived."
+          description: "The best part about ordering things on Amazon is that you get to have a box for your cat to sit in but we don't have a cat anymore :("
         };
 
         const box = gltf.scene;

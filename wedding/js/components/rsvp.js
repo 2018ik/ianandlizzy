@@ -81,8 +81,11 @@ function RSVP() {
                position: 'relative',
                overflow: 'hidden',
              }}>
-      <img src="images/engagement12.jpg" alt="" aria-hidden="true" className="side-photo"
+      <img src="images/engagement11.jpg" alt="" aria-hidden="true" className="side-photo"
            style={{ left: 'clamp(8px, 3vw, 60px)', top: '16%' }} />
+      <img src="images/engagement10.jpg" alt="" aria-hidden="true" className="side-photo"
+           style={{ right: 'clamp(8px, 3vw, 60px)', top: '46%' }} />
+
 
       {status === 'done' && (
         <div className="rsvp-petals" aria-hidden="true">
@@ -103,7 +106,6 @@ function RSVP() {
 
       <div style={{ maxWidth: '40rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
 
-        <span className="eyebrow" style={{ marginBottom: '20px' }}>Will you join us?</span>
         <h2 style={{
           fontFamily: "'Pinyon Script', cursive",
           fontWeight: 400,

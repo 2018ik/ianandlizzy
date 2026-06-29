@@ -2,8 +2,9 @@
 function FAQItem({ question, answer, index }) {
   const [open, setOpen] = useState(false);
   const num = String(index + 1).padStart(2, '0');
+  const featured = index === 5;
   return (
-    <div className="faq-row-modern">
+    <div className={`faq-row-modern ${featured ? 'faq-row-featured' : ''}`}>
       <button
         onClick={() => setOpen(!open)}
         style={{
@@ -34,7 +35,10 @@ function FAQItem({ question, answer, index }) {
           lineHeight: 1.4,
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
-        }}>{question}</span>
+        }}>
+          {question}
+          {featured && <span className="faq-featured-tag">Please note</span>}
+        </span>
         <div className={`faq-cross ${open ? 'open' : ''}`} />
       </button>
       <div className={`faq-body-wrap ${open ? 'open' : ''}`}>

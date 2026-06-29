@@ -1,4 +1,6 @@
 /* ── Registry ── */
+const REGISTRY_URL = 'https://www.amazon.com/registries/gl/guest-view/2Z3F40FB313SJ?ref_=cm_sw_r_cp_ud_ggr-subnav-share_Y06GAP15F03CVBJGNNQX';
+
 function Registry() {
   const [textRef, textVisible] = useReveal({ threshold: 0.1 });
   const [cardRef, cardVisible] = useReveal({ threshold: 0.1 });
@@ -10,87 +12,74 @@ function Registry() {
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Decorative photos flanking the content */}
-      <img src="images/engagement10.jpg" alt="" aria-hidden="true" className="side-photo"
-           style={{ left: 'clamp(8px, 3vw, 60px)', top: '14%' }} />
-      <img src="images/engagement11.jpg" alt="" aria-hidden="true" className="side-photo"
-           style={{ right: 'clamp(8px, 3vw, 60px)', bottom: '12%' }} />
+      <div className="registry-layout">
+        <div className="registry-copy">
 
-      <div style={{ maxWidth: '56rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-
-        {/* Text block */}
-        <div ref={textRef} style={{
-          opacity: textVisible ? 1 : 0,
-          transform: textVisible ? 'translateY(0)' : 'translateY(28px)',
-          transition: 'opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)',
-        }}>
-          <span className="eyebrow" style={{ display: 'block', marginBottom: '32px' }}>Registry</span>
-
-          <p style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontWeight: 300,
-            fontStyle: 'italic',
-            fontSize: 'clamp(24px, 3.2vw, 40px)',
-            color: '#6b2d3e',
-            lineHeight: 1.45,
-            margin: '0 auto 52px',
-            maxWidth: '36rem',
-            letterSpacing: '-0.01em',
+          {/* Text block */}
+          <div ref={textRef} style={{
+            opacity: textVisible ? 1 : 0,
+            transform: textVisible ? 'translateY(0)' : 'translateY(28px)',
+            transition: 'opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)',
           }}>
-            Your presence is enough of a gift for us! But for those who still want to help out, you can contribute to this fund:
-          </p>
+            <span className="eyebrow" style={{ display: 'block', marginBottom: '32px' }}>Registry</span>
 
-          <div style={{ width: '40px', height: '1px', background: '#b0a898', margin: '0 auto 64px' }} />
-        </div>
+            <p style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontWeight: 300,
+              fontStyle: 'italic',
+              fontSize: 'clamp(24px, 3.2vw, 40px)',
+              color: '#6b2d3e',
+              lineHeight: 1.45,
+              margin: '0 0 44px',
+              maxWidth: '36rem',
+              letterSpacing: '-0.01em',
+            }}>
+              Your presence is a gift to us! If you would still like to help us begin this next chapter, we have put together a registry.
+            </p>
 
-        {/* Product card */}
-        <div ref={cardRef} style={{
-          display: 'inline-flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '24px',
-          opacity: cardVisible ? 1 : 0,
-          transform: cardVisible ? 'translateY(0)' : 'translateY(32px)',
-          transition: 'opacity 0.9s cubic-bezier(0.16,1,0.3,1) 0.15s, transform 0.9s cubic-bezier(0.16,1,0.3,1) 0.15s',
-        }}>
-          <div style={{
-            background: '#ffffff',
-            borderRadius: '20px',
-            padding: 'clamp(32px, 4vw, 56px)',
-            boxShadow: '0 2px 48px rgba(26,23,20,0.07)',
-            maxWidth: '460px',
-            width: '100%',
-          }}>
-            <img
-              src="images/avp.png"
-              alt="Apple Vision Pro"
-              style={{
-                display: 'block',
-                width: '100%',
-                objectFit: 'contain',
-              }}
-            />
+            <div style={{ width: '40px', height: '1px', background: '#b0a898', margin: '0 0 54px' }} />
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-            <span style={{
+          {/* Registry link */}
+          <a ref={cardRef}
+             href={REGISTRY_URL}
+             target="_blank"
+             rel="noopener noreferrer"
+             style={{
+            display: 'inline-flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: '8px',
+            textDecoration: 'none',
+            color: 'inherit',
+            opacity: cardVisible ? 1 : 0,
+            transform: cardVisible ? 'translateY(0)' : 'translateY(32px)',
+            transition: 'opacity 0.9s cubic-bezier(0.16,1,0.3,1) 0.15s, transform 0.9s cubic-bezier(0.16,1,0.3,1) 0.15s',
+          }}>
+            <span className="registry-link-label" style={{
               fontFamily: "'Fragment Mono', monospace",
               fontSize: '10px',
               fontWeight: 500,
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: '#6b2d3e',
-            }}>Apple Vision Pro</span>
+            }}>View on Amazon →</span>
             <span style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontStyle: 'italic',
               fontSize: '15px',
               color: '#b0a898',
               letterSpacing: '0.02em',
-            }}>$3,499.00</span>
-          </div>
+            }}>Opens Amazon in a new tab</span>
+          </a>
         </div>
 
+        <div className="registry-photo-wrap" aria-hidden="true">
+          <img
+            src="images/engagement12.jpg"
+            alt=""
+            className="registry-feature-photo"
+          />
+        </div>
       </div>
     </section>
   );

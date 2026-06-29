@@ -2,21 +2,24 @@
 const STORY_HOVER_PHOTOS = {
   '2008': ['images/childhood_photo.PNG'],
   '2017': ['images/qipao.jpg', 'images/ian_chinese.jpg'],
+  '2022': ['images/wide.webp'],
   '2024': ['images/FUL_CP.jpg'],
   '2025': ['images/ricecat1.jpg', 'images/ricecat2.jpg'],
   '2026': ['images/1.webp', 'images/engagement9.JPG'],
 };
+
+const STORY_SESSION_KEY = 'ian-lizzy-last-story-chapter';
 
 /* ── Story Entry (extracted so hooks work correctly) ── */
 function StoryEntry({ s, i, onHover, active }) {
   const [entryRef, entryVisible] = useReveal({ threshold: 0.12 });
   const isLeft = i % 2 === 0;
   const year = String(s.year);
-  const hasHoverPhotos = !!STORY_HOVER_PHOTOS[year];
+  const chapterPhotos = STORY_HOVER_PHOTOS[year] || [];
+  const hasHoverPhotos = chapterPhotos.length > 0;
   return (
     <div ref={entryRef}
-         onMouseEnter={() => hasHoverPhotos && onHover(year)}
-         onMouseLeave={() => hasHoverPhotos && onHover(null)}
+         onMouseEnter={() => onHover(year)}
          style={{ gridColumn: isLeft ? 1 : 2 }}>
       <div className={`story-entry clip-reveal-v ${entryVisible ? 'visible' : ''}`}
            style={{
@@ -66,6 +69,13 @@ function StoryEntry({ s, i, onHover, active }) {
         }}>
           {s.body}
         </p>
+        {hasHoverPhotos && (
+          <div className={`story-mobile-photos ${chapterPhotos.length > 1 ? 'multi' : ''}`}>
+            {chapterPhotos.map((src) => (
+              <img key={src} src={src} alt="Ian and Lizzy" />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -76,19 +86,30 @@ function OurStory() {
   const content = useContent();
   const [titleRef, titleVisible] = useReveal({ threshold: 0.2 });
   const [galleryRef, galleryVisible] = useReveal({ threshold: 0.05 });
-  const [hoveredYear, setHoveredYear] = useState(null);
   const [hoverHint, setHoverHint] = useState(true);
 
   const stories = content.story.entries;
+  const defaultYear = String(stories[0]?.year || Object.keys(STORY_HOVER_PHOTOS)[0]);
+  const storyYears = stories.map((s) => String(s.year));
+  const [activeYear, setActiveYear] = useState(() => {
+    try {
+      const savedYear = window.sessionStorage.getItem(STORY_SESSION_KEY);
+      return storyYears.includes(savedYear) ? savedYear : defaultYear;
+    } catch (error) {
+      return defaultYear;
+    }
+  });
 
-  // Show the first chapter's photos by default so visitors see what hovering
-  // does; hovering any year takes over, and leaving falls back to the default.
-  const defaultYear = Object.keys(STORY_HOVER_PHOTOS)[0];
-  const activeYear = hoveredYear ?? defaultYear;
+  const activePhotoYear = STORY_HOVER_PHOTOS[activeYear] ? activeYear : Object.keys(STORY_HOVER_PHOTOS)[0];
 
   const handleHover = (year) => {
-    setHoveredYear(year);
-    if (year) setHoverHint(false); // they've discovered it
+    setActiveYear(year);
+    setHoverHint(false); // they've discovered it
+    try {
+      window.sessionStorage.setItem(STORY_SESSION_KEY, year);
+    } catch (error) {
+      // Some privacy modes disable sessionStorage; the in-memory state still works.
+    }
   };
 
   useEffect(() => {
@@ -112,7 +133,7 @@ function OurStory() {
           The band spans exactly the empty space: from the content's left edge to
           the table's left edge (the table is 34rem wide, right-aligned), so the
           photos sit centred in that gap regardless of viewport width. */}
-      <div style={{
+      <div className="story-hover-photo-stage" style={{
         position: 'absolute',
         left: 'clamp(24px, 6vw, 80px)',
         right: 'calc(clamp(24px, 6vw, 80px) + 34rem)',
@@ -124,7 +145,7 @@ function OurStory() {
         zIndex: 1,
       }}>
         {Object.entries(STORY_HOVER_PHOTOS).map(([year, imgs]) => {
-          const on = activeYear === year;
+          const on = activePhotoYear === year;
           return (
             <div key={year} style={{
               position: 'absolute',
@@ -143,8 +164,8 @@ function OurStory() {
                     maxWidth: imgs.length > 1 ? '47%' : (src.includes('FUL_CP') ? '68%' : '82%'),
                     maxHeight: '100%',
                     height: 'auto',
-                    border: '6px solid #B3841A',
-                    boxShadow: '0 16px 36px rgba(80, 50, 40, 0.22)',
+                    border: '1px solid rgba(179, 132, 26, 0.52)',
+                    boxShadow: '0 0 0 4px rgba(255, 243, 221, 0.34), 0 0 0 5px rgba(179, 132, 26, 0.24), inset 0 0 0 1px rgba(179, 132, 26, 0.24), 0 16px 36px rgba(80, 50, 40, 0.18)',
                     opacity: on ? 1 : 0,
                     transform: on ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.94)',
                     transition: `opacity 0.5s ease ${idx * 0.08}s, transform 0.65s cubic-bezier(0.16,1,0.3,1) ${idx * 0.08}s`,
@@ -183,7 +204,7 @@ function OurStory() {
         {content.story.title}
       </h2>
 
-      <div style={{ maxWidth: '34rem', marginLeft: 'auto', marginTop: 'auto', position: 'relative', zIndex: 2 }}>
+      <div className="story-chapters-wrap" style={{ maxWidth: '34rem', marginLeft: 'auto', marginTop: 'auto', position: 'relative', zIndex: 2 }}>
         {/* Alternating two-column timeline */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 36px' }}
              className="story-grid">
