@@ -93,17 +93,15 @@ function Invitation() {
                 alt="Ian Kang and Lizzy Ling"
                 style={{
                   display: 'block',
-                  width: '50%',
-                  // aspectRatio: '7/8',
+                  width: '70%',
                   objectFit: 'cover',
                   objectPosition: 'center',
-                  borderRadius: '1px',
                 }}
               />
 }
 
               {/* Invitation Body */}
-              <span className="eyebrow" style={{ color: '#fff3ddff', display: 'block', marginBottom: '32px' }}>{inv.invitationBody}</span>
+              <span className="eyebrow" style={{ color: '#fff3ddff', display: 'block', fontSize: '14px', margin: '32px 0', width: '30vw' }}>{inv.invitationBody}</span>
 
 
               {/* Thin rule */}

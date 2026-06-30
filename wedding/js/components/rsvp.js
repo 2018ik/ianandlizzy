@@ -78,11 +78,14 @@ function RSVP() {
                position: 'relative',
                overflow: 'hidden',
              }}>
-      <img src="images/engagement11.jpg" alt="" aria-hidden="true" className="side-photo"
-           style={{ left: 'clamp(8px, 3vw, 60px)', top: '16%' }} />
-      <img src="images/engagement10.jpg" alt="" aria-hidden="true" className="side-photo"
-           style={{ right: 'clamp(8px, 3vw, 60px)', top: '46%' }} />
-
+      <div className="oval-border-container"  style={{ left: 'clamp(8px, 3vw, 60px)', top: '16%' }}>
+        <img src="images/engagement11.jpg" alt="" aria-hidden="true" className="side-photo oval-photo"
+           />
+      </div>
+      <div className="oval-border-container" style={{ right: 'clamp(8px, 3vw, 60px)', top: '46%' }}>
+        <img src="images/engagement10.jpg" alt="" aria-hidden="true" className="side-photo oval-photo"
+            />
+      </div>
 
       {status === 'done' && (
         <div className="rsvp-petals" aria-hidden="true">
