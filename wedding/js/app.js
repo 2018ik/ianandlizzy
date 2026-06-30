@@ -3,18 +3,21 @@ function App() {
   const [content, setContent] = useState(loadCachedContent);
 
   useEffect(() => {
-    // Lenis smooth scroll — only needed once there's a scrollable page.
-    if (!content) return;
-    if (typeof Lenis !== 'undefined') {
-      const lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      });
-      function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-      requestAnimationFrame(raf);
-      return () => lenis.destroy();
-    }
-  }, [content]);
+    const isImageTarget = (target) => target && target.closest && target.closest('img');
+    const preventImageDrag = (event) => {
+      if (isImageTarget(event.target)) event.preventDefault();
+    };
+    const preventImageMenu = (event) => {
+      if (isImageTarget(event.target)) event.preventDefault();
+    };
+
+    document.addEventListener('dragstart', preventImageDrag);
+    document.addEventListener('contextmenu', preventImageMenu);
+    return () => {
+      document.removeEventListener('dragstart', preventImageDrag);
+      document.removeEventListener('contextmenu', preventImageMenu);
+    };
+  }, []);
 
   // Scroll-driven background for the schedule/story/registry block. We measure
   // the tall wrapper but recolor a separate STICKY layer (bgLayerRef) that holds

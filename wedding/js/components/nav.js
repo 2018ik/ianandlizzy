@@ -31,7 +31,7 @@ function DotNav() {
 
   const scrollTo = (id) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) el.scrollIntoView({ behavior: 'auto' });
   };
 
   // On the invitation section, tint the nav to match the cream accent

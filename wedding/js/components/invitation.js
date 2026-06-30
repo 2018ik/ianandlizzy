@@ -137,7 +137,7 @@ function Invitation() {
           <div className="inv-overlay-panel">
             <div className="engagement-photo-card">
               <img
-                src="images/engagement3.jpg"
+                src="images/engagement3.webp"
                 alt="Ian and Lizzy"
                 className="editorial-photo"
                 style={{

@@ -10,65 +10,69 @@ const STORY_HOVER_PHOTOS = {
 
 const STORY_SESSION_KEY = 'ian-lizzy-last-story-chapter';
 
+function StoryParagraphs({ text }) {
+  const paragraphs = Array.isArray(text) ? text : String(text || '').split(/\n\s*\n/);
+  return (
+    <>
+      {paragraphs.filter(Boolean).map((paragraph, index) => (
+        <p key={index}>{paragraph}</p>
+      ))}
+    </>
+  );
+}
+
 /* ── Story Entry (extracted so hooks work correctly) ── */
 function StoryEntry({ s, i, onHover, active }) {
   const [entryRef, entryVisible] = useReveal({ threshold: 0.12 });
-  const isLeft = i % 2 === 0;
   const year = String(s.year);
   const chapterPhotos = STORY_HOVER_PHOTOS[year] || [];
   const hasHoverPhotos = chapterPhotos.length > 0;
+  const sections = Array.isArray(s.sections) && s.sections.length
+    ? s.sections
+    : [{ label: 'Together', text: s.body }];
+
   return (
     <div ref={entryRef}
          onMouseEnter={() => onHover(year)}
-         style={{ gridColumn: isLeft ? 1 : 2 }}>
+         className={`story-chapter ${active ? 'active' : ''}`}>
+      {hasHoverPhotos && (
+        <div className={`story-desktop-photos ${chapterPhotos.length > 1 ? 'multi' : ''}`}>
+          {chapterPhotos.map((src, idx) => (
+            <img
+              key={src}
+              src={src}
+              alt="Ian and Lizzy"
+              style={{ transitionDelay: `${idx * 0.08}s` }}
+            />
+          ))}
+        </div>
+      )}
+
       <div className={`story-entry clip-reveal-v ${entryVisible ? 'visible' : ''}`}
            style={{
-             padding: 'clamp(16px, 2vh, 28px) 0',
-             borderTop: 'none',
              transitionDelay: `${(i % 2) * 0.1}s`,
            }}>
         <div className="story-watermark">{s.year}</div>
-        {/* Active chapter — whose photos are currently shown — gets a gold dot
-            and warms in colour so it's clear which one is highlighted. */}
-        <span className="eyebrow" style={{
-          marginBottom: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          color: active ? '#B3841A' : undefined,
-          transition: 'color 0.35s ease',
-        }}>
-          <span>Chapter {s.chapter}</span>
-          {hasHoverPhotos && (
-            <span style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              background: '#B3841A',
-              opacity: active ? 1 : 0,
-              transform: active ? 'scale(1)' : 'scale(0.4)',
-              transition: 'opacity 0.35s ease, transform 0.35s ease',
-            }} />
-          )}
-        </span>
-        <span style={{
-          fontFamily: "'Fragment Mono', monospace",
-          fontSize: '10px',
-          fontWeight: 500,
-          letterSpacing: '0.2em',
-          color: active ? '#B3841A' : '#b0a898',
-          transition: 'color 0.35s ease',
-        }}>{s.year}</span>
+
+        <div className="story-chapter-head">
+          <span className="eyebrow story-chapter-kicker">
+            <span>Chapter {s.chapter}</span>
+            {hasHoverPhotos && <span className="story-active-dot" />}
+          </span>
+          <span className="story-year">{s.year}</span>
+        </div>
+
         <p style={{
           fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontWeight: 400,
-          fontSize: 'clamp(12px, 1.3vw, 15px)',
+          fontSize: 'clamp(17px, 1.6vw, 22px)',
           color: '#6b2d3e',
-          lineHeight: 1.7,
-          margin: '12px 0 10px 0',
+          lineHeight: 1.5,
+          margin: '0 0 clamp(20px, 2.5vw, 30px)',
         }}>
           {s.body}
         </p>
+
         {hasHoverPhotos && (
           <div className={`story-mobile-photos ${chapterPhotos.length > 1 ? 'multi' : ''}`}>
             {chapterPhotos.map((src) => (
@@ -76,6 +80,15 @@ function StoryEntry({ s, i, onHover, active }) {
             ))}
           </div>
         )}
+
+        <div className="story-pov-list">
+          {sections.map((section, index) => (
+            <article key={`${section.label}-${index}`} className="story-pov">
+              <span>{section.label}</span>
+              <StoryParagraphs text={section.text} />
+            </article>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -86,7 +99,6 @@ function OurStory() {
   const content = useContent();
   const [titleRef, titleVisible] = useReveal({ threshold: 0.2 });
   const [galleryRef, galleryVisible] = useReveal({ threshold: 0.05 });
-  const [hoverHint, setHoverHint] = useState(true);
 
   const stories = content.story.entries;
   const defaultYear = String(stories[0]?.year || Object.keys(STORY_HOVER_PHOTOS)[0]);
@@ -100,22 +112,14 @@ function OurStory() {
     }
   });
 
-  const activePhotoYear = STORY_HOVER_PHOTOS[activeYear] ? activeYear : Object.keys(STORY_HOVER_PHOTOS)[0];
-
   const handleHover = (year) => {
     setActiveYear(year);
-    setHoverHint(false); // they've discovered it
     try {
       window.sessionStorage.setItem(STORY_SESSION_KEY, year);
     } catch (error) {
       // Some privacy modes disable sessionStorage; the in-memory state still works.
     }
   };
-
-  useEffect(() => {
-    const t = setTimeout(() => setHoverHint(false), 9000);
-    return () => clearTimeout(t);
-  }, []);
 
   return (
     <section id="story" style={{
@@ -126,68 +130,6 @@ function OurStory() {
       flexDirection: 'column',
       position: 'relative',
     }}>
-
-      {/* Hover photos — every year reveals into the same open area on the left,
-          left of the timeline table and above the gallery (so they don't march
-          down the page with each entry). All sets stay mounted and cross-fade.
-          The band spans exactly the empty space: from the content's left edge to
-          the table's left edge (the table is 34rem wide, right-aligned), so the
-          photos sit centred in that gap regardless of viewport width. */}
-      <div className="story-hover-photo-stage" style={{
-        position: 'absolute',
-        left: 'clamp(24px, 6vw, 80px)',
-        right: 'calc(clamp(24px, 6vw, 80px) + 34rem)',
-        top: '36%',
-        transform: 'translateY(-50%)',
-        height: 'min(58vh, 520px)',
-        pointerEvents: 'none',
-        width: 'min(46%, 780px)',
-        zIndex: 1,
-      }}>
-        {Object.entries(STORY_HOVER_PHOTOS).map(([year, imgs]) => {
-          const on = activePhotoYear === year;
-          return (
-            <div key={year} style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 'clamp(16px, 2vw, 36px)',
-            }}>
-              {imgs.map((src, idx) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt="Ian and Lizzy"
-                  style={{
-                    maxWidth: imgs.length > 1 ? '47%' : (src.includes('FUL_CP') ? '68%' : '82%'),
-                    maxHeight: '100%',
-                    height: 'auto',
-                    border: '1px solid rgba(179, 132, 26, 0.52)',
-                    boxShadow: '0 0 0 4px rgba(255, 243, 221, 0.34), 0 0 0 5px rgba(179, 132, 26, 0.24), inset 0 0 0 1px rgba(179, 132, 26, 0.24), 0 16px 36px rgba(80, 50, 40, 0.18)',
-                    opacity: on ? 1 : 0,
-                    transform: on ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.94)',
-                    transition: `opacity 0.5s ease ${idx * 0.08}s, transform 0.65s cubic-bezier(0.16,1,0.3,1) ${idx * 0.08}s`,
-                  }}
-                />
-              ))}
-            </div>
-          );
-        })}
-
-        {/* Transient hint — hover a year to reveal its photos */}
-        <div className="ui-hint" style={{
-          position: 'absolute',
-          bottom: '-36px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          opacity: hoverHint ? 0.7 : 0,
-          transition: 'opacity 0.8s ease',
-        }}>
-          <span className="ui-hint-bob">✦ hover each year</span>
-        </div>
-      </div>
 
       <h2 ref={titleRef}
           className={`reveal ${titleVisible ? 'visible' : ''}`}
@@ -204,10 +146,8 @@ function OurStory() {
         {content.story.title}
       </h2>
 
-      <div className="story-chapters-wrap" style={{ maxWidth: '34rem', marginLeft: 'auto', marginTop: 'auto', position: 'relative', zIndex: 2 }}>
-        {/* Alternating two-column timeline */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 36px' }}
-             className="story-grid">
+      <div className="story-chapters-wrap">
+        <div className="story-grid">
           {stories.map((s, i) => (
             <StoryEntry key={s.year} s={s} i={i} onHover={handleHover} active={String(s.year) === activeYear} />
           ))}
