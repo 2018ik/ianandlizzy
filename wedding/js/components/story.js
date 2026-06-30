@@ -1,4 +1,4 @@
-/* ── Hover photos by year — revealed in the open left area on hover ── */
+/* ── Photos by year — shown in the open space beside each chapter ── */
 const STORY_HOVER_PHOTOS = {
   '2008': ['images/childhood_photo.PNG'],
   '2017': ['images/qipao.jpg', 'images/ian_chinese.jpg'],
@@ -7,8 +7,6 @@ const STORY_HOVER_PHOTOS = {
   '2025': ['images/ricecat1.jpg', 'images/ricecat2.jpg'],
   '2026': ['images/1.webp', 'images/engagement9.JPG'],
 };
-
-const STORY_SESSION_KEY = 'ian-lizzy-last-story-chapter';
 
 function StoryParagraphs({ text }) {
   const paragraphs = Array.isArray(text) ? text : String(text || '').split(/\n\s*\n/);
@@ -22,28 +20,47 @@ function StoryParagraphs({ text }) {
 }
 
 /* ── Story Entry (extracted so hooks work correctly) ── */
-function StoryEntry({ s, i, onHover, active }) {
-  const [entryRef, entryVisible] = useReveal({ threshold: 0.12 });
+function StoryEntry({ s, i, groups = [] }) {
+  const [entryRef, entryVisible] = useReveal({ threshold: 0, rootMargin: '0px 0px -12% 0px' });
+  // Separate observer on the photos themselves so they animate when *they* enter
+  // the viewport — the chapter is tall and triggers its reveal long before its
+  // top-anchored photos are actually on screen.
+  const [photosRef, photosVisible] = useReveal({ threshold: 0.15, rootMargin: '0px 0px -28% 0px' });
   const year = String(s.year);
-  const chapterPhotos = STORY_HOVER_PHOTOS[year] || [];
-  const hasHoverPhotos = chapterPhotos.length > 0;
+  const chapterPhotos = STORY_HOVER_PHOTOS[year] || [];     // mobile (own photos)
+  const hasMobilePhotos = chapterPhotos.length > 0;
+  const hasDesktopPhotos = groups.length > 0;               // desktop rail (may be merged)
   const sections = Array.isArray(s.sections) && s.sections.length
     ? s.sections
     : [{ label: 'Together', text: s.body }];
 
+  // Chapter 3 sits on the RIGHT half (photos to the left) and keeps its two POVs
+  // side by side; chapter 4 breaks out to the LEFT half (photos flip right).
+  // Chapters 1 & 2 and 5 & 6 stay paired in the right-aligned 2-column grid.
+  const isSplit = i === 2;
+  const isRightHalf = i === 2;
+  const isLeftHalf = i === 3;
+  const gridSpan = (isRightHalf || isLeftHalf) ? { gridColumn: '1 / -1' } : undefined;
+
+  let photoIndex = 0;
   return (
     <div ref={entryRef}
-         onMouseEnter={() => onHover(year)}
-         className={`story-chapter ${active ? 'active' : ''}`}>
-      {hasHoverPhotos && (
-        <div className={`story-desktop-photos ${chapterPhotos.length > 1 ? 'multi' : ''}`}>
-          {chapterPhotos.map((src, idx) => (
-            <img
-              key={src}
-              src={src}
-              alt="Ian and Lizzy"
-              style={{ transitionDelay: `${idx * 0.08}s` }}
-            />
+         className={`story-chapter ${isSplit ? 'story-chapter-split' : ''} ${isLeftHalf ? 'story-chapter-left' : ''} ${isRightHalf ? 'story-chapter-right' : ''}`}
+         style={gridSpan}>
+      {hasDesktopPhotos && (
+        <div ref={photosRef}
+             className={`story-desktop-photos ${groups.length > 1 ? 'stacked' : ''} ${photosVisible ? 'visible' : ''}`}>
+          {groups.map((group, gi) => (
+            <div key={gi} className={`story-photo-group ${group.length > 1 ? 'multi' : ''}`}>
+              {group.map((src) => (
+                <img
+                  key={src}
+                  src={src}
+                  alt="Ian and Lizzy"
+                  style={{ transitionDelay: `${(photoIndex++) * 0.12}s` }}
+                />
+              ))}
+            </div>
           ))}
         </div>
       )}
@@ -57,23 +74,11 @@ function StoryEntry({ s, i, onHover, active }) {
         <div className="story-chapter-head">
           <span className="eyebrow story-chapter-kicker">
             <span>Chapter {s.chapter}</span>
-            {hasHoverPhotos && <span className="story-active-dot" />}
           </span>
           <span className="story-year">{s.year}</span>
         </div>
 
-        <p style={{
-          fontFamily: "'Cormorant Garamond', Georgia, serif",
-          fontWeight: 400,
-          fontSize: 'clamp(17px, 1.6vw, 22px)',
-          color: '#6b2d3e',
-          lineHeight: 1.5,
-          margin: '0 0 clamp(20px, 2.5vw, 30px)',
-        }}>
-          {s.body}
-        </p>
-
-        {hasHoverPhotos && (
+        {hasMobilePhotos && (
           <div className={`story-mobile-photos ${chapterPhotos.length > 1 ? 'multi' : ''}`}>
             {chapterPhotos.map((src) => (
               <img key={src} src={src} alt="Ian and Lizzy" />
@@ -101,24 +106,16 @@ function OurStory() {
   const [galleryRef, galleryVisible] = useReveal({ threshold: 0.05 });
 
   const stories = content.story.entries;
-  const defaultYear = String(stories[0]?.year || Object.keys(STORY_HOVER_PHOTOS)[0]);
-  const storyYears = stories.map((s) => String(s.year));
-  const [activeYear, setActiveYear] = useState(() => {
-    try {
-      const savedYear = window.sessionStorage.getItem(STORY_SESSION_KEY);
-      return storyYears.includes(savedYear) ? savedYear : defaultYear;
-    } catch (error) {
-      return defaultYear;
-    }
-  });
 
-  const handleHover = (year) => {
-    setActiveYear(year);
-    try {
-      window.sessionStorage.setItem(STORY_SESSION_KEY, year);
-    } catch (error) {
-      // Some privacy modes disable sessionStorage; the in-memory state still works.
-    }
+  // Desktop photo rail per chapter. Paired rows merge: chapter 2's photos stack
+  // under chapter 1's, chapter 6's under chapter 5's (each chapter is one group).
+  const photoOf = (idx) => STORY_HOVER_PHOTOS[String(stories[idx] && stories[idx].year)] || [];
+  const groupsFor = (i) => {
+    if (i === 1 || i === 5) return [];                      // shown under the paired chapter
+    if (i === 0) return [photoOf(0), photoOf(1)].filter((g) => g.length);
+    if (i === 4) return [photoOf(4), photoOf(5)].filter((g) => g.length);
+    const own = photoOf(i);
+    return own.length ? [own] : [];
   };
 
   return (
@@ -149,7 +146,7 @@ function OurStory() {
       <div className="story-chapters-wrap">
         <div className="story-grid">
           {stories.map((s, i) => (
-            <StoryEntry key={s.year} s={s} i={i} onHover={handleHover} active={String(s.year) === activeYear} />
+            <StoryEntry key={s.year} s={s} i={i} groups={groupsFor(i)} />
           ))}
         </div>
       </div>

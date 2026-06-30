@@ -39,7 +39,7 @@ function MonogramHero() {
       showTimer = setTimeout(() => {
         setPaintHint(true);
         hideTimer = setTimeout(() => { setPaintHint(false); dismissed = true; }, 8000);
-      }, 2000);
+      }, 1000);
     };
     const onLeave = () => {
       clearTimeout(showTimer);

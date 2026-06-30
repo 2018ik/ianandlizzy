@@ -3,7 +3,6 @@ const RSVP_ENDPOINT = 'https://bold-glade-8858.kang43.workers.dev/rsvp';
 
 function RSVP() {
   const content = useContent();
-  const [ref, visible] = useReveal({ threshold: 0.15 });
   const [form, setForm] = useState({ name: '', email: '', attending: 'yes', guests: '1', note: '' });
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
 
@@ -54,7 +53,7 @@ function RSVP() {
     fontWeight: 500,
     letterSpacing: '0.22em',
     textTransform: 'uppercase',
-    color: '#7a7068',
+    color: 'rgba(248, 245, 240, 0.75)',
     display: 'block',
     marginBottom: '10px',
   };
@@ -63,20 +62,18 @@ function RSVP() {
     padding: '12px 0',
     fontFamily: "'Cormorant Garamond', Georgia, serif",
     fontSize: '18px',
-    color: '#6b2d3e',
+    color: '#f8f5f0',
     background: 'transparent',
     border: 'none',
-    borderBottom: '1px solid #c8bfb5',
+    borderBottom: '1px solid rgba(248, 245, 240, 0.4)',
     outline: 'none',
     transition: 'border-color 0.3s ease',
   };
 
   return (
-    <section id="rsvp" ref={ref}
-             className={`reveal ${visible ? 'visible' : ''}`}
+    <section id="rsvp"
              style={{
-               background: '#f8f5f0',
-               borderTop: '1px solid #e0d8ce',
+               background: '#6b2d3e',
                padding: 'clamp(72px, 10vh, 130px) clamp(24px, 6vw, 80px)',
                position: 'relative',
                overflow: 'hidden',
@@ -110,7 +107,7 @@ function RSVP() {
           fontFamily: "'Pinyon Script', cursive",
           fontWeight: 400,
           fontSize: 'clamp(56px, 8vw, 96px)',
-          color: '#6b2d3e',
+          color: '#f8f5f0',
           lineHeight: 0.95,
           margin: '0 0 12px 0',
         }}>RSVP</h2>
@@ -120,7 +117,7 @@ function RSVP() {
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontStyle: 'italic',
             fontSize: 'clamp(20px, 2.4vw, 26px)',
-            color: '#7a7068',
+            color: '#f8f5f0',
             lineHeight: 1.6,
             marginTop: '32px',
           }}>
