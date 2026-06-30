@@ -258,6 +258,12 @@ body { overflow-x: hidden; }
   justify-content: center;
 }
 
+/* Hide the gold oval borders (and their photos) on mobile — placed after the
+   base rule above so it actually wins the cascade. */
+@media (max-width: 1100px) {
+  .oval-border-container { display: none; }
+}
+
 .registry-layout {
   position: relative;
   z-index: 1;
@@ -848,7 +854,10 @@ body { overflow-x: hidden; }
 
 /* ── Story entry ── */
 .story-chapters-wrap {
-  width: min(60vw, 860px);
+  --story-pad: clamp(24px, 6vw, 80px);   /* matches #story horizontal padding */
+  --story-wrap: min(60vw, 860px);        /* this wrap's width */
+  --story-half: min(52vw, 760px);        /* breakout (left-half) chapter width */
+  width: var(--story-wrap);
   margin-left: auto;
   margin-top: clamp(80px, 12vh, 140px);
   position: relative;
@@ -868,11 +877,15 @@ body { overflow-x: hidden; }
 .story-desktop-photos {
   position: absolute;
   top: clamp(18px, 4vh, 42px);
-  right: calc(100% + clamp(64px, 9vw, 150px));
-  width: min(30vw, 420px);
+  /* Fill the empty space to the LEFT of the chapter and center the photos in it */
+  right: 100%;
+  width: calc(100vw - 2 * var(--story-pad) - var(--story-wrap));
+  box-sizing: border-box;
+  /* Inset padding keeps the photos clear of the chapter card and section edge */
+  padding: clamp(10px, 1.4vw, 22px) clamp(24px, 3vw, 56px);
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   gap: clamp(14px, 1.8vw, 24px);
   pointer-events: none;
   opacity: 0;
@@ -889,9 +902,10 @@ body { overflow-x: hidden; }
 .story-photo-group {
   display: flex;
   align-items: flex-start;
-  justify-content: flex-end;
+  justify-content: center;
   gap: clamp(14px, 1.8vw, 24px);
   width: 100%;
+  max-width: clamp(240px, 24vw, 380px);
 }
 
 .story-desktop-photos img {
@@ -919,17 +933,16 @@ body { overflow-x: hidden; }
    the section's left content edge: item-left = 2*pad + wrapWidth - 100vw. */
 .story-chapter-left {
   grid-column: 1 / -1;
-  width: min(52vw, 760px);
-  margin-left: calc(2 * clamp(24px, 6vw, 80px) + min(60vw, 860px) - 100vw);
+  width: var(--story-half);
+  margin-left: calc(2 * var(--story-pad) + var(--story-wrap) - 100vw);
 }
-/* …and their hover photos flip to the right of the chapter. */
+/* …and their hover photos flip to the right of the chapter, centered in the
+   empty space between the chapter and the section's right edge. */
 .story-chapter-left .story-desktop-photos {
   right: auto;
-  left: calc(100% + clamp(64px, 9vw, 150px));
-  align-items: flex-start;
-}
-.story-chapter-left .story-photo-group {
-  justify-content: flex-start;
+  left: 100%;
+  width: calc(100vw - 2 * var(--story-pad) - var(--story-half));
+  align-items: center;
 }
 
 /* Chapter 3 spans the full grid — same width as chapters 1 & 2 combined; its
@@ -1095,6 +1108,9 @@ body { overflow-x: hidden; }
     transform: translateY(12vh);
   }
 
+  /* Invitation body: 30vw is too narrow once the section is full width */
+  .inv-body { width: 80% !important; }
+
   /* Hero: swap the side scroll indicator for the under-greeting hint */
   .scroll-indicator-v { display: none !important; }
   .hero-scroll-mobile { display: flex; }
@@ -1180,6 +1196,14 @@ body { overflow-x: hidden; }
 
   .story-mobile-photos img {
     aspect-ratio: 4 / 3;
+  }
+
+  /* Chapter 3's photo is wide — show it in full rather than cropping it */
+  .story-chapter-right .story-mobile-photos img {
+    aspect-ratio: auto;
+    max-height: none;
+    height: auto;
+    object-fit: contain;
   }
 }
 @media (min-width: 768px) {

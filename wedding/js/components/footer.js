@@ -28,17 +28,7 @@ function Footer() {
       </div>
 
       {/* Center: watermark monogram */}
-      <div style={{
-        fontFamily: "'Cormorant Garamond', Georgia, serif",
-        fontWeight: 300,
-        fontStyle: 'italic',
-        fontSize: 'clamp(60px, 10vw, 100px)',
-        color: '#6b2d3e',
-        opacity: 0.07,
-        lineHeight: 1,
-        letterSpacing: '-0.04em',
-        userSelect: 'none',
-      }}>IL</div>
+      {<img src="images/calla-lily.png" style={{width:"90px", color:"#7a7068"}}/>}
 
       {/* Right */}
       <div style={{ textAlign: 'right' }}>

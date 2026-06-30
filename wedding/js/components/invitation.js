@@ -101,7 +101,7 @@ function Invitation() {
 }
 
               {/* Invitation Body */}
-              <span className="eyebrow" style={{ color: '#fff3ddff', display: 'block', fontSize: '14px', margin: '32px 0', width: '30vw' }}>{inv.invitationBody}</span>
+              <span className="eyebrow inv-body" style={{ color: '#fff3ddff', display: 'block', fontSize: '14px', margin: '32px 0', width: '30vw' }}>{inv.invitationBody}</span>
 
 
               {/* Thin rule */}
