@@ -74,7 +74,7 @@ function Invitation() {
               <span className="eyebrow" style={{ color: '#fff3ddff', display: 'block', marginBottom: '32px' }}>{inv.eyebrow}</span>
 
               {/* Venue name */}
-              <h2 style={{
+              {/* <h2 style={{
                 fontFamily: "'Pinyon Script', cursive",
                 fontWeight: 400,
                 fontStyle: 'normal',
@@ -87,10 +87,27 @@ function Invitation() {
                 {inv.venueName.map((line, i) => (
                   <React.Fragment key={i}>{i > 0 && <br />}{line}</React.Fragment>
                 ))}
-              </h2>
+              </h2> */}
+              { <img
+                src="images/names.png"
+                alt="Ian Kang and Lizzy Ling"
+                style={{
+                  display: 'block',
+                  width: '50%',
+                  // aspectRatio: '7/8',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  borderRadius: '1px',
+                }}
+              />
+}
+
+              {/* Invitation Body */}
+              <span className="eyebrow" style={{ color: '#fff3ddff', display: 'block', marginBottom: '32px' }}>{inv.invitationBody}</span>
+
 
               {/* Thin rule */}
-              <div style={{ width: '40px', height: '1px', background: '#fff3ddff', marginBottom: '32px' }} />
+              {/* <div style={{ width: '40px', height: '1px', background: '#fff3ddff', marginBottom: '32px' }} /> */}
 
               {/* Address */}
               <p style={{
@@ -109,7 +126,7 @@ function Invitation() {
               </p>
 
               {/* Date */}
-              <p style={{
+              {/* <p style={{
                 fontFamily: "'Cormorant Garamond', Georgia, serif",
                 fontWeight: 300,
                 fontStyle: 'italic',
@@ -118,17 +135,17 @@ function Invitation() {
                 margin: '28px 0 8px 0',
               }}>
                 {inv.date}
-              </p>
+              </p> */}
 
               {/* Time + dress code */}
-              <span style={{
+              {/* <span style={{
                 fontFamily: "'Fragment Mono', monospace",
                 fontWeight: 300,
                 fontSize: '10px',
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
                 color: '#fff3ddff',
-              }}>{inv.timeAndDressCode}</span>
+              }}>{inv.timeAndDressCode}</span> */}
 
             </div>
           </div>
