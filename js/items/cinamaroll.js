@@ -11,7 +11,7 @@ export function createCinamaroll() {
         const group = new THREE.Group();
         group.userData = {
           title: "Cinnamoroll",
-          description: "(Lizzy)",
+          description: "Ian's favorite things about Lizzy: he loves Lizzy for no reason just like God loved the Israelites for no reason (Deut. 7:7).",
           popupOffsetY: -.5,
         };
 

@@ -3,7 +3,7 @@ const STORY_HOVER_PHOTOS = {
   '2008': ['images/childhood_photo.PNG'],
   '2017': ['images/qipao.jpg', 'images/ian_chinese.jpg'],
   '2022': ['images/wide.webp'],
-  '2024': ['images/FUL_CP.jpg'],
+  '2024': ['images/FUL_CP.jpg', 'images/IMG_7578.webp'],
   '2025': ['images/ricecat1.jpg', 'images/ricecat2.jpg'],
   '2026': ['images/1.webp', 'images/engagement9.JPG'],
 };
@@ -21,7 +21,6 @@ function StoryParagraphs({ text }) {
 
 /* ── Story Entry (extracted so hooks work correctly) ── */
 function StoryEntry({ s, i, groups = [] }) {
-  const [entryRef, entryVisible] = useReveal({ threshold: 0, rootMargin: '0px 0px -12% 0px' });
   // Separate observer on the photos themselves so they animate when *they* enter
   // the viewport — the chapter is tall and triggers its reveal long before its
   // top-anchored photos are actually on screen.
@@ -44,8 +43,7 @@ function StoryEntry({ s, i, groups = [] }) {
 
   let photoIndex = 0;
   return (
-    <div ref={entryRef}
-         className={`story-chapter ${isSplit ? 'story-chapter-split' : ''} ${isLeftHalf ? 'story-chapter-left' : ''} ${isRightHalf ? 'story-chapter-right' : ''}`}
+    <div className={`story-chapter ${isSplit ? 'story-chapter-split' : ''} ${isLeftHalf ? 'story-chapter-left' : ''} ${isRightHalf ? 'story-chapter-right' : ''}`}
          style={gridSpan}>
       {hasDesktopPhotos && (
         <div ref={photosRef}
@@ -65,10 +63,7 @@ function StoryEntry({ s, i, groups = [] }) {
         </div>
       )}
 
-      <div className={`story-entry clip-reveal-v ${entryVisible ? 'visible' : ''}`}
-           style={{
-             transitionDelay: `${(i % 2) * 0.1}s`,
-           }}>
+      <div className="story-entry">
         <div className="story-watermark">{s.year}</div>
 
         <div className="story-chapter-head">
@@ -102,7 +97,6 @@ function StoryEntry({ s, i, groups = [] }) {
 /* ── Our Story ── */
 function OurStory() {
   const content = useContent();
-  const [titleRef, titleVisible] = useReveal({ threshold: 0.2 });
   const [galleryRef, galleryVisible] = useReveal({ threshold: 0.05 });
 
   const stories = content.story.entries;
@@ -113,6 +107,7 @@ function OurStory() {
   const groupsFor = (i) => {
     if (i === 1 || i === 5) return [];                      // shown under the paired chapter
     if (i === 0) return [photoOf(0), photoOf(1)].filter((g) => g.length);
+    if (i === 3) return photoOf(3).map((src) => [src]);      // stack chapter 4 photos vertically
     if (i === 4) return [photoOf(4), photoOf(5)].filter((g) => g.length);
     const own = photoOf(i);
     return own.length ? [own] : [];
@@ -128,9 +123,7 @@ function OurStory() {
       position: 'relative',
     }}>
 
-      <h2 ref={titleRef}
-          className={`reveal ${titleVisible ? 'visible' : ''}`}
-          style={{
+      <h2 style={{
             fontFamily: "'Pinyon Script', cursive",
             fontWeight: 400,
             fontStyle: 'normal',

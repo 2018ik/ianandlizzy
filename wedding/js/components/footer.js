@@ -28,7 +28,7 @@ function Footer() {
       </div>
 
       {/* Center: watermark monogram */}
-      {<img src="images/calla-lily.png" style={{width:"90px", color:"#7a7068"}}/>}
+      <img className="footer-calla-lily" src="images/calla-lily.png" style={{width:"90px", color:"#7a7068"}}/>
 
       {/* Right */}
       <div style={{ textAlign: 'right' }}>

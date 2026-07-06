@@ -1,9 +1,62 @@
 /* ── RSVP ── */
 const RSVP_ENDPOINT = 'https://bold-glade-8858.kang43.workers.dev/rsvp';
 
+function RSVPDropdown({ id, value, options, onChange, inputStyle, placeholder = 'Select one' }) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((option) => option.value === value);
+
+  return (
+    <div
+      className="rsvp-dropdown"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+    >
+      <button
+        id={id}
+        type="button"
+        className="rsvp-dropdown-toggle"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        style={inputStyle}
+      >
+        <span>{selected ? selected.label : placeholder}</span>
+        <span className="rsvp-dropdown-chevron" aria-hidden="true" />
+      </button>
+      {open && (
+        <div className="rsvp-dropdown-menu" role="listbox" aria-labelledby={id}>
+          {options.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              role="option"
+              aria-selected={option.value === value}
+              className="rsvp-dropdown-option"
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function RSVP() {
   const content = useContent();
-  const [form, setForm] = useState({ name: '', email: '', attending: 'yes', guests: '1', note: '' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    attending: '',
+    guests: '1',
+    churchMeeting: 'unsure',
+    note: '',
+  });
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
 
   // Gold confetti burst for the thank-you moment — small rectangular flecks
@@ -27,10 +80,11 @@ function RSVP() {
   }, []);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const setValue = (k) => (value) => setForm((f) => ({ ...f, [k]: value }));
 
   const submit = async (e) => {
     e.preventDefault();
-    if (status === 'sending' || !form.name.trim()) return;
+    if (status === 'sending' || !form.name.trim() || !form.attending) return;
     setStatus('sending');
     try {
       if (RSVP_ENDPOINT) {
@@ -136,7 +190,7 @@ function RSVP() {
           }}>
 
             <div>
-              <label style={labelStyle} htmlFor="rsvp-name">Full name</label>
+              <label style={labelStyle} htmlFor="rsvp-name">Full name <span aria-hidden="true">*</span></label>
               <input id="rsvp-name" type="text" value={form.name} onChange={set('name')}
                      placeholder="Your name" style={inputStyle} required />
             </div>
@@ -149,20 +203,52 @@ function RSVP() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }} className="rsvp-row">
               <div>
-                <label style={labelStyle} htmlFor="rsvp-attending">Attending</label>
-                <select id="rsvp-attending" value={form.attending} onChange={set('attending')}
-                        style={{ ...inputStyle, cursor: 'pointer' }}>
-                  <option value="yes">Joyfully accepts</option>
-                  <option value="no">Regretfully declines</option>
-                </select>
+                <label style={labelStyle} htmlFor="rsvp-attending">Attending <span aria-hidden="true">*</span></label>
+                <RSVPDropdown
+                  id="rsvp-attending"
+                  value={form.attending}
+                  onChange={setValue('attending')}
+                  inputStyle={inputStyle}
+                  placeholder="Please choose"
+                  options={[
+                    { value: 'yes', label: 'Joyfully accepts' },
+                    { value: 'no', label: 'Regretfully declines' },
+                  ]}
+                />
+                <input
+                  tabIndex="-1"
+                  aria-hidden="true"
+                  value={form.attending}
+                  onChange={() => {}}
+                  required
+                  style={{ position: 'absolute', opacity: 0, width: 1, height: 1, pointerEvents: 'none' }}
+                />
               </div>
               <div>
                 <label style={labelStyle} htmlFor="rsvp-guests">Guests</label>
-                <select id="rsvp-guests" value={form.guests} onChange={set('guests')}
-                        style={{ ...inputStyle, cursor: 'pointer' }}>
-                  {['1', '2', '3', '4', '5'].map((n) => <option key={n} value={n}>{n}</option>)}
-                </select>
+                <RSVPDropdown
+                  id="rsvp-guests"
+                  value={form.guests}
+                  onChange={setValue('guests')}
+                  inputStyle={inputStyle}
+                  options={['1', '2'].map((n) => ({ value: n, label: n }))}
+                />
               </div>
+            </div>
+
+            <div>
+              <label style={labelStyle} htmlFor="rsvp-church-meeting">Will you attend the church wedding meeting on October 17?</label>
+              <RSVPDropdown
+                id="rsvp-church-meeting"
+                value={form.churchMeeting}
+                onChange={setValue('churchMeeting')}
+                inputStyle={inputStyle}
+                options={[
+                  { value: 'yes', label: 'Yes' },
+                  { value: 'no', label: 'No' },
+                  { value: 'unsure', label: 'Not sure yet' },
+                ]}
+              />
             </div>
 
             <div>

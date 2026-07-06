@@ -29,8 +29,11 @@ function Invitation() {
             overflow: 'hidden',
             padding: '8px 0',
             boxSizing: 'border-box',
-            clipPath: photoVisible ? 'inset(0 0% 0 0)' : 'inset(0 100% 0 0)',
-            transition: 'clip-path 1.3s cubic-bezier(0.76, 0, 0.24, 1)',
+            opacity: photoVisible ? 1 : 0,
+            clipPath: photoVisible ? 'inset(0 0 0 0)' : 'inset(12% 12% 12% 12%)',
+            transform: photoVisible ? 'translateY(0) scale(1)' : 'translateY(42px) scale(0.94)',
+            filter: photoVisible ? 'blur(0)' : 'blur(10px)',
+            transition: 'opacity 1.05s ease, clip-path 1.25s cubic-bezier(0.16,1,0.3,1), transform 1.25s cubic-bezier(0.16,1,0.3,1), filter 1s ease',
           }}>
             <img
               src="images/engagement2.jpg"
@@ -57,21 +60,24 @@ function Invitation() {
             height: '100vh',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             zIndex: 1,
             background: '#d6b8bc',
-            padding: '0 clamp(32px, 5vw, 72px)',
+            padding: 'clamp(32px, 5vh, 56px) clamp(32px, 5vw, 72px)',
+            boxSizing: 'border-box',
           }}>
             <div ref={cardRef} style={{
               position: 'relative',
               zIndex: 1,
               width: '100%',
+              textAlign: 'center',
               opacity: cardVisible ? 1 : 0,
               transform: cardVisible ? 'translateY(0)' : 'translateY(28px)',
               transition: 'opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)',
             }}>
 
               {/* Eyebrow */}
-              <span className="eyebrow" style={{ color: '#fff3ddff', display: 'block', marginBottom: '32px' }}>{inv.eyebrow}</span>
+              <span className="eyebrow" style={{ color: '#fff3ddff', display: 'block', marginBottom: '2px' }}>{inv.eyebrow}</span>
 
               {/* Venue name */}
               {/* <h2 style={{
@@ -93,7 +99,8 @@ function Invitation() {
                 alt="Ian Kang and Lizzy Ling"
                 style={{
                   display: 'block',
-                  width: '70%',
+                  width: '64%',
+                  margin: '0 auto',
                   objectFit: 'cover',
                   objectPosition: 'center',
                 }}
@@ -101,7 +108,7 @@ function Invitation() {
 }
 
               {/* Invitation Body */}
-              <span className="eyebrow inv-body" style={{ color: '#fff3ddff', display: 'block', fontSize: '14px', margin: '32px 0', width: '30vw' }}>{inv.invitationBody}</span>
+              <span className="eyebrow inv-body" style={{ color: '#fff3ddff', display: 'block', fontSize: '13px', margin: '32px auto', width: '30vw' }}>{inv.invitationBody}</span>
 
 
               {/* Thin rule */}

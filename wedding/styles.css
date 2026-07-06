@@ -218,6 +218,69 @@ body { overflow-x: hidden; }
 #rsvp input::placeholder { color: rgba(248, 245, 240, 0.45); }
 #rsvp select option { color: #6b2d3e; }
 
+.rsvp-dropdown {
+  position: relative;
+}
+
+.rsvp-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-align: left;
+}
+
+.rsvp-dropdown-chevron {
+  width: 9px;
+  height: 9px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(-3px) rotate(45deg);
+  transition: transform 0.22s ease;
+  flex: 0 0 auto;
+  opacity: 0.82;
+}
+
+.rsvp-dropdown-toggle[aria-expanded="true"] .rsvp-dropdown-chevron {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.rsvp-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  overflow: hidden;
+  border: 1px solid rgba(179, 132, 26, 0.62);
+  background: #fff3dd;
+  box-shadow:
+    0 0 0 4px rgba(255, 243, 221, 0.18),
+    0 18px 36px rgba(26, 23, 20, 0.22);
+}
+
+.rsvp-dropdown-option {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 1px solid rgba(179, 132, 26, 0.18);
+  background: transparent;
+  color: #6b2d3e;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 18px;
+  text-align: left;
+}
+
+.rsvp-dropdown-option:last-child {
+  border-bottom: 0;
+}
+
+.rsvp-dropdown-option:hover,
+.rsvp-dropdown-option[aria-selected="true"] {
+  background: rgba(214, 184, 188, 0.42);
+}
+
 /* Decorative side photos flanking the registry / FAQ content. Hidden once the
    viewport is too narrow to fit them beside the centered column. */
 .side-photo {
@@ -240,16 +303,16 @@ body { overflow-x: hidden; }
 }
 
 .oval-photo {
-  width: 300px;
-  height: 400px;
+  width: 230px;
+  height: 307px;
   object-fit: cover; /* Keeps the image from stretching */
   clip-path: inset(0% round 45% / 45%);
 }
 
 .oval-border-container {
   position: absolute;
-  width: 309px; /* Image width + double the border width */
-  height: 408px; /* Image height + double the border width */
+  width: 238px;
+  height: 315px;
   background-color: rgba(179, 132, 26, 0.52);
   filter: drop-shadow(5px 5px 10px rgba(255, 243, 221, 0.34));
   clip-path: inset(0% round 45% / 45%);
@@ -264,20 +327,43 @@ body { overflow-x: hidden; }
   .oval-border-container { display: none; }
 }
 
+@media (max-width: 767px) {
+  #rsvp .oval-border-container {
+    display: none !important;
+  }
+}
+
+.registry-scroll-lock {
+  --registry-scroll: 0;
+  min-height: 260vh;
+  overflow: visible;
+}
+
 .registry-layout {
-  position: relative;
   z-index: 1;
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
   display: grid;
   grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1.1fr);
   align-items: center;
   gap: clamp(36px, 6vw, 96px);
   max-width: 1180px;
   margin: 0 auto;
+  padding: clamp(80px, 10vh, 120px) clamp(24px, 6vw, 80px);
   text-align: left;
+  overflow: hidden;
 }
 
 .registry-copy {
   min-width: 0;
+}
+
+.registry-color-word {
+  color: var(--word-color, #6b2d3e);
+  text-shadow:
+    0 calc(var(--word-tone, 0) * 4px) calc(var(--word-tone, 0) * 10px) rgba(179, 132, 26, 0.13);
+  transition: color 0.12s linear, text-shadow 0.12s linear;
 }
 
 .registry-link-label {
@@ -311,7 +397,15 @@ body { overflow-x: hidden; }
 }
 
 @media (max-width: 900px) {
+  .registry-scroll-lock {
+    min-height: auto;
+    overflow: hidden;
+  }
+
   .registry-layout {
+    position: relative;
+    top: auto;
+    min-height: auto;
     grid-template-columns: 1fr;
     text-align: center;
   }
@@ -642,7 +736,7 @@ body { overflow-x: hidden; }
     width: 100%;
     min-width: 0;
     padding: 0 0 48px 24px;
-    border-left: 1px solid #e0d8ce;
+    border-left: 1px solid #6b2d3e;
     transform: none !important;
   }
   .event-watermark { display: none; }

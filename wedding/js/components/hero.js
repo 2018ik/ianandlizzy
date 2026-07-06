@@ -1,6 +1,18 @@
+function getCalendarDaysUntil(dateString) {
+  const [year, month, day] = String(dateString || '').split('-').map(Number);
+  if (!year || !month || !day) return 0;
+
+  const now = new Date();
+  const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const targetUtc = Date.UTC(year, month - 1, day);
+
+  return Math.max(0, Math.round((targetUtc - todayUtc) / 86400000));
+}
+
 /* ── Monogram Hero ── */
 function MonogramHero() {
   const content = useContent();
+  const daysAway = getCalendarDaysUntil(content.meta.countdownDate);
   const [ready, setReady] = useState(false);
   // Transient "drag to paint" hint — appears near the cursor after the visitor
   // has hovered the canvas for ~2s without painting, then fades away.
@@ -149,6 +161,52 @@ function MonogramHero() {
       ctx.restore();
     };
 
+    const canAutoPaint = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+      && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const autoPaintTimers = [];
+    const paintAutoStroke = (points) => {
+      let delay = 0;
+      for (let i = 1; i < points.length; i++) {
+        const [x1, y1] = points[i - 1];
+        const [x2, y2] = points[i];
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dist = Math.hypot(dx, dy);
+        const steps = Math.max(1, Math.ceil(dist / 18));
+        for (let step = 0; step <= steps; step++) {
+          const t = step / steps;
+          autoPaintTimers.push(setTimeout(() => {
+            paintBrush(x1 + dx * t, y1 + dy * t, dx, dy);
+            fadeAlpha = 0.02;
+          }, delay));
+          delay += 18;
+        }
+      }
+    };
+
+    if (canAutoPaint) {
+      autoPaintTimers.push(setTimeout(() => {
+        const w = canvas.width;
+        const h = canvas.height;
+        paintAutoStroke([
+          [w * 0.12, h * 0.34],
+          [w * 0.24, h * 0.34],
+          [w * 0.38, h * 0.34],
+          [w * 0.52, h * 0.34],
+        ]);
+      }, 520));
+      autoPaintTimers.push(setTimeout(() => {
+        const w = canvas.width;
+        const h = canvas.height;
+        paintAutoStroke([
+          [w * 0.58, h * 0.67],
+          [w * 0.70, h * 0.67],
+          [w * 0.82, h * 0.67],
+          [w * 0.92, h * 0.67],
+        ]);
+      }, 980));
+    }
+
     const getPos = (e) => {
       const rect = section.getBoundingClientRect();
       if (e.touches) return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
@@ -194,6 +252,7 @@ function MonogramHero() {
 
     return () => {
       cancelAnimationFrame(rafId);
+      autoPaintTimers.forEach(clearTimeout);
       ro.disconnect();
       visObs.disconnect();
       section.removeEventListener('mousedown', onDown);
@@ -359,7 +418,7 @@ function MonogramHero() {
           transform: ready ? 'translateY(0)' : 'translateY(16px)',
           transition: 'opacity 0.8s ease 1.1s, transform 0.8s cubic-bezier(0.16,1,0.3,1) 1.1s',
         }}>
-          {Math.max(0, Math.floor((new Date(content.meta.countdownDate) - new Date()) / 86400000))}
+          {daysAway}
         </span>
       </div>
 
@@ -524,7 +583,7 @@ function MonogramHero() {
       </div>
 
       {/* Scroll indicator */}
-      <div className="scroll-indicator-v" style={{
+      {/* <div className="scroll-indicator-v" style={{
         position: 'absolute',
         bottom: '32px',
         right: '32px',
@@ -533,7 +592,7 @@ function MonogramHero() {
       }}>
         <span>Scroll</span>
         <div className="scroll-indicator-line" />
-      </div>
+      </div> */}
 
       </div>{/* end content layer */}
     </section>

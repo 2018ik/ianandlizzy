@@ -2,7 +2,7 @@
 function FAQItem({ question, answer, index }) {
   const [open, setOpen] = useState(false);
   const num = String(index + 1).padStart(2, '0');
-  const featured = index === 5;
+  const featured = index === 7;
   return (
     <div className={`faq-row-modern ${featured ? 'faq-row-featured' : ''}`}>
       <button
