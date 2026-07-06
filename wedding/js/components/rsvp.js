@@ -158,7 +158,7 @@ function RSVP() {
         </div>
       )}
 
-      <div style={{ maxWidth: '40rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+      <div style={{ maxWidth: '60rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
 
         <h2 style={{
           fontFamily: "'Pinyon Script', cursive",

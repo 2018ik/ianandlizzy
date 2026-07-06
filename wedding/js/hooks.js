@@ -4,6 +4,68 @@
 
 const { useState, useEffect, useRef, useCallback } = React;
 
+/* ── Lenis smooth scroll — single scroll source ──
+   One Lenis instance runs one requestAnimationFrame loop and emits a single
+   'scroll' event per frame. Every scroll-reactive effect subscribes through
+   onLenisScroll / useLenis instead of registering its own window 'scroll'
+   listener, so the whole page reacts off one consolidated source. Lenis scrolls
+   the real document, so window.scrollY and getBoundingClientRect stay accurate.
+
+   No velocity/parallax work is added here, and smooth scrolling is disabled —
+   this is purely listener consolidation. Lenis passes native scroll through
+   untouched (zero feel change) while giving us one scroll event source, so
+   per-frame cost matches the previous rAF-throttled handlers. */
+let _lenisResolved = false;
+let _lenisInstance = null;
+function getLenis() {
+  if (_lenisResolved) return _lenisInstance;
+  _lenisResolved = true;
+  if (typeof Lenis === 'undefined') return null; // CDN failed → native fallback
+  _lenisInstance = new Lenis({ smoothWheel: false, smoothTouch: false });
+  const raf = (time) => {
+    _lenisInstance.raf(time);
+    requestAnimationFrame(raf);
+  };
+  requestAnimationFrame(raf);
+  return _lenisInstance;
+}
+
+/* Subscribe a callback to scroll. Returns an unsubscribe fn. Uses Lenis when
+   available; otherwise falls back to the previous rAF-throttled native listener
+   so behaviour is identical if the library ever fails to load. */
+function onLenisScroll(callback) {
+  const lenis = getLenis();
+  if (lenis) {
+    lenis.on('scroll', callback);
+    return () => lenis.off('scroll', callback);
+  }
+  let raf = null;
+  const handler = () => {
+    if (raf == null) raf = requestAnimationFrame(() => { raf = null; callback(); });
+  };
+  window.addEventListener('scroll', handler, { passive: true });
+  return () => {
+    if (raf != null) cancelAnimationFrame(raf);
+    window.removeEventListener('scroll', handler);
+  };
+}
+
+/* Hook form: runs the callback once on mount, on every scroll frame, and on
+   resize. */
+function useLenis(callback, deps = []) {
+  useEffect(() => {
+    callback();
+    const unsub = onLenisScroll(callback);
+    const onResize = () => callback();
+    window.addEventListener('resize', onResize);
+    return () => {
+      unsub();
+      window.removeEventListener('resize', onResize);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
+
 /* ── Intersection Observer for scroll reveals ── */
 function useReveal(options = {}) {
   const ref = useRef(null);
@@ -34,20 +96,10 @@ function useReveal(options = {}) {
 /* ── Scroll progress (0-1) ── */
 function useScrollProgress() {
   const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    let ticking = false;
-    const update = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const h = document.documentElement.scrollHeight - window.innerHeight;
-        setProgress(h > 0 ? window.scrollY / h : 0);
-        ticking = false;
-      });
-    };
-    window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
-  }, []);
+  useLenis(() => {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    setProgress(h > 0 ? window.scrollY / h : 0);
+  });
   return progress;
 }
 
@@ -90,6 +142,11 @@ function usePinnedHScroll() {
 
     const isMobile = () => window.innerWidth < 768;
 
+    // How much vertical scroll the horizontal pass is stretched over. 1 = the
+    // track moves 1:1 with scroll (original feel); higher = a longer pin so the
+    // cards drift by more slowly and are easier to take in. Tune to taste.
+    const SLOW = 2.5;
+
     const setHeight = () => {
       if (isMobile()) {
         wrapper.style.height = '';
@@ -97,7 +154,7 @@ function usePinnedHScroll() {
         return;
       }
       const shift = track.scrollWidth - window.innerWidth;
-      wrapper.style.height = `${window.innerHeight + Math.max(0, shift)}px`;
+      wrapper.style.height = `${window.innerHeight + Math.max(0, shift) * SLOW}px`;
     };
 
     // Defer one frame so React has finished painting
@@ -108,17 +165,19 @@ function usePinnedHScroll() {
       if (isMobile()) return;
       const top = -wrapper.getBoundingClientRect().top;
       const max = wrapper.offsetHeight - window.innerHeight;
+      const shift = track.scrollWidth - window.innerWidth;
       if (top <= 0) { track.style.transform = 'translateX(0)'; return; }
-      if (top >= max) { track.style.transform = `translateX(${-(track.scrollWidth - window.innerWidth)}px)`; return; }
-      track.style.transform = `translateX(${-top}px)`;
+      if (top >= max) { track.style.transform = `translateX(${-shift}px)`; return; }
+      // Spread the full horizontal shift over the (SLOW×) longer pin.
+      track.style.transform = `translateX(${-(top / SLOW)}px)`;
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const unsubScroll = onLenisScroll(onScroll);
 
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', setHeight);
-      window.removeEventListener('scroll', onScroll);
+      unsubScroll();
     };
   }, []);
 

@@ -218,6 +218,29 @@ body { overflow-x: hidden; }
 #rsvp input::placeholder { color: rgba(248, 245, 240, 0.45); }
 #rsvp select option { color: #6b2d3e; }
 
+/* ── FAQ → RSVP cover/reveal (desktop) ──
+   The FAQ pins in place (its sticky `top` is set by JS in app.js to
+   min(0, 100vh − faqHeight), so it pins bottom-to-bottom and tall/expanded FAQs
+   still scroll through first) while the opaque maroon RSVP block slides up over
+   it and covers it. Scroll-up reverses it. Pure sticky + z-index — no per-frame
+   JS. Disabled below 768px, where the sections just stack normally. */
+.cover-stack { position: relative; }
+
+@media (min-width: 768px) {
+  .cover-faq {
+    position: sticky;
+    z-index: 0; /* top is set inline by JS */
+  }
+  #rsvp {
+    position: relative; /* also inline; required for z-index to apply */
+    z-index: 1;
+    min-height: 100vh;  /* guarantee the block fully covers the FAQ/viewport */
+    display: flex;      /* center the form within the full-height block */
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
 .rsvp-dropdown {
   position: relative;
 }
@@ -964,13 +987,66 @@ body { overflow-x: hidden; }
   gap: clamp(28px, 5vh, 54px) clamp(24px, 2.5vw, 44px);
 }
 
+/* ── Timeline spine ──
+   A vertical line just left of the chapter cards (between the photo rail and the
+   cards on desktop; the left gutter on mobile). The fill draws down as you scroll
+   (scaleY driven by JS); year nodes ignite as each chapter reaches centre. */
+.story-spine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -28px;
+  width: 2px;
+  z-index: 1;               /* behind the cards (z-index 2) */
+  pointer-events: none;
+}
+.story-spine::before {       /* faint full-height track */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(179, 132, 26, 0.22);
+}
+.story-spine-fill {
+  position: absolute;
+  inset: 0;
+  background: #B3841A;
+  transform: scaleY(0);
+  transform-origin: top;
+}
+.story-node {
+  position: absolute;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  margin-top: -4.5px;        /* centre the dot on its JS-set top */
+  border-radius: 50%;
+  background: #f8f5f0;
+  border: 1px solid rgba(179, 132, 26, 0.5);
+  transition: background 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+}
+.story-node.is-lit {
+  background: #B3841A;
+  transform: scale(1.3);
+  box-shadow: 0 0 0 4px rgba(179, 132, 26, 0.18);
+}
+@media (max-width: 767px) {
+  .story-spine { left: -12px; width: 1px; }
+  .story-node { width: 7px; height: 7px; margin-left: -3.5px; margin-top: -3.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-spine-fill { transform: scaleY(1); }  /* show the full line, no draw */
+}
+
 .story-chapter {
   position: relative;
 }
 
 .story-desktop-photos {
   position: absolute;
-  top: clamp(18px, 4vh, 42px);
+  /* Vertically centered on the chapter (where its timeline dot sits) */
+  top: 50%;
+  transform: translateY(-50%);
   /* Fill the empty space to the LEFT of the chapter and center the photos in it */
   right: 100%;
   width: calc(100vw - 2 * var(--story-pad) - var(--story-wrap));
@@ -982,17 +1058,15 @@ body { overflow-x: hidden; }
   align-items: center;
   gap: clamp(14px, 1.8vw, 24px);
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(18px) scale(0.96);
-  transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.story-desktop-photos.visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
+/* Chapter 4 stacks its photos vertically — give them clear breathing room. */
+.story-desktop-photos.stacked {
+  gap: clamp(28px, 4vh, 56px);
 }
 
-/* Each chapter's photos form one row; rows stack vertically in the rail. */
+/* Each chapter's photos form one row; rows stack vertically in the rail.
+   --sy (parallax translateY) is written per frame by story.js. */
 .story-photo-group {
   display: flex;
   align-items: flex-start;
@@ -1000,6 +1074,8 @@ body { overflow-x: hidden; }
   gap: clamp(14px, 1.8vw, 24px);
   width: 100%;
   max-width: clamp(240px, 24vw, 380px);
+  transform: translateY(var(--sy, 0px));
+  will-change: transform;
 }
 
 .story-desktop-photos img {
@@ -1015,7 +1091,16 @@ body { overflow-x: hidden; }
     0 0 0 5px rgba(179, 132, 26, 0.24),
     inset 0 0 0 1px rgba(179, 132, 26, 0.24),
     0 16px 36px rgba(80, 50, 40, 0.18);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  /* "Develop on entry" is scroll-scrubbed in story.js — JS sets clip-path + blur
+     per frame from each photo's progress up the viewport, so it resolves like
+     film as you reach it and reverses on scroll-up. Default is fully visible so
+     it fails open if the script never runs. No CSS transition: the per-frame JS
+     values are the animation. */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-desktop-photos img { clip-path: none !important; filter: none !important; }
+  .story-photo-group { transform: none !important; }
 }
 
 .story-photo-group.multi img {
@@ -1039,8 +1124,8 @@ body { overflow-x: hidden; }
   align-items: center;
 }
 
-/* Chapter 3 spans the full grid — same width as chapters 1 & 2 combined; its
-   hover photos use the default position to the left. */
+/* Every chapter spans the full grid width and sits on the right, with its
+   photos in the default rail position to the left. */
 .story-chapter-right {
   grid-column: 1 / -1;
 }
@@ -1049,7 +1134,7 @@ body { overflow-x: hidden; }
   position: relative;
   z-index: 2;
   padding: clamp(24px, 3vw, 38px);
-  border: 1px solid rgba(179, 132, 26, 0.42);
+  /* border: 1px solid rgba(179, 132, 26, 0.42); */
   background: transparent;
 }
 
@@ -1098,7 +1183,7 @@ body { overflow-x: hidden; }
   gap: clamp(18px, 2.4vw, 28px);
 }
 
-/* Chapter 3 — two POVs side by side (Lizzy left, Ian right). */
+/* Two POVs side by side (Lizzy left, Ian right) — used by every chapter. */
 .story-chapter-split .story-pov-list {
   grid-template-columns: 1fr 1fr;
   gap: clamp(28px, 4vw, 56px);
@@ -1178,6 +1263,27 @@ body { overflow-x: hidden; }
   min-width: 360px;
   transform: translateY(18vh);
   transform-origin: center;
+  will-change: transform;
+}
+
+/* Per-character entrance on the invitation eyebrow. Splitting.js wraps each
+   letter in .char with a --char-index; they rise + fade in with a stagger once
+   the card reveals. Only applied on desktop (chars are only split there). */
+.inv-eyebrow .char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.7em);
+  transition:
+    opacity 0.5s ease,
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--char-index, 0) * 0.028s);
+}
+.inv-eyebrow.is-in .char {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .inv-eyebrow .char { opacity: 1; transform: none; transition: none; }
 }
 
 /* ── Nav responsive ── */
@@ -1319,9 +1425,13 @@ body { overflow-x: hidden; }
   100% { opacity: 1; filter: blur(0); transform: translateY(0); }
 }
 
-/* Sections only (4 = hero … 10 = footer); 1-3 are fixed UI, left untouched. */
+/* Sections only (4 = hero … 10 = footer); 1-3 are fixed UI, left untouched.
+   .cover-stack is a wrapper div (FAQ + RSVP) so it's included explicitly. Its
+   transform only exists during the load animation (fill-mode backwards leaves
+   none behind), so it doesn't break the sticky child afterward. */
 .content-reveal > section,
-.content-reveal > footer {
+.content-reveal > footer,
+.content-reveal > .cover-stack {
   animation: contentFadeIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 .content-reveal > *:nth-child(4)  { animation-delay: 0.05s; } /* hero */
@@ -1334,7 +1444,8 @@ body { overflow-x: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .content-reveal > section,
-  .content-reveal > footer {
+  .content-reveal > footer,
+  .content-reveal > .cover-stack {
     animation: none;
   }
 }

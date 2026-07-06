@@ -19,13 +19,24 @@ function OrderOfEvents() {
 
     const onScroll = () => {
       const vh = window.innerHeight;
-      const top = wrapper.getBoundingClientRect().top;
+      const desktop = window.innerWidth >= 768;
+      const rect = wrapper.getBoundingClientRect();
+      const top = rect.top;
       // p: 0 while the section is still a full viewport below the top, 1 once it
       // reaches the top and pins. Fade plays over the last ~85vh of approach.
       const p = Math.max(0, Math.min(1, 1 - top / (vh * 0.85)));
 
       sticky.style.opacity = p;
       sticky.style.transform = `translateY(${(1 - p) * 40}px)`;
+
+      // Horizontal scroll progress through the pinned section (0 at pin start,
+      // 1 at the end). This drives a "focus" that travels across ALL cards in
+      // sequence — the leftmost card is active at the start, the rightmost at
+      // the end — rather than only the ones that cross screen-center.
+      const maxScroll = wrapper.offsetHeight - vh;
+      const hp = maxScroll > 0 ? Math.max(0, Math.min(1, -top / maxScroll)) : 0;
+      const n = cardRefs.current.length;
+      const activeIndex = hp * (n - 1);
 
       cardRefs.current.forEach((card, i) => {
         if (!card) return;
@@ -34,15 +45,23 @@ function OrderOfEvents() {
         // sequence rather than all at once (adds depth, fixes the flat look).
         const cp = Math.max(0, Math.min(1, (p - i * 0.04) / 0.55));
         card.style.opacity = cp;
-        card.style.transform = `translateY(${restY + (1 - cp) * 48}px)`;
+
+        // Active-card focus (desktop only): the card nearest the traveling
+        // active index scales up; peaks fully on each card in turn. Scale only.
+        let scale = 1;
+        if (desktop) {
+          const near = Math.max(0, 1 - Math.abs(i - activeIndex));
+          scale = 1 + near * near * 0.32;
+        }
+        card.style.transform = `translateY(${restY + (1 - cp) * 48}px) scale(${scale.toFixed(4)})`;
       });
     };
 
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const unsubScroll = onLenisScroll(onScroll);
     window.addEventListener('resize', onScroll);
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      unsubScroll();
       window.removeEventListener('resize', onScroll);
     };
   }, []);

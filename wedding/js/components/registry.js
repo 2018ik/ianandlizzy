@@ -12,7 +12,6 @@ function Registry() {
     const section = sectionRef.current;
     if (!section) return;
 
-    let raf = null;
     const clamp = (value) => Math.max(0, Math.min(1, value));
     const start = [107, 45, 62];
     const end = [179, 132, 26];
@@ -22,7 +21,6 @@ function Registry() {
       return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
     };
     const apply = () => {
-      raf = null;
       const rect = section.getBoundingClientRect();
       const travel = Math.max(1, rect.height - window.innerHeight);
       const progress = clamp(-rect.top / travel);
@@ -34,17 +32,13 @@ function Registry() {
         section.style.setProperty(`--registry-word-color-${index}`, mixColor(tone));
       });
     };
-    const onScroll = () => {
-      if (raf == null) raf = requestAnimationFrame(apply);
-    };
 
     apply();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    const unsubScroll = onLenisScroll(apply);
+    window.addEventListener('resize', apply);
     return () => {
-      if (raf != null) cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      unsubScroll();
+      window.removeEventListener('resize', apply);
     };
   }, []);
 

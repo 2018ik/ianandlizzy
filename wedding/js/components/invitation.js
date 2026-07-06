@@ -4,6 +4,37 @@ function Invitation() {
   const inv = content.invitation;
   const [photoRef, photoVisible] = useReveal({ threshold: 0.08 });
   const [cardRef, cardVisible] = useReveal({ threshold: 0.12 });
+  const heroRef = useRef(null);      // engagement3 card — scrubbed scale (desktop)
+  const eyebrowRef = useRef(null);   // split into chars for the per-char entrance
+
+  // Desktop-only: scrub the rising engagement photo from slightly small to full
+  // as it travels up toward the viewport center. Native scroll drives it through
+  // the shared Lenis source; only transform is touched (GPU-composited).
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+    const apply = () => {
+      if (window.innerWidth < 768) { el.style.transform = ''; return; } // let CSS handle mobile
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const center = r.top + r.height / 2;
+      const p = Math.max(0, Math.min(1, 1 - (center - vh * 0.5) / (vh * 0.6)));
+      el.style.transform = `translateY(18vh) scale(${(0.82 + p * 0.18).toFixed(4)})`;
+    };
+    apply();
+    const unsub = onLenisScroll(apply);
+    window.addEventListener('resize', apply);
+    return () => { unsub(); window.removeEventListener('resize', apply); };
+  }, []);
+
+  // Desktop-only: split the eyebrow into characters so they rise+fade in with a
+  // stagger when the card reveals. Mobile keeps the plain text.
+  useEffect(() => {
+    if (window.innerWidth < 768) return;
+    if (typeof Splitting === 'undefined') return;
+    const el = eyebrowRef.current;
+    if (el) Splitting({ target: el, by: 'chars' });
+  }, []);
 
   return (
     <section id="invitation" className="limewash-bg">
@@ -77,7 +108,7 @@ function Invitation() {
             }}>
 
               {/* Eyebrow */}
-              <span className="eyebrow" style={{ color: '#fff3ddff', display: 'block', marginBottom: '2px' }}>{inv.eyebrow}</span>
+              <span ref={eyebrowRef} className={`eyebrow inv-eyebrow ${cardVisible ? 'is-in' : ''}`} style={{ color: '#fff3ddff', display: 'block', marginBottom: '2px' }}>{inv.eyebrow}</span>
 
               {/* Venue name */}
               {/* <h2 style={{
@@ -157,7 +188,7 @@ function Invitation() {
 
           {/* Panel 2 — photo rises through the center over the invitation. */}
           <div className="inv-overlay-panel">
-            <div className="engagement-photo-card">
+            <div ref={heroRef} className="engagement-photo-card">
               <img
                 src="images/engagement3.webp"
                 alt="Ian and Lizzy"

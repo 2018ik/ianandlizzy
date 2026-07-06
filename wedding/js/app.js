@@ -38,23 +38,43 @@ function App() {
     const lerp = (a, b, t) => Math.round(a + (b - a) * t);
     const mix = (t) => `rgb(${lerp(START[0], END[0], t)}, ${lerp(START[1], END[1], t)}, ${lerp(START[2], END[2], t)})`;
 
-    let raf = null;
     const apply = () => {
-      raf = null;
       const rect = wrapper.getBoundingClientRect();
       const total = rect.height - window.innerHeight;
       const p = total > 0 ? Math.max(0, Math.min(1, -rect.top / total)) : 0;
       layer.style.backgroundColor = mix(p);
     };
-    const onScroll = () => { if (raf == null) raf = requestAnimationFrame(apply); };
 
     apply();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    const unsubScroll = onLenisScroll(apply);
+    window.addEventListener('resize', apply);
     return () => {
-      if (raf != null) cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      unsubScroll();
+      window.removeEventListener('resize', apply);
+    };
+  }, [content]);
+
+  // Cover/reveal: the FAQ is sticky so the RSVP block can slide up over it. We
+  // pin the FAQ *bottom-to-bottom* by setting its sticky `top` to
+  // min(0, viewportH − faqHeight): 0 when the FAQ fits on screen, negative when
+  // it's taller (e.g. an accordion is open) so it still scrolls through fully
+  // before pinning. Recomputed on resize and whenever the FAQ height changes.
+  const faqStickyRef = useRef(null);
+  useEffect(() => {
+    if (!content) return;
+    const el = faqStickyRef.current;
+    if (!el) return;
+    const update = () => {
+      if (window.innerWidth < 768) { el.style.top = ''; return; } // desktop only
+      el.style.top = Math.min(0, window.innerHeight - el.offsetHeight) + 'px';
+    };
+    update();
+    window.addEventListener('resize', update);
+    let ro = null;
+    if ('ResizeObserver' in window) { ro = new ResizeObserver(update); ro.observe(el); }
+    return () => {
+      window.removeEventListener('resize', update);
+      if (ro) ro.disconnect();
     };
   }, [content]);
 
@@ -101,9 +121,16 @@ function App() {
             <Registry />
           </div>
         </div>
-        <FAQs />
-        <RSVP />
-        <Footer />
+        {/* Cover/reveal: the FAQ pins and the maroon RSVP block slides up over
+            it to cover it as you scroll (reverses on scroll-up). Desktop only —
+            see the .cover-* rules + the sticky-offset effect above. */}
+        <div className="cover-stack">
+          <div className="cover-faq" ref={faqStickyRef}>
+            <FAQs />
+          </div>
+          <RSVP />
+          <Footer />
+        </div>
       </div>
     </WeddingContentContext.Provider>
   );
