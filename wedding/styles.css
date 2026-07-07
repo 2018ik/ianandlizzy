@@ -1,5 +1,13 @@
 html { overflow-x: hidden; }
 
+/* Password gate input. 13px keeps the small monospace look on desktop, but on
+   mobile it must be >=16px — iOS/Safari (and the Google app webview) auto-zoom
+   into any focused input smaller than that and never zoom back out. */
+.pw-input { font-size: 13px; }
+@media (max-width: 767px) {
+  .pw-input { font-size: 16px; }
+}
+
 /* Verse scroll animations */
 @keyframes verseOut {
   from { opacity: 1; transform: translateY(0); }

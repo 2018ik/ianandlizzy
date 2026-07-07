@@ -121,11 +121,11 @@ function PasswordGate({ onUnlock }) {
           onChange={(e) => { setPassword(e.target.value); if (status === 'error') setStatus('idle'); }}
           placeholder="Password"
           autoComplete="off"
+          className="pw-input"
           style={{
             width: '100%',
             padding: '14px 18px',
             fontFamily: "'Fragment Mono', monospace",
-            fontSize: '13px',
             letterSpacing: '0.15em',
             textAlign: 'center',
             color: '#6b2d3e',

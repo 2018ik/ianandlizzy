@@ -21,6 +21,12 @@ function Registry() {
       return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
     };
     const apply = () => {
+      // The word-by-word colour scrub only exists inside the 260vh scroll-lock,
+      // which is desktop-only (disabled at <=900px in CSS). On mobile this handler
+      // otherwise fires ~60 setProperty calls every scroll frame for nothing,
+      // which stutters momentum scrolling — so bail out there and leave the words
+      // at their default colour.
+      if (window.innerWidth <= 900) return;
       const rect = section.getBoundingClientRect();
       const travel = Math.max(1, rect.height - window.innerHeight);
       const progress = clamp(-rect.top / travel);
