@@ -19,6 +19,14 @@ const roomLoadingBar = document.getElementById("room-loading-bar");
 const roomLoadingPercent = document.getElementById("room-loading-percent");
 const roomLoadingLabel = document.getElementById("room-loading-label");
 
+let stableViewportWidth = 0;
+
+setStableAppHeight(true);
+window.addEventListener("resize", () => setStableAppHeight(false), { passive: true });
+window.addEventListener("orientationchange", () => {
+  window.setTimeout(() => setStableAppHeight(true), 250);
+});
+
 let breathingCat = null;
 let breathingCatBaseScale = 1;
 let roomIsReady = false;
@@ -64,6 +72,18 @@ let lastFrameTime = performance.now();
 let modalOpenedAt = 0;
 
 updateDiscoveryProgress();
+
+function setStableAppHeight(force = false) {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const mobileViewport = window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+  const widthChanged = Math.abs(width - stableViewportWidth) > 1;
+
+  if (!mobileViewport || force || widthChanged) {
+    stableViewportWidth = width;
+    document.documentElement.style.setProperty("--app-height", `${height}px`);
+  }
+}
 
 const popupScene = new THREE.Scene();
 const popupCamera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
