@@ -29,17 +29,18 @@ function StoryEntry({ s, i, groups = [], chapterRef }) {
     ? s.sections
     : [{ label: 'Together', text: s.body }];
 
-  // Every chapter uses the same format: full-width on the RIGHT side of the
-  // spine, photos in the rail to the left, and the two POVs (Lizzy / Ian) side
-  // by side.
-  const isSplit = true;
-  const isRightHalf = true;
+  // Most chapters are full-width on the RIGHT of the spine with the two POVs
+  // (Lizzy / Ian) side by side. Chapters 5 & 6 (i 4, 5) instead are half-width,
+  // single-column entries stacked in the right column.
+  const isHalf = i === 4 || i === 5;
+  const isSplit = !isHalf;
+  const isRightHalf = !isHalf;
   const isLeftHalf = false;
-  const gridSpan = { gridColumn: '1 / -1' };
+  const gridSpan = isHalf ? undefined : { gridColumn: '1 / -1' };
 
   return (
     <div ref={chapterRef}
-         className={`story-chapter ${isSplit ? 'story-chapter-split' : ''} ${isLeftHalf ? 'story-chapter-left' : ''} ${isRightHalf ? 'story-chapter-right' : ''}`}
+         className={`story-chapter ${isSplit ? 'story-chapter-split' : ''} ${isLeftHalf ? 'story-chapter-left' : ''} ${isRightHalf ? 'story-chapter-right' : ''} ${isHalf ? 'story-chapter-half' : ''}`}
          style={gridSpan}>
       {hasDesktopPhotos && (
         <div className={`story-desktop-photos ${groups.length > 1 ? 'stacked' : ''}`}>

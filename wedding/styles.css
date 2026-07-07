@@ -716,7 +716,10 @@ body { overflow-x: hidden; }
   text-transform: uppercase;
   color: #7a7068;
   margin-top: 16px;
-  display: block;
+  display: none; /* shown on mobile only (see media query below) */
+}
+@media (max-width: 767px) {
+  .event-time-label { display: block; }
 }
 
 /* Schedule — all text in light champagne (footer bg color) */
@@ -1128,6 +1131,15 @@ body { overflow-x: hidden; }
    photos in the default rail position to the left. */
 .story-chapter-right {
   grid-column: 1 / -1;
+}
+
+/* Chapters 5 & 6: half-width single-column entries in the LEFT grid column, so
+   they sit in the same place as the other chapters' left edge (photos in the
+   rail to their left) at half the width, with the right column left empty. They
+   stack in the left column. Mobile collapses them to full width via the
+   .story-grid > div rule. */
+.story-chapter-half {
+  grid-column: 1 / 2;
 }
 
 .story-entry {
