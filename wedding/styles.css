@@ -80,7 +80,7 @@ body { overflow-x: hidden; }
 }
 .nav-links {
   display: flex;
-  gap: 36px;
+  gap: 22px;
   align-items: center;
 }
 .nav-link-modern {
@@ -92,22 +92,33 @@ body { overflow-x: hidden; }
   color: #7a7068;
   text-decoration: none;
   position: relative;
+  /* Roomy padding so the whole area is clickable, not just the 10px text. */
+  padding: 16px 10px;
   transition: color 0.3s ease;
 }
 .nav-link-modern::after {
   content: '';
   position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
+  bottom: 11px;            /* under the text, inside the padding */
+  left: 10px;
+  right: 10px;
   height: 1px;
   background: #6b2d3e;
-  transition: width 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.76, 0, 0.24, 1), background 0.4s ease;
 }
 .nav-link-modern:hover { color: #6b2d3e; }
-.nav-link-modern:hover::after { width: 100%; }
+.nav-link-modern:hover::after { transform: scaleX(1); }
 .nav-link-modern.active { color: #6b2d3e; }
-.nav-link-modern.active::after { width: 100%; }
+.nav-link-modern.active::after { transform: scaleX(1); }
+
+/* When the bar sits over a pink / dark section, switch text + underline to cream
+   (the gray reads badly on pink). Toggled by the .nav-dark class from nav.js. */
+.nav-modern.nav-dark .nav-link-modern { color: rgba(255, 243, 221, 0.82); }
+.nav-modern.nav-dark .nav-link-modern:hover,
+.nav-modern.nav-dark .nav-link-modern.active { color: #fff3dd; }
+.nav-modern.nav-dark .nav-link-modern::after { background: #fff3dd; }
 
 /* RSVP — same type as the other nav links, but framed as a gold outline chip
    that fills on hover, so it reads as a gentle CTA. */

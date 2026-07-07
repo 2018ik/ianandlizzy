@@ -4,41 +4,13 @@
 
 const { useState, useEffect, useRef, useCallback } = React;
 
-/* ── Lenis smooth scroll — single scroll source ──
-   One Lenis instance runs one requestAnimationFrame loop and emits a single
-   'scroll' event per frame. Every scroll-reactive effect subscribes through
-   onLenisScroll / useLenis instead of registering its own window 'scroll'
-   listener, so the whole page reacts off one consolidated source. Lenis scrolls
-   the real document, so window.scrollY and getBoundingClientRect stay accurate.
-
-   No velocity/parallax work is added here, and smooth scrolling is disabled —
-   this is purely listener consolidation. Lenis passes native scroll through
-   untouched (zero feel change) while giving us one scroll event source, so
-   per-frame cost matches the previous rAF-throttled handlers. */
-let _lenisResolved = false;
-let _lenisInstance = null;
-function getLenis() {
-  if (_lenisResolved) return _lenisInstance;
-  _lenisResolved = true;
-  if (typeof Lenis === 'undefined') return null; // CDN failed → native fallback
-  _lenisInstance = new Lenis({ smoothWheel: false, smoothTouch: false });
-  const raf = (time) => {
-    _lenisInstance.raf(time);
-    requestAnimationFrame(raf);
-  };
-  requestAnimationFrame(raf);
-  return _lenisInstance;
-}
-
-/* Subscribe a callback to scroll. Returns an unsubscribe fn. Uses Lenis when
-   available; otherwise falls back to the previous rAF-throttled native listener
-   so behaviour is identical if the library ever fails to load. */
-function onLenisScroll(callback) {
-  const lenis = getLenis();
-  if (lenis) {
-    lenis.on('scroll', callback);
-    return () => lenis.off('scroll', callback);
-  }
+/* ── Scroll subscription (native, rAF-throttled) ──
+   Every scroll-reactive effect subscribes through onScrollFrame / useScrollEffect
+   rather than registering its own listener. It's a plain passive `scroll`
+   listener throttled to one callback per animation frame, so native (including
+   iOS momentum) scrolling is completely untouched. window.scrollY and
+   getBoundingClientRect stay accurate. */
+function onScrollFrame(callback) {
   let raf = null;
   const handler = () => {
     if (raf == null) raf = requestAnimationFrame(() => { raf = null; callback(); });
@@ -52,10 +24,10 @@ function onLenisScroll(callback) {
 
 /* Hook form: runs the callback once on mount, on every scroll frame, and on
    resize. */
-function useLenis(callback, deps = []) {
+function useScrollEffect(callback, deps = []) {
   useEffect(() => {
     callback();
-    const unsub = onLenisScroll(callback);
+    const unsub = onScrollFrame(callback);
     const onResize = () => callback();
     window.addEventListener('resize', onResize);
     return () => {
@@ -96,7 +68,7 @@ function useReveal(options = {}) {
 /* ── Scroll progress (0-1) ── */
 function useScrollProgress() {
   const [progress, setProgress] = useState(0);
-  useLenis(() => {
+  useScrollEffect(() => {
     const h = document.documentElement.scrollHeight - window.innerHeight;
     setProgress(h > 0 ? window.scrollY / h : 0);
   });
@@ -172,7 +144,7 @@ function usePinnedHScroll() {
       track.style.transform = `translateX(${-(top / SLOW)}px)`;
     };
 
-    const unsubScroll = onLenisScroll(onScroll);
+    const unsubScroll = onScrollFrame(onScroll);
 
     return () => {
       cancelAnimationFrame(rafId);

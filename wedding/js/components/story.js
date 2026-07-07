@@ -178,7 +178,7 @@ function OurStory() {
     collect();
     layout();
     apply();
-    const unsub = onLenisScroll(apply);
+    const unsub = onScrollFrame(apply);
     const onResize = () => { collect(); layout(); apply(); };
     window.addEventListener('resize', onResize);
     let ro = null;

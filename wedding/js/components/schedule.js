@@ -58,7 +58,7 @@ function OrderOfEvents() {
     };
 
     onScroll();
-    const unsubScroll = onLenisScroll(onScroll);
+    const unsubScroll = onScrollFrame(onScroll);
     window.addEventListener('resize', onScroll);
     return () => {
       unsubScroll();

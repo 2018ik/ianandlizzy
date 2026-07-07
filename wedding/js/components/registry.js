@@ -40,7 +40,7 @@ function Registry() {
     };
 
     apply();
-    const unsubScroll = onLenisScroll(apply);
+    const unsubScroll = onScrollFrame(apply);
     window.addEventListener('resize', apply);
     return () => {
       unsubScroll();

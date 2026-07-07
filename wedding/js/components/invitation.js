@@ -8,8 +8,8 @@ function Invitation() {
   const eyebrowRef = useRef(null);   // split into chars for the per-char entrance
 
   // Desktop-only: scrub the rising engagement photo from slightly small to full
-  // as it travels up toward the viewport center. Native scroll drives it through
-  // the shared Lenis source; only transform is touched (GPU-composited).
+  // as it travels up toward the viewport center. Driven by the shared native
+  // scroll subscription; only transform is touched (GPU-composited).
   useEffect(() => {
     const el = heroRef.current;
     if (!el) return;
@@ -22,7 +22,7 @@ function Invitation() {
       el.style.transform = `translateY(18vh) scale(${(0.82 + p * 0.18).toFixed(4)})`;
     };
     apply();
-    const unsub = onLenisScroll(apply);
+    const unsub = onScrollFrame(apply);
     window.addEventListener('resize', apply);
     return () => { unsub(); window.removeEventListener('resize', apply); };
   }, []);

@@ -38,15 +38,24 @@ function App() {
     const lerp = (a, b, t) => Math.round(a + (b - a) * t);
     const mix = (t) => `rgb(${lerp(START[0], END[0], t)}, ${lerp(START[1], END[1], t)}, ${lerp(START[2], END[2], t)})`;
 
+    // Only repaint when the (integer-rounded) colour actually changes. The layer
+    // is full-viewport, so writing backgroundColor every frame forces a
+    // full-screen repaint each frame — expensive on mobile. This drops it to a
+    // repaint only every several frames, when a channel ticks over.
+    let lastColor = '';
     const apply = () => {
       const rect = wrapper.getBoundingClientRect();
       const total = rect.height - window.innerHeight;
       const p = total > 0 ? Math.max(0, Math.min(1, -rect.top / total)) : 0;
-      layer.style.backgroundColor = mix(p);
+      const color = mix(p);
+      if (color !== lastColor) {
+        layer.style.backgroundColor = color;
+        lastColor = color;
+      }
     };
 
     apply();
-    const unsubScroll = onLenisScroll(apply);
+    const unsubScroll = onScrollFrame(apply);
     window.addEventListener('resize', apply);
     return () => {
       unsubScroll();

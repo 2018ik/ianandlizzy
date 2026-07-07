@@ -108,16 +108,38 @@ function ScrollProgress() {
   );
 }
 
+/* Sections with a pink / dark background — the nav switches to cream text over
+   these so it doesn't read as muddy gray on pink. */
+const NAV_DARK_SECTIONS = new Set(['invitation', 'schedule', 'story', 'rsvp']);
+
 /* ── Nav ── */
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  const [navDark, setNavDark] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
     onScroll();
-    return onLenisScroll(onScroll);
+    return onScrollFrame(onScroll);
+  }, []);
+
+  // Track whichever section is directly under the bar (top strip of the
+  // viewport) and flip to cream text when it's a pink/dark one.
+  useEffect(() => {
+    const ids = ['home', 'invitation', 'schedule', 'story', 'registry', 'faqs', 'rsvp'];
+    const observers = ids.map((id) => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setNavDark(NAV_DARK_SECTIONS.has(id)); },
+        { rootMargin: '0px 0px -92% 0px' }   // ~top 8% strip = what's under the nav
+      );
+      obs.observe(el);
+      return obs;
+    });
+    return () => observers.forEach((o) => o && o.disconnect());
   }, []);
 
   useEffect(() => {
@@ -147,14 +169,14 @@ function Nav() {
 
   return (
     <>
-      <nav className={`nav-modern ${scrolled ? 'scrolled' : ''}`}>
+      <nav className={`nav-modern ${scrolled ? 'scrolled' : ''} ${navDark ? 'nav-dark' : ''}`}>
         <a href="/" style={{
           fontFamily: "'Fragment Mono', monospace",
           fontSize: '9px',
           fontWeight: 500,
           letterSpacing: '0.25em',
           textTransform: 'uppercase',
-          color: '#7a7068',
+          color: navDark ? '#fff3dd' : '#7a7068',
           textDecoration: 'none',
           display: 'inline-flex',
           alignItems: 'center',
@@ -164,7 +186,7 @@ function Nav() {
           position: 'relative',
           zIndex: 2,
           opacity: 1,
-          transition: 'opacity 0.4s ease',
+          transition: 'opacity 0.4s ease, color 0.4s ease',
         }}>← Our Room</a>
         <div style={{ display: 'flex', alignItems: 'center', gap: '36px', position: 'relative', zIndex: 2 }}>
           {/* Section links — only revealed once scrolled */}
