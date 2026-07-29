@@ -58,6 +58,8 @@ function RSVP() {
     note: '',
   });
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
+  const [errorMessage, setErrorMessage] = useState('');
+  const errorRef = React.useRef(null);
 
   // Gold confetti burst for the thank-you moment — small rectangular flecks
   // that pop radially outward in shades of gold.
@@ -79,13 +81,34 @@ function RSVP() {
     });
   }, []);
 
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const setValue = (k) => (value) => setForm((f) => ({ ...f, [k]: value }));
+  React.useEffect(() => {
+    if (status === 'error' && errorRef.current) {
+      errorRef.current.focus();
+      errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [status, errorMessage]);
+
+  const clearError = () => {
+    if (status === 'error') {
+      setStatus('idle');
+      setErrorMessage('');
+    }
+  };
+
+  const set = (k) => (e) => {
+    clearError();
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+  };
+  const setValue = (k) => (value) => {
+    clearError();
+    setForm((f) => ({ ...f, [k]: value }));
+  };
 
   const submit = async (e) => {
     e.preventDefault();
     if (status === 'sending' || !form.name.trim() || !form.attending) return;
     setStatus('sending');
+    setErrorMessage('');
     try {
       if (RSVP_ENDPOINT) {
         const res = await fetch(RSVP_ENDPOINT, {
@@ -93,10 +116,20 @@ function RSVP() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(form),
         });
-        if (!res.ok) throw new Error('bad status');
+        if (!res.ok) {
+          let message = 'Something went wrong — please try again.';
+          try {
+            const data = await res.json();
+            if (data && data.error) message = data.error;
+          } catch (parseError) {
+            // Keep the default message if the Worker does not return JSON.
+          }
+          throw new Error(message);
+        }
       }
       setStatus('done');
     } catch (err) {
+      setErrorMessage(err.message || 'Something went wrong — please try again.');
       setStatus('error');
     }
   };
@@ -258,20 +291,45 @@ function RSVP() {
             </div>
 
             <div style={{ textAlign: 'center', marginTop: '8px' }}>
+              {status === 'error' && (
+                <div
+                  ref={errorRef}
+                  role="alert"
+                  tabIndex="-1"
+                  style={{
+                    maxWidth: '44rem',
+                    margin: '0 auto 24px',
+                    padding: '18px 20px',
+                    textAlign: 'left',
+                    background: '#f8f5f0',
+                    border: '2px solid #d8b347',
+                    boxShadow: '0 18px 45px rgba(0, 0, 0, 0.2)',
+                    outline: 'none',
+                  }}
+                >
+                  <p style={{
+                    fontFamily: "'Fragment Mono', monospace",
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    color: '#6b2d3e',
+                    margin: '0 0 10px',
+                  }}>RSVP not sent</p>
+                  <p style={{
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    fontSize: '20px',
+                    lineHeight: 1.45,
+                    color: '#321923',
+                    margin: 0,
+                  }}>{errorMessage || 'Something went wrong. Please check your RSVP and try again.'}</p>
+                </div>
+              )}
               <button type="submit" className="magnetic-btn"
                       disabled={status === 'sending'}
                       style={{ cursor: status === 'sending' ? 'default' : 'pointer', opacity: status === 'sending' ? 0.6 : 1 }}>
-                {status === 'sending' ? 'Sending…' : 'Send RSVP →'}
+                {status === 'sending' ? 'Sending…' : status === 'error' ? 'Try again →' : 'Send RSVP →'}
               </button>
-              {status === 'error' && (
-                <p style={{
-                  fontFamily: "'Fragment Mono', monospace",
-                  fontSize: '11px',
-                  letterSpacing: '0.12em',
-                  color: '#b08a7a',
-                  marginTop: '16px',
-                }}>Something went wrong — please try again.</p>
-              )}
             </div>
           </form>
         )}
