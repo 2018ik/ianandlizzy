@@ -83,21 +83,33 @@ function PasswordGate({ onUnlock }) {
       padding: 'clamp(24px, 6vw, 80px)',
       textAlign: 'center',
     }}>
+      {/* monogram reused from hero */}
       <span style={{
-        fontFamily: "'Pinyon Script', cursive",
-        fontSize: 'clamp(64px, 12vw, 110px)',
-        color: '#6b2d3e',
-        lineHeight: 0.9,
-        marginBottom: '8px',
-      }}>I&amp;L</span>
+            fontSize: 'clamp(72px, 16vw, 120px)',
+            lineHeight: 0.85,
+            userSelect: 'none',
+            willChange: 'transform',
+            display: 'inline-block',
+          }}>
+            <span style={{
+              fontFamily: "'Pinyon Script', cursive",
+              color: '#6b2d3e',
+              position: 'relative',
+              zIndex: 1,
+            }}>I</span><span style={{
+              fontFamily: "'Luxurious Script', cursive",
+              color: '#6b2d3e',
+              marginLeft: '-0.28em',
+              position: 'relative',
+              zIndex: 0,
+            }}>L</span>
+          </span>
 
-      <span className="eyebrow" style={{ marginBottom: '28px' }}>Please enter the password</span>
 
       <p style={{
         fontFamily: "'Cormorant Garamond', Georgia, serif",
         fontWeight: 300,
-        fontStyle: 'italic',
-        fontSize: 'clamp(18px, 2.4vw, 24px)',
+        fontSize: 'clamp(14px, 2.4vw, 18px)',
         color: '#7a7068',
         maxWidth: '32rem',
         lineHeight: 1.6,
@@ -119,14 +131,13 @@ function PasswordGate({ onUnlock }) {
           type="password"
           value={password}
           onChange={(e) => { setPassword(e.target.value); if (status === 'error') setStatus('idle'); }}
-          placeholder="Password"
+          placeholder="Please enter the password"
           autoComplete="off"
           className="pw-input"
           style={{
             width: '100%',
-            padding: '14px 18px',
-            fontFamily: "'Fragment Mono', monospace",
-            letterSpacing: '0.15em',
+            padding: '4px 12px',
+            fontFamily: "'Cormorant Garamond', serif",
             textAlign: 'center',
             color: '#6b2d3e',
             background: 'transparent',
@@ -150,7 +161,6 @@ function PasswordGate({ onUnlock }) {
         <span style={{
           fontFamily: "'Fragment Mono', monospace",
           fontSize: '11px',
-          letterSpacing: '0.12em',
           color: '#b08a7a',
           minHeight: '16px',
           opacity: status === 'error' ? 1 : 0,
